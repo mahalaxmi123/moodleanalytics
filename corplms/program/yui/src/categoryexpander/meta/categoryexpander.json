@@ -1,0 +1,8 @@
+{
+  "moodle-corplms_program-categoryexpander": {
+    "requires": [
+        "node",
+        "event-key"
+    ]
+  }
+}

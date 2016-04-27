@@ -1,0 +1,8 @@
+.dir-rtl .block_corplms_certifications .name {
+    float: right;
+}
+
+.block_corplms_certifications ul {
+    list-style-type: none;
+    margin: 0;
+}

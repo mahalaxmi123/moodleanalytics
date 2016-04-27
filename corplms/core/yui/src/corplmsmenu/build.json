@@ -1,0 +1,10 @@
+{
+    "name": "moodle-corplms_core-corplmsmenu",
+    "builds": {
+        "moodle-corplms_core-corplmsmenu": {
+            "jsfiles": [
+                "corplmsmenu.js"
+            ]
+        }
+    }
+}

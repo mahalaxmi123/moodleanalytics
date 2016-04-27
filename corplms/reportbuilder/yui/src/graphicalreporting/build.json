@@ -1,0 +1,10 @@
+{
+    "name": "moodle-corplms_reportbuilder-graphicalreporting",
+    "builds": {
+        "moodle-corplms_reportbuilder-graphicalreporting": {
+            "jsfiles": [
+                "graphicalreporting.js"
+            ]
+        }
+    }
+}

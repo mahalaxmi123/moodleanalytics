@@ -1,0 +1,7 @@
+{
+    "moodle-corplms_core-corplmsmenu": {
+        "requires": [
+            "jquery"
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+.block_corplms_alerts ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+.block_corplms_alerts li {
+    padding: 5px;
+}
+
+.block_corplms_alerts li .information {
+    float: right;
+    margin-top: 5px;
+}
+
+.block_corplms_alerts li :first-child {
+    margin-right: 3px;
+}
+.block_corplms_alerts li a {
+    vertical-align: top;
+}
+.block_corplms_alerts li span {
+    display: inline-block;
+    vertical-align: top;
+    padding-top: 10px;
+    padding-left: 3px;
+}

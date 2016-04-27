@@ -1,0 +1,10 @@
+{
+  "name": "moodle-corplms_program-categoryexpander",
+  "builds": {
+    "moodle-corplms_program-categoryexpander": {
+      "jsfiles": [
+        "categoryexpander.js"
+      ]
+    }
+  }
+}

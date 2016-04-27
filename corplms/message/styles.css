@@ -1,0 +1,28 @@
+#corplms-msgs-dismiss dt,
+#corplms-msgs-dismiss label {
+    width: 15%;
+    display: inline-block;
+    min-width: 70px;
+    vertical-align: top;
+    font-weight: bold;
+}
+
+#corplms-msgs-dismiss dd,
+#corplms-msgs-dismiss input {
+    width: 80%;
+    display: inline-block;
+}
+
+#corplms-msgs-dismiss dd,
+#corplms-msgs-dismiss input,
+#corplms-msgs-dismiss dt,
+#corplms-msgs-dismiss label {
+    padding-top: 10px;
+}
+
+#corplms_message_actions input[type=submit] {
+    display: none;
+}
+.jsenabled #corplms_message_actions input[type=submit] {
+    display: inline-block;
+}
