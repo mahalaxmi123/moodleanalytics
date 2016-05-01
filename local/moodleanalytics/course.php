@@ -12,6 +12,7 @@ require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 
 $courseid = optional_param('id', SITEID, PARAM_INT);        // course id
+$charttype = optional_param('type', '', PARAM_ALPHANUM);
 $context = context_course::instance($courseid);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
@@ -46,9 +47,9 @@ foreach ($report->grades as $grades => $grade) {
             $gradeheaders[$gradeval->grade_item->itemname] = $gradeval->grade_item->itemname;
             $itemname = $gradeval->grade_item->itemname;
             if (isset($json_grades)) {
-                $json_grades[$gradeval->userid] .= $gradeval->finalgrade . ',';
+                $json_grades[$gradeval->userid] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
             } else {
-                $json_grades[$gradeval->userid] = $gradeval->finalgrade . ',';
+                $json_grades[$gradeval->userid] = (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
             }
         }
     }
@@ -63,6 +64,20 @@ $gradeheaders_array = array();
 foreach ($gradeheaders as $key => $head) {
     $gradeheaders_array[] = "'" . $head . "'";
 }
+$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
+$courselist = get_courses();
+$courses = array();
+foreach ($courselist as $course) {
+    $courses[$course->id] = $course->fullname;
+}
+$formcontent = html_writer::start_tag('div');
+$formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php?id=' . $courseid), 'method' => 'post'));
+$formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid);
+$formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
+$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
+$formcontent .= html_writer::end_tag('form');
+$formcontent .= html_writer::end_tag('div');
+echo $formcontent;
 ?>
 <script type = "text/javascript"
         src = "https://www.google.com/jsapi?autoload={
@@ -81,8 +96,8 @@ foreach ($gradeheaders as $key => $head) {
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
             function drawChart() {
-            var data = google.visualization.arrayToDataTable([[<?php echo implode(',',$gradeheaders_array); ?>], <?php echo implode(',',$json_grades_array); ?>]);
-                    var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
+            var data = google.visualization.arrayToDataTable([[<?php echo implode(',', $gradeheaders_array); ?>], <?php echo implode(',', $json_grades_array); ?>]);
+                    var chart = new google.visualization.<?php echo $charttype ? $chartoptions[$charttype] : $chartoptions[5]; ?>(document.getElementById('course-grade'));
                     chart.draw(data, {});
             }
 </script>
