@@ -5,20 +5,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-require_once('../../config.php');
+global $CFG;
+require('../../config.php');
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 
-$courseid = required_param('id', PARAM_INT);        // course id
+$courseid = optional_param('id',SITEID, PARAM_INT);        // course id
 $context = context_course::instance($courseid);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $pageparams = array();
-$PAGE->set_url('/local/accesscard/index.php');
-$returnurl = new moodle_url($CFG->wwwroot . '/local/accesscard/index.php');
+$PAGE->set_url('/local/moodleanalytics/course.php');
+$returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php');
 
 // basic access checks
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
@@ -40,4 +40,6 @@ $numusers = $report->get_numusers(true, true);
 // final grades MUST be loaded after the processing
 $report->load_users();
 $report->load_final_grades();
+foreach ($report->grades as $grades => $grade) {
+}
 echo $OUTPUT->footer();

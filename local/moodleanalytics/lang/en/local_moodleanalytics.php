@@ -12,3 +12,5 @@ $string['local/moodleanalytics:view'] = 'View moodle analytics';
 $string['local/moodleanalytics:manage'] = 'Manage moodle analytics';
 $string['moodleanalytics:view'] = 'View moodle analytics';
 $string['moodleanalytics:manage'] = 'Manage moodle analytics';
+$string['analytics'] = 'Analytics';
+$string['course'] = 'Course';
