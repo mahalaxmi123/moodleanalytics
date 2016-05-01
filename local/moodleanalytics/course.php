@@ -1,5 +1,4 @@
 <?php
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,7 +11,7 @@ require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 
-$courseid = optional_param('id',SITEID, PARAM_INT);        // course id
+$courseid = optional_param('id', SITEID, PARAM_INT);        // course id
 $context = context_course::instance($courseid);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
@@ -40,6 +39,52 @@ $numusers = $report->get_numusers(true, true);
 // final grades MUST be loaded after the processing
 $report->load_users();
 $report->load_final_grades();
+$json_grades = array();
 foreach ($report->grades as $grades => $grade) {
+    foreach ($grade as $gradeval) {
+        if ($gradeval->grade_item->itemtype != 'course') {
+            $gradeheaders[$gradeval->grade_item->itemname] = $gradeval->grade_item->itemname;
+            $itemname = $gradeval->grade_item->itemname;
+            if (isset($json_grades)) {
+                $json_grades[$gradeval->userid] .= $gradeval->finalgrade . ',';
+            } else {
+                $json_grades[$gradeval->userid] = $gradeval->finalgrade . ',';
+            }
+        }
+    }
 }
+$json_grades_array = array();
+foreach ($json_grades as $key => $grade_info) {
+    $grade_info = TRIM($grade_info, ',');
+    $json_grades_array[] = "[" . $grade_info . "]";
+}
+
+$gradeheaders_array = array();
+foreach ($gradeheaders as $key => $head) {
+    $gradeheaders_array[] = "'" . $head . "'";
+}
+?>
+<script type = "text/javascript"
+        src = "https://www.google.com/jsapi?autoload={
+        'modules':[{
+        'name':'visualization',
+        'version':'1',
+        'packages':['corechart','geochart']
+        }]
+}"></script>
+<div>
+    <div class="box45 pull-left">
+        <h3>Course Grade Report</h3>
+        <div id="course-grade" style="width:500px; height:500px;"></div>
+    </div>
+</div>
+<script type="text/javascript">
+            google.setOnLoadCallback(drawChart);
+            function drawChart() {
+            var data = google.visualization.arrayToDataTable([[<?php echo implode(',',$gradeheaders_array); ?>], <?php echo implode(',',$json_grades_array); ?>]);
+                    var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
+                    chart.draw(data, {});
+            }
+</script>
+<?php
 echo $OUTPUT->footer();
