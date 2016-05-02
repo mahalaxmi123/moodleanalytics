@@ -11,7 +11,7 @@ require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_login();
-$courseid = optional_param('id', 0, PARAM_INT);        // course id
+$courseid = optional_param('id', SITEID, PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $userid = optional_param('userid', 0, PARAM_INT);
 $context = context_course::instance($courseid);
@@ -41,7 +41,7 @@ foreach ($report->grades as $grades => $grade) {
     foreach ($grade as $gradeval) {
         if ($gradeval->grade_item->itemtype != 'course') {
             if (!empty($userid) && ($gradeval->userid == $userid)) {
-                $json_grades[$gradeval->grade_item->itemname] = "'".$gradeval->grade_item->itemname . "'".',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
+                $json_grades[$gradeval->grade_item->itemname] = "'" . $gradeval->grade_item->itemname . "'" . ',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
             }
         }
     }
@@ -49,7 +49,7 @@ foreach ($report->grades as $grades => $grade) {
 $json_grades_array = array();
 foreach ($json_grades as $key => $grade_info) {
     $grade_info = TRIM($grade_info, ',');
-    $json_grades_array[] = "[" .$grade_info . "]";
+    $json_grades_array[] = "[" . $grade_info . "]";
 }
 $gradeheaders = '';
 $user = $DB->get_record('user', array('id' => $userid));
@@ -91,8 +91,8 @@ echo $formcontent;
             function drawChart() {
             var data = new google.visualization.DataTable();
                     data.addColumn('string',<?php echo $gradeheaders; ?>);
-                    data.addColumn('number','Grade value');
-                    data.addRows([<?php echo implode(',',$json_grades_array); ?>]);
+                    data.addColumn('number', 'Grade value');
+                    data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
                     var chart = new google.charts.Line(document.getElementById('course-grade'));
                     chart.draw(data, {
                     });
