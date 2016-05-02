@@ -30,7 +30,7 @@ $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', '
 grade_regrade_final_grades($courseid);
 //Initialise the grader report object that produces the table
 //the class grade_report_grader_ajax was removed as part of MDL-21562
-$report = new grade_report_grader($courseid, $gpr, $context, $page, $sortitemid);
+$report = new grade_report_grader($courseid, $gpr, $context);
 $numusers = $report->get_numusers(true, true);
 
 // final grades MUST be loaded after the processing
