@@ -90,7 +90,7 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3>Course Grade Report</h3>
-        <div id="course-grade" style="width:500px; height:500px;"></div>
+        <div id="course-grade" style="width:600px; height:600px;"></div>
     </div>
 </div>
 <script type="text/javascript">
