@@ -21,11 +21,6 @@ $pageparams = array();
 $PAGE->set_url('/local/moodleanalytics/course.php');
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php');
 
-// basic access checks
-if (!$course = $DB->get_record('course', array('id' => $courseid))) {
-    print_error('nocourseid');
-}
-
 $reportname = get_string('course', 'gradereport_grader');
 echo $OUTPUT->header();
 // return tracking object
