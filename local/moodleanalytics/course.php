@@ -10,7 +10,7 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
-
+require_login();
 $courseid = optional_param('id', SITEID, PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $context = context_course::instance($courseid);
@@ -90,7 +90,7 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3>Course Grade Report</h3>
-        <div id="course-grade" style="width:600px; height:600px;"></div>
+        <div id="course-grade" style="width:960px; height:600px;"></div>
     </div>
 </div>
 <script type="text/javascript">
