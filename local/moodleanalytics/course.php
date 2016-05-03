@@ -11,12 +11,15 @@ require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_login();
-$courseid = optional_param('id', SITEID, PARAM_INT);        // course id
+$courseid = optional_param('id', 0, PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
 $userid = optional_param('userid', 0, PARAM_INT);
-$context = context_course::instance($courseid);
+$context = context_system::instance();
+if (!empty($courseid)) {
+    $context = context_course::instance($courseid);
+}
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $pageparams = array();
@@ -66,12 +69,15 @@ foreach ($json_grades as $key => $grade_info) {
 $gradeheaders = '';
 if (!empty($userid)) {
     $user = $DB->get_record('user', array('id' => $userid));
-    $gradeheaders = "'" . $user->username . "'";
+    $gradeheaders = "'" . $user->username . " - Grade '";
 }
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart');
 $courselist = get_courses();
-$userlist = get_course_users($courseid);
+$userlist = array();
+if (!empty($courseid)) {
+    $userlist = get_course_users($courseid);
+}
 $courses = array();
 foreach ($courselist as $course) {
     if ($course != SITEID) {
@@ -107,11 +113,18 @@ echo $formcontent;
             google.setOnLoadCallback(drawChart);
             function drawChart() {             var data = new google.visualization.DataTable();
                     data.addColumn('string',<?php echo $gradeheaders; ?>);
-                    data.addColumn('number', 'Grade value');
+                    data.addColumn('number',<?php echo $gradeheaders; ?>);
                     data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
-                    var chart = new google.charts.Line(document.getElementById('course-grade'));
-                    chart.draw(data, {
-                    });
+                    var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
+                    var options = {
+                    hAxis: {
+                    title: 'Activities'
+                    },
+                            vAxis: {
+                            title: 'Grades'
+                            },
+                    };
+                    chart.draw(data, options);
             }
 </script>
 <?php
