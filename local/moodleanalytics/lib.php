@@ -46,9 +46,11 @@ function get_enrollments_per_course($params) {
 
 function get_course_users($courseid) {
     $users_list = array();
-    $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
-    foreach ($users as $user) {
-        $users_list[$user->id] = $user->username;
+    if (!empty($courseid)) {
+        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
+        foreach ($users as $user) {
+            $users_list[$user->id] = $user->username;
+        }
     }
     return $users_list;
 }

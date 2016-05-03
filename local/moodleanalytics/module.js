@@ -7,7 +7,7 @@
 
 $(document).ready(function () {
 
-    $("select[name='id']").change(function () {
+    $('#coursedropdown').change(function () {
 
 
         $.getJSON("ajax.php", {id: $(this).val(), fname: 'get_course_users', ajax: 'true'}, function (j) {
@@ -18,8 +18,8 @@ $(document).ready(function () {
                     options += '<option value="' + key + '">' + j[key] + '</option>';
                 }
             }
-            $("select[name='userid']").html(options);
-            $("select[name='userid']").prepend("<option value='' selected='selected'>Select User</option>");
+            $('#userdropdown').html(options);
+            $('#userdropdown').prepend("<option value='' selected='selected'>Select User</option>");
 
         })
 

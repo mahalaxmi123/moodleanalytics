@@ -22,7 +22,6 @@ if ($functionname) {
     switch ($functionname) {
 
         case "get_course_users":
-            print_object($courseid);
             $courseid = optional_param('id', 0, PARAM_INT);
             $result = get_course_users($courseid);
             $result = json_encode($result);

@@ -11,7 +11,7 @@ require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_login();
-$courseid = optional_param('id', 0, PARAM_INT);        // course id
+$courseid = optional_param('id', '', PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
@@ -74,10 +74,7 @@ if (!empty($userid)) {
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart');
 $courselist = get_courses();
-$userlist = array();
-if (!empty($courseid)) {
-    $userlist = get_course_users($courseid);
-}
+$userlist = get_course_users($courseid);
 $courses = array();
 foreach ($courselist as $course) {
     if ($course != SITEID) {
@@ -86,9 +83,9 @@ foreach ($courselist as $course) {
 }
 $formcontent = html_writer::start_tag('div');
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php?id=' . $courseid), 'method' => 'post'));
-$formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid);
+$formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
-$formcontent .= 'User : ' . html_writer::select($userlist, 'userid', $userid);
+$formcontent .= 'User : ' . html_writer::select($userlist, 'userid', $userid, array('' => 'Select User'), array('id' => 'userdropdown'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -112,8 +109,8 @@ echo $formcontent;
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
             function drawChart() {             var data = new google.visualization.DataTable();
-                    data.addColumn('string',<?php echo $gradeheaders; ?>);
-                    data.addColumn('number',<?php echo $gradeheaders; ?>);
+                    data.addColumn('string',<?php echo isset($gradeheaders) ? $gradeheaders : ''; ?>);
+                    data.addColumn('number',<?php echo isset($gradeheaders) ? $gradeheaders : ''; ?>);
                     data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
                     var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
                     var options = {
