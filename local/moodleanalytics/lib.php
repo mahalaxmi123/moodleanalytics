@@ -6,10 +6,10 @@
  * and open the template in the editor.
  */
 
-require_once($CFG->libdir.'/gradelib.php');
-require_once($CFG->dirroot.'/user/renderer.php');
-require_once($CFG->dirroot.'/grade/lib.php');
-require_once($CFG->dirroot.'/grade/report/grader/lib.php');
+require_once($CFG->libdir . '/gradelib.php');
+require_once($CFG->dirroot . '/user/renderer.php');
+require_once($CFG->dirroot . '/grade/lib.php');
+require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 
 function get_teacher_sql($params, $column, $type) {
     $sql = '';
@@ -40,9 +40,15 @@ function get_enrollments_per_course($params) {
     return $DB->get_records_sql($sql1);
 }
 
-/* Return course grader
+/* Return course users
  * @param : courseid int
  */
-function get_course_grader_data($courseid){
-    
+
+function get_course_users($courseid) {
+    $users_list = array();
+    $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
+    foreach ($users as $user) {
+        $users_list[$user->id] = $user->username;
+    }
+    return $users_list;
 }
