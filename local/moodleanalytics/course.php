@@ -15,7 +15,8 @@ $courseid = optional_param('id', '', PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
-$userid = optional_param('userid', 0, PARAM_INT);
+//$userid = optional_param('userid', 0, PARAM_INT);
+$users = optional_param_array('userid', '', PARAM_INT);
 $context = context_system::instance();
 if (!empty($courseid)) {
     $context = context_course::instance($courseid);
@@ -33,7 +34,7 @@ if ($reset) {
 $reportname = get_string('course');
 echo $OUTPUT->header();
 // return tracking object
-if (!empty($submit) && !empty($courseid) && !empty($userid)) {
+if (!empty($submit) && !empty($courseid) && !empty($users)) {
     $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
 
 //first make sure we have proper final grades - this must be done before constructing of the grade tree
@@ -52,10 +53,16 @@ if (!empty($submit) && !empty($courseid) && !empty($userid)) {
 $json_grades = array();
 if (!empty($report) && !empty($report->grades)) {
     foreach ($report->grades as $grades => $grade) {
-        foreach ($grade as $gradeval) {
-            if ($gradeval->grade_item->itemtype != 'course') {
-                if (!empty($userid) && ($gradeval->userid == $userid)) {
-                    $json_grades[$gradeval->grade_item->itemname] = "'" . $gradeval->grade_item->itemname . "'" . ',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
+        foreach ($users as $key => $userid) {
+            foreach ($grade as $gradeval) {
+                if ($gradeval->grade_item->itemtype != 'course') {
+                    if (!empty($userid) && ($gradeval->userid == $userid)) {
+                        if (!empty($json_grades[$gradeval->grade_item->itemname])) {
+                            $json_grades[$gradeval->grade_item->itemname] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
+                        } else {
+                            $json_grades[$gradeval->grade_item->itemname] = "'" . $gradeval->grade_item->itemname . "'" . ',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
+                        }
+                    }
                 }
             }
         }
@@ -66,10 +73,12 @@ foreach ($json_grades as $key => $grade_info) {
     $grade_info = TRIM($grade_info, ',');
     $json_grades_array[] = "[" . $grade_info . "]";
 }
-$gradeheaders = '';
-if (!empty($userid)) {
-    $user = $DB->get_record('user', array('id' => $userid));
-    $gradeheaders = "'" . $user->username . " - Grade '";
+$gradeheaders = array();
+if (!empty($users)) {
+    foreach ($users as $key => $userid) {
+        $user = $DB->get_record('user', array('id' => $userid));
+        $gradeheaders[] = "'" . $user->username . " - Grade '";
+    }
 }
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart');
@@ -85,7 +94,7 @@ $formcontent = html_writer::start_tag('div');
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php?id=' . $courseid), 'method' => 'post'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
-$formcontent .= 'User : ' . html_writer::select($userlist, 'userid', $userid, array('' => 'Select User'), array('id' => 'userdropdown'));
+$formcontent .= 'User : ' . html_writer::select($userlist, 'userid[]', $users, array('' => 'Select User'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -103,15 +112,17 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3>Course Progress Report</h3>
-        <div id="course-grade" style="width:960px; height:600px;"></div>
+        <div id="course-grade" style="width:800px; height:600px;"></div>
     </div>
 </div>
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
             function drawChart() {             var data = new google.visualization.DataTable();
-                    data.addColumn('string',<?php echo isset($gradeheaders) ? $gradeheaders : ''; ?>);
-                    data.addColumn('number',<?php echo isset($gradeheaders) ? $gradeheaders : ''; ?>);
-                    data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
+                    data.addColumn('string', 'Activities');
+<?php foreach ($gradeheaders as $gradehead) { ?>
+                data.addColumn('number',<?php echo $gradehead; ?>);
+<?php } ?>
+            data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
                     var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
