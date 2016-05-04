@@ -67,7 +67,22 @@ if (!empty($report) && !empty($report->grades)) {
             }
         }
     }
+    $averagegrade = $report->get_right_avg_row();
+    $actavggrade = array();
+    foreach ($averagegrade as $avggradvalue) {
+        foreach ($avggradvalue->cells as $avggrade) {
+            if (!empty($avggrade->text)) {
+                $actavggrade[] = floatval($avggrade->text);
+            }
+        }
+    }
+    $count = 0;
+    foreach ($json_grades as $key => $value) {
+        $json_grades[$key] .= $actavggrade[$count] . ',';
+        $count++;
+    }
 }
+
 $json_grades_array = array();
 foreach ($json_grades as $key => $grade_info) {
     $grade_info = TRIM($grade_info, ',');
@@ -80,6 +95,7 @@ if (!empty($users)) {
         $gradeheaders[] = "'" . $user->username . " - Grade '";
     }
 }
+$gradeheaders[] = "'".'trendline'."'";
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
