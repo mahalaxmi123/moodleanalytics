@@ -81,7 +81,7 @@ if (!empty($users)) {
     }
 }
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
-$chartoptions = array(1 => 'LineChart');
+$chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
 $userlist = get_course_users($courseid);
 $courses = array();
@@ -112,7 +112,7 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3>Course Progress Report</h3>
-        <div id="course-grade" style="width:800px; height:600px;"></div>
+        <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>
 </div>
 <script type="text/javascript">
@@ -123,7 +123,7 @@ echo $formcontent;
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } ?>
             data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
-                    var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
+                    var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
                     title: 'Activities'
@@ -131,6 +131,10 @@ echo $formcontent;
                             vAxis: {
                             title: 'Grades'
                             },
+<?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
+                        seriesType: 'bars',
+                                series: {2: {type: 'line'}}
+<?php } ?>
                     };
                     chart.draw(data, options);
             }
