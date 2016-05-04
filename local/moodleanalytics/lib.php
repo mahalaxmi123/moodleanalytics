@@ -45,9 +45,12 @@ function get_enrollments_per_course($params) {
  */
 
 function get_course_users($courseid) {
+    global $DB;
     $users_list = array();
     if (!empty($courseid)) {
-        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
+        $role = $DB->get_record('role', array('shortname' => 'student'));
+        $users = get_role_users($role->id, CONTEXT_COURSE::instance($courseid));
+//        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
         foreach ($users as $user) {
             $users_list[$user->id] = $user->username;
         }
