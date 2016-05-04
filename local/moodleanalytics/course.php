@@ -95,7 +95,7 @@ if (!empty($users)) {
         $gradeheaders[] = "'" . $user->username . " - Grade '";
     }
 }
-$gradeheaders[] = "'".'trendline'."'";
+$gradeheaders[] = "'" . 'Trendline' . "'";
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
