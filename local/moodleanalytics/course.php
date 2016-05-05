@@ -33,6 +33,7 @@ if ($reset) {
 }
 $reportname = get_string('course');
 echo $OUTPUT->header();
+$errors = array();
 // return tracking object
 if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
     $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
@@ -49,13 +50,16 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
     $report->load_final_grades();
 } elseif (!empty($submit)) {
     if (empty($courseid)) {
-        echo $OUTPUT->notification('Select Course');
+        $errors[] = 'Course';
     }
     if (empty($charttype)) {
-        echo $OUTPUT->notification('Select Chart Type');
+        $errors[] = 'Chart Type';
+    }
+    if (empty($users)) {
+        $errors[] = 'Users';
     }
 } else {
-    echo $OUTPUT->notification('Choose the filters');
+    echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 }
 
 $json_grades = array();
@@ -100,14 +104,15 @@ foreach ($json_grades as $key => $grade_info) {
 $gradeheaders = array();
 if (!empty($users)) {
     foreach ($users as $key => $userid) {
-        if($userid !== 0) {
+        if ($userid !== 0) {
             $user = $DB->get_record('user', array('id' => $userid));
             $gradeheaders[] = "'" . $user->username . " - Grade '";
         } else {
-            echo $OUTPUT->notification('Select Users');
+            $errors[] = 'Users';
         }
     }
 }
+
 $gradeheaders[] = "'" . 'activities average' . "'";
 $position = array_search("'" . 'activities average' . "'", $gradeheaders);
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
@@ -121,6 +126,10 @@ foreach ($courselist as $course) {
     }
 }
 $formcontent = html_writer::start_tag('div');
+if (!empty($errors)) {
+    $error = implode(", ", $errors);
+    $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
+}
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
@@ -142,7 +151,7 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3>Course Progress Report</h3>
-        <div id="course-grade" style="width:800px; height:600px;"></div>
+        <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>
 </div>
 <script type="text/javascript">
@@ -163,14 +172,17 @@ echo $formcontent;
                             },
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
-                                series: {<?php if(!empty($position)){echo $position;} ?>: {type: 'line'}},
-//                                    trendlines : {<?php echo $position; ?>:{
-    //                                type: 'exponential',
-    //                                        color: 'green',
-    //                                        visibleInLegend: true,
-    //                                        pointVisible : true,
-    //                                        pointSize : 10,
-    //                                }},
+                                series: {<?php if (!empty($position)) {
+        echo $position;
+    } ?>: {type: 'line'}},
+                                //                                    trendlines : {<?php echo $position; ?>:{
+                                //                                type: 'exponential',
+                                //                                        color: 'green',
+                                //                                        visibleInLegend: true,
+                                //                                        pointVisible : true,
+                                //                                        pointSize : 10,
+                                //                                }},
+
 <?php } ?>
                     };
                     chart.draw(data, options);
