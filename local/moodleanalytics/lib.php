@@ -52,7 +52,7 @@ function get_course_users($courseid) {
         $users = get_role_users($role->id, CONTEXT_COURSE::instance($courseid));
 //        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
         foreach ($users as $user) {
-            $users_list[$user->id] = $user->username;
+            $users_list[$user->username] = $user->username;
         }
     }
     return $users_list;

@@ -16,7 +16,7 @@ $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
 //$userid = optional_param('userid', 0, PARAM_INT);
-$users = optional_param_array('userid', '', PARAM_INT);
+$users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
 if (!empty($courseid)) {
     $context = context_course::instance($courseid);
@@ -45,6 +45,12 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
     $report = new grade_report_grader($courseid, $gpr, $context);
     $numusers = $report->get_numusers(true, true);
 
+    $activities = array();
+    if (!empty($report->gtree->top_element['children'])) {
+        foreach ($report->gtree->top_element['children'] as $children) {
+            $activities[$children['eid']] = $children['object']->itemname;
+        }
+    }
 // final grades MUST be loaded after the processing
     $report->load_users();
     $report->load_final_grades();
@@ -65,10 +71,11 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
 $json_grades = array();
 if (!empty($report) && !empty($report->grades)) {
     foreach ($report->grades as $grades => $grade) {
-        foreach ($users as $key => $userid) {
+        foreach ($users as $key => $username) {
+            $user = $DB->get_record('user', array('username' => $username));
             foreach ($grade as $gradeval) {
                 if ($gradeval->grade_item->itemtype != 'course') {
-                    if (!empty($userid) && ($gradeval->userid == $userid)) {
+                    if (!empty($user->id) && ($gradeval->userid == $user->id)) {
                         if (!empty($json_grades[$gradeval->grade_item->itemname])) {
                             $json_grades[$gradeval->grade_item->itemname] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
                         } else {
@@ -84,15 +91,18 @@ if (!empty($report) && !empty($report->grades)) {
     $actavggrade = array();
     foreach ($averagegrade as $avggradvalue) {
         foreach ($avggradvalue->cells as $avggrade) {
+            $actitemname = '';
+            $attrclass = $avggrade->attributes['class'];
+            if (isset($attrclass) && isset($activities[$attrclass])) {
+                $actitemname = $activities[$attrclass];
+            }
             if (!empty($avggrade->text)) {
-                $actavggrade[] = floatval($avggrade->text);
+                $actavggrade[$actitemname] = floatval($avggrade->text);
             }
         }
     }
-    $count = 0;
     foreach ($json_grades as $key => $value) {
-        $json_grades[$key] .= $actavggrade[$count] . ',';
-        $count++;
+        $json_grades[$key] .= $actavggrade[$key] . ',';
     }
 }
 
@@ -103,10 +113,9 @@ foreach ($json_grades as $key => $grade_info) {
 }
 $gradeheaders = array();
 if (!empty($users)) {
-    foreach ($users as $key => $userid) {
-        if ($userid !== 0) {
-            $user = $DB->get_record('user', array('id' => $userid));
-            $gradeheaders[] = "'" . $user->username . " - Grade '";
+    foreach ($users as $key => $username) {
+        if (!empty($username)) {
+            $gradeheaders[] = "'" . $username . " - Grade '";
         } else {
             $errors[] = 'Users';
         }
@@ -133,7 +142,7 @@ if (!empty($errors)) {
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
-$formcontent .= 'User : ' . html_writer::select($userlist, 'userid[]', $users, array('' => 'Select User'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
+$formcontent .= 'User : ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -156,7 +165,8 @@ echo $formcontent;
 </div>
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
-            function drawChart() {             var data = new google.visualization.DataTable();
+            function drawChart() {
+            var data = new google.visualization.DataTable();
                     data.addColumn('string', 'Activities');
 <?php foreach ($gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
@@ -165,16 +175,18 @@ echo $formcontent;
                     var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
-                    title: 'Activities'
+                    title: 'Activities',
                     },
                             vAxis: {
-                            title: 'Grades'
+                            title: 'Grades',
                             },
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
-                                series: {<?php if (!empty($position)) {
+                                series: {<?php
+    if (!empty($position)) {
         echo $position;
-    } ?>: {type: 'line'}},
+    }
+    ?>: {type: 'line', color : 'black'}},
                                 //                                    trendlines : {<?php echo $position; ?>:{
                                 //                                type: 'exponential',
                                 //                                        color: 'green',
