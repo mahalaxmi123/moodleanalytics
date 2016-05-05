@@ -102,7 +102,7 @@ $courselist = get_courses();
 $userlist = get_course_users($courseid);
 $courses = array();
 foreach ($courselist as $course) {
-    if ($course != SITEID) {
+    if ($course->id != SITEID) {
         $courses[$course->id] = $course->fullname;
     }
 }
