@@ -69,6 +69,7 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
 }
 
 $json_grades = array();
+$users_update = array();
 if (!empty($report) && !empty($report->grades)) {
     foreach ($report->grades as $grades => $grade) {
         foreach ($users as $key => $username) {
@@ -76,6 +77,7 @@ if (!empty($report) && !empty($report->grades)) {
             foreach ($grade as $gradeval) {
                 if ($gradeval->grade_item->itemtype != 'course') {
                     if (!empty($user->id) && ($gradeval->userid == $user->id)) {
+                        $users_update[$user->username] = $user->username;
                         if (!empty($json_grades[$gradeval->grade_item->itemname])) {
                             $json_grades[$gradeval->grade_item->itemname] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
                         } else {
@@ -113,12 +115,14 @@ foreach ($json_grades as $key => $grade_info) {
 }
 $gradeheaders = array();
 if (!empty($users)) {
-    foreach ($users as $key => $username) {
-        if (!empty($username)) {
-            $gradeheaders[] = "'" . $username . " - Grade '";
-        } else {
-            $errors[] = 'Users';
+    if (!empty($users_update)) {
+        foreach ($users_update as $key => $userval) {
+            if (!empty($userval)) {
+                $gradeheaders[] = "'" . $userval . " - Grade '";
+            }
         }
+    } else {
+        $errors[] = 'Users';
     }
 }
 
