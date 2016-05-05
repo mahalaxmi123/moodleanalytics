@@ -95,9 +95,11 @@ if (!empty($users)) {
         $gradeheaders[] = "'" . $user->username . " - Grade '";
     }
 }
-$gradeheaders[] = "'".'trendline'."'";
+$gradeheaders[] = "'" . 'trendline' . "'";
+$position = array_search("'" . 'trendline' . "'", $gradeheaders);
+print_object($position);
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
-$chartoptions = array(1 => 'LineChart');
+$chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
 $userlist = get_course_users($courseid);
 $courses = array();
@@ -107,7 +109,7 @@ foreach ($courselist as $course) {
     }
 }
 $formcontent = html_writer::start_tag('div');
-$formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php?id=' . $courseid), 'method' => 'post'));
+$formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
 $formcontent .= 'User : ' . html_writer::select($userlist, 'userid[]', $users, array('' => 'Select User'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
@@ -139,7 +141,7 @@ echo $formcontent;
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } ?>
             data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
-                    var chart = new google.visualization.LineChart(document.getElementById('course-grade'));
+                    var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
                     title: 'Activities'
@@ -147,6 +149,17 @@ echo $formcontent;
                             vAxis: {
                             title: 'Grades'
                             },
+<?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
+                        seriesType: 'bars',
+                                series: {<?php echo $position; ?>: {type: 'line'}},
+//                                trendlines : {<?php echo $position; ?>:{
+//                                type: 'exponential',
+//                                        color: 'green',
+//                                        visibleInLegend: true,
+//                                        pointVisible : true,
+//                                        pointSize : 10,
+//                                }},
+<?php } ?>
                     };
                     chart.draw(data, options);
             }
