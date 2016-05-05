@@ -34,7 +34,7 @@ if ($reset) {
 $reportname = get_string('course');
 echo $OUTPUT->header();
 // return tracking object
-if (!empty($submit) && !empty($courseid) && !empty($users)) {
+if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
     $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
 
 //first make sure we have proper final grades - this must be done before constructing of the grade tree
@@ -47,9 +47,17 @@ if (!empty($submit) && !empty($courseid) && !empty($users)) {
 // final grades MUST be loaded after the processing
     $report->load_users();
     $report->load_final_grades();
+} elseif (!empty($submit)) {
+    if (empty($courseid)) {
+        echo $OUTPUT->notification('Select Course');
+    }
+    if (empty($charttype)) {
+        echo $OUTPUT->notification('Select Chart Type');
+    }
 } else {
     echo $OUTPUT->notification('Choose the filters');
 }
+
 $json_grades = array();
 if (!empty($report) && !empty($report->grades)) {
     foreach ($report->grades as $grades => $grade) {
@@ -67,6 +75,7 @@ if (!empty($report) && !empty($report->grades)) {
             }
         }
     }
+    $USER->gradeediting[$courseid] = '';
     $averagegrade = $report->get_right_avg_row();
     $actavggrade = array();
     foreach ($averagegrade as $avggradvalue) {
@@ -91,13 +100,16 @@ foreach ($json_grades as $key => $grade_info) {
 $gradeheaders = array();
 if (!empty($users)) {
     foreach ($users as $key => $userid) {
-        $user = $DB->get_record('user', array('id' => $userid));
-        $gradeheaders[] = "'" . $user->username . " - Grade '";
+        if($userid !== 0) {
+            $user = $DB->get_record('user', array('id' => $userid));
+            $gradeheaders[] = "'" . $user->username . " - Grade '";
+        } else {
+            echo $OUTPUT->notification('Select Users');
+        }
     }
 }
-$gradeheaders[] = "'" . 'trendline' . "'";
-$position = array_search("'" . 'trendline' . "'", $gradeheaders);
-print_object($position);
+$gradeheaders[] = "'" . 'activities average' . "'";
+$position = array_search("'" . 'activities average' . "'", $gradeheaders);
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
@@ -151,14 +163,14 @@ echo $formcontent;
                             },
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
-                                series: {<?php echo $position; ?>: {type: 'line'}},
-//                                trendlines : {<?php echo $position; ?>:{
-//                                type: 'exponential',
-//                                        color: 'green',
-//                                        visibleInLegend: true,
-//                                        pointVisible : true,
-//                                        pointSize : 10,
-//                                }},
+                                series: {<?php if(!empty($position)){echo $position;} ?>: {type: 'line'}},
+//                                    trendlines : {<?php echo $position; ?>:{
+    //                                type: 'exponential',
+    //                                        color: 'green',
+    //                                        visibleInLegend: true,
+    //                                        pointVisible : true,
+    //                                        pointSize : 10,
+    //                                }},
 <?php } ?>
                     };
                     chart.draw(data, options);
