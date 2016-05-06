@@ -126,8 +126,10 @@ if (!empty($users)) {
     }
 }
 
-$gradeheaders[] = "'" . 'activities average' . "'";
-$position = array_search("'" . 'activities average' . "'", $gradeheaders);
+if (empty($errors)) {
+    $gradeheaders[] = "'" . 'activities average' . "'";
+    $position = array_search("'" . 'activities average' . "'", $gradeheaders);
+}
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
@@ -201,7 +203,9 @@ echo $formcontent;
 
 <?php } ?>
                     };
-                    chart.draw(data, options);
+<?php if (empty($errors)) { ?>
+                chart.draw(data, options);
+<?php } ?>
             }
 </script>
 <?php
