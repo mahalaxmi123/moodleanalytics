@@ -5,12 +5,12 @@
  */
 
 
-$(document).ready(function () {
+$(document).ready(function() {
 
-    $('#coursedropdown').change(function () {
+    $('#coursedropdown').change(function() {
 
 
-        $.getJSON("ajax.php", {id: $(this).val(), fname: 'get_course_users', ajax: 'true'}, function (j) {
+        $.getJSON("ajax.php", {id: $(this).val(), fname: 'get_course_users', ajax: 'true'}, function(j) {
             var options = '';
 
             for (var key in j) {
@@ -20,6 +20,25 @@ $(document).ready(function () {
             }
             $('#userdropdown').html(options);
             $('#userdropdown').prepend("<option value='' selected='selected'>Select User</option>");
+
+        })
+
+    });
+
+
+    $('.coursedropdown').change(function() {
+
+
+        $.getJSON("ajax.php", {courseid: $(this).val(), fname: 'get_course_quiz', ajax: 'true'}, function(j) {
+            var options = '';
+
+            for (var key in j) {
+                if (key != '') {
+                    options += '<option value="' + key + '">' + j[key] + '</option>';
+                }
+            }
+            $('#quizdropdown').html(options);
+            $('#quizdropdown').prepend("<option value='' selected='selected'>Select Quiz</option>");
 
         })
 

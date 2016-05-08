@@ -15,7 +15,8 @@ $courseid = optional_param('id', '', PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
-//$userid = optional_param('userid', 0, PARAM_INT);
+$reportid = optional_param('reportid', '', PARAM_INT);
+$quizid = optional_param('quizid', '', PARAM_INT);
 $users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
 if (!empty($courseid)) {
@@ -130,10 +131,17 @@ if (empty($errors)) {
     $gradeheaders[] = "'" . 'activities average' . "'";
     $position = array_search("'" . 'activities average' . "'", $gradeheaders);
 }
+$report_array = get_course_reports();
+if ($reportid == 1) {
+    if ($users) {
+        $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
+    }
+}
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();
 $userlist = get_course_users($courseid);
+$quiz_array = get_course_quiz($courseid);
 $courses = array();
 foreach ($courselist as $course) {
     if ($course->id != SITEID) {
@@ -146,8 +154,11 @@ if (!empty($errors)) {
     $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
-$formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown'));
+$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'));
+$formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
+$formcontent .= 'Activity Name : ' . html_writer::select($quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
+$formcontent .= '</br>';
 $formcontent .= 'User : ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
@@ -165,7 +176,7 @@ echo $formcontent;
 }"></script>
 <div>
     <div class="box45 pull-left">
-        <h3>Course Progress Report</h3>
+        <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
         <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>
 </div>

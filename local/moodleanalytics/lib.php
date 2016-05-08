@@ -57,3 +57,43 @@ function get_course_users($courseid) {
     }
     return $users_list;
 }
+
+function get_user_quiz_attempts($quizid, $users) {
+    global $DB;
+    $attempts = array();
+    $count = 1;
+    if (!empty($users)) {
+        foreach ($users as $username) {
+            $user = $DB->get_record('user', array('username' => $username));
+            $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
+            foreach ($quizattempts as $quizattempts) {
+                if (!empty($attempts['Attempt ' . $count])) {
+                    $attempts['Attempt ' . $count] .= (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                } else {
+                    $attempts['Attempt ' . $count] = "'" . (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                }
+                $count++;
+            }
+        }
+        $count++;
+    }
+    return $attempts;
+}
+
+function get_course_quiz($courseid) {
+    $quiz_array = array();
+    if (!empty($courseid)) {
+        $activities = get_array_of_activities($courseid);
+        foreach ($activities as $actinfo) {
+            if ($actinfo->mod == 'quiz') {
+                $quiz_array[] = $actinfo->id;
+            }
+        }
+    }
+    return $quiz_array;
+}
+
+function get_course_reports() {
+    $report_array = array('Course progress', 'Activity attempt');
+    return $report_array;
+}
