@@ -114,34 +114,20 @@ foreach ($json_grades as $key => $grade_info) {
     $grade_info = TRIM($grade_info, ',');
     $json_grades_array[] = "[" . $grade_info . "]";
 }
-$gradeheaders = array();
-if (!empty($users)) {
-    if (!empty($users_update)) {
-        foreach ($users_update as $key => $userval) {
-            if (!empty($userval)) {
-                $gradeheaders[] = "'" . $userval . " - Grade '";
-            }
-        }
-    } else {
-        $errors[] = 'Users';
-    }
-}
-$position = '';
-if (empty($errors) && $reportid != 1) {
-    $gradeheaders[] = "'" . 'activities average' . "'";
-    $position = array_search("'" . 'activities average' . "'", $gradeheaders);
-}
+
 $report_array = get_course_reports();
 $quizdetails = array();
 $info = '';
+$notattemptedusers = array();
 if ($reportid == 1) {
     if ($users && !empty($quizid)) {
         $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
         if(array_key_exists('usernotattempted', $json_quiz_attempt)){
             $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
             $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
-            foreach($notattemptedmessage['usernotattempted'] as $message){
+            foreach($notattemptedmessage['usernotattempted'] as $key => $message){
                 $info .= html_writer::div($message, 'alert alert-info');
+                $notattemptedusers[] = $key;
             }
         }
         unset($json_quiz_attempt['usernotattempted']);
@@ -154,6 +140,25 @@ if ($reportid == 1) {
         }
     }
 }
+
+$gradeheaders = array();
+if (!empty($users)) {
+    if (!empty($users_update)) {
+        foreach ($users_update as $key => $userval) {
+            if (!empty($userval) && !in_array($userval, $notattemptedusers)) {
+                $gradeheaders[] = "'" . $userval . " - Grade '";
+            }
+        }
+    } else {
+        $errors[] = 'Users';
+    }
+}
+$position = '';
+if (empty($errors) && $reportid != 1) {
+    $gradeheaders[] = "'" . 'activities average' . "'";
+    $position = array_search("'" . 'activities average' . "'", $gradeheaders);
+}
+
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
 $courselist = get_courses();

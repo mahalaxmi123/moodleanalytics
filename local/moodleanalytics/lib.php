@@ -77,7 +77,7 @@ function get_user_quiz_attempts($quizid, $users) {
                     $count++;
                 }
             } else {
-                $attempts['usernotattempted'][] = "$username has not taken this quiz yet.";
+                $attempts['usernotattempted'][$username] = "$username has not taken this quiz yet.";
             }
         }
     }
