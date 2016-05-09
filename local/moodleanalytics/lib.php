@@ -61,21 +61,25 @@ function get_course_users($courseid) {
 function get_user_quiz_attempts($quizid, $users) {
     global $DB;
     $attempts = array();
-    
+
     if (!empty($users)) {
-        foreach ($users as $username) {$count = 1;
+        foreach ($users as $username) {
+            $count = 1;
             $user = $DB->get_record('user', array('username' => $username));
             $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
-            foreach ($quizattempts as $quizattempts) {
-                if (!empty($attempts['Attempt ' . $count])) {
-                    $attempts['Attempt ' . $count] .= (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
-                } else {
-                    $attempts['Attempt ' . $count] = "," . (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+            if($quizattempts) {
+                foreach ($quizattempts as $quizattempts) {
+                    if (!empty($attempts['Attempt ' . $count])) {
+                        $attempts['Attempt ' . $count] .= (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                    } else {
+                        $attempts['Attempt ' . $count] = "," . (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                    }
+                    $count++;
                 }
-                $count++;
+            } else {
+                $attempts['usernotattempted'][] = "$username has not taken this quiz yet.";
             }
         }
-        $count++;
     }
     return $attempts;
 }

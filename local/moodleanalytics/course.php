@@ -133,15 +133,24 @@ if (empty($errors) && $reportid != 1) {
 }
 $report_array = get_course_reports();
 $quizdetails = array();
+$info = '';
 if ($reportid == 1) {
     if ($users && !empty($quizid)) {
         $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
+        if(array_key_exists('usernotattempted', $json_quiz_attempt)){
+            $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
+            $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
+            foreach($notattemptedmessage['usernotattempted'] as $message){
+                $info .= html_writer::div($message, 'alert alert-info');
+            }
+        }
+        unset($json_quiz_attempt['usernotattempted']);
         if (!empty($json_quiz_attempt)) {
             foreach ($json_quiz_attempt as $quiz => $quizgrades) {
                 $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
             }
         } else {
-            $info = html_writer::div('User has not attempted the quiz yet.', 'alert alert-info');
+            $info .= html_writer::div('User has not attempted the quiz yet.', 'alert alert-info');
         }
     }
 }
@@ -226,7 +235,7 @@ echo $formcontent;
     <?php }
 } ?>
                     };
-<?php if (empty($errors) && empty($info)) { ?>
+<?php if (empty($errors)) { ?>
                 chart.draw(data, options);
 <?php } ?>
             }
