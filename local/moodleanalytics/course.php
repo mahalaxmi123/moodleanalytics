@@ -126,6 +126,7 @@ if (!empty($users)) {
         $errors[] = 'Users';
     }
 }
+$position = '';
 if (empty($errors) && $reportid != 1) {
     $gradeheaders[] = "'" . 'activities average' . "'";
     $position = array_search("'" . 'activities average' . "'", $gradeheaders);
@@ -133,10 +134,14 @@ if (empty($errors) && $reportid != 1) {
 $report_array = get_course_reports();
 $quizdetails = array();
 if ($reportid == 1) {
-    if ($users) {
+    if ($users && !empty($quizid)) {
         $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
-        foreach($json_quiz_attempt as $quiz => $quizgrades){
-            $quizdetails[] = "[" . "'". $quiz . "'" . "," . trim($quizgrades, ',') . "]";
+        if (!empty($json_quiz_attempt)) {
+            foreach ($json_quiz_attempt as $quiz => $quizgrades) {
+                $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
+            }
+        } else {
+            $errors[] = 'User has not attempted any quiz yet';
         }
     }
 }
@@ -190,12 +195,12 @@ echo $formcontent;
                     data.addColumn('string', 'Activities');
 <?php foreach ($gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
-<?php } if($reportid == 0){ ?>
-            data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
-<?php } else {?>
-            data.addRows([<?php echo implode(',', $quizdetails); ?>]);
-<?php }?>
-                    var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
+<?php } if ($reportid == 0) { ?>
+                data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
+<?php } else { ?>
+                data.addRows([<?php echo implode(',', $quizdetails); ?>]);
+<?php } ?>
+            var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
                     title: 'Activities',
@@ -205,20 +210,20 @@ echo $formcontent;
                             },
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
-                                series: {<?php
-    if (!empty($position)) {
-        echo $position;
-    }
-    ?>: {type: 'line', color : 'black'}},
-                                //                                    trendlines : {<?php echo $position; ?>:{
-                                //                                type: 'exponential',
-                                //                                        color: 'green',
-                                //                                        visibleInLegend: true,
-                                //                                        pointVisible : true,
-                                //                                        pointSize : 10,
-                                //                                }},
+    <?php if ($reportid != 1) { ?>
+                            series: {<?php
+        echo (isset($position) ? $position : '');
+        ?>: {type: 'line', color : 'black'}},
+                                    //                                    trendlines : {<?php echo $position; ?>:{
+                                    //                                type: 'exponential',
+                                    //                                        color: 'green',
+                                    //                                        visibleInLegend: true,
+                                    //                                        pointVisible : true,
+                                    //                                        pointSize : 10,
+                                    //                                }},
 
-<?php } ?>
+    <?php }
+} ?>
                     };
 <?php if (empty($errors)) { ?>
                 chart.draw(data, options);

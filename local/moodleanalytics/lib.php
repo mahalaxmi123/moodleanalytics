@@ -61,9 +61,9 @@ function get_course_users($courseid) {
 function get_user_quiz_attempts($quizid, $users) {
     global $DB;
     $attempts = array();
-    $count = 1;
+    
     if (!empty($users)) {
-        foreach ($users as $username) {
+        foreach ($users as $username) {$count = 1;
             $user = $DB->get_record('user', array('username' => $username));
             $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
             foreach ($quizattempts as $quizattempts) {
