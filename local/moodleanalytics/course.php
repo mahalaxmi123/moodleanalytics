@@ -141,7 +141,7 @@ if ($reportid == 1) {
                 $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
             }
         } else {
-            $errors[] = 'User has not attempted any quiz yet';
+            $info = html_writer::div('User has not attempted the quiz yet.', 'alert alert-info');
         }
     }
 }
@@ -185,6 +185,7 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
+        <h5><?php echo isset($info) ? $info : ''; ?></h5>
         <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>
 </div>
@@ -225,7 +226,7 @@ echo $formcontent;
     <?php }
 } ?>
                     };
-<?php if (empty($errors)) { ?>
+<?php if (empty($errors) && empty($info)) { ?>
                 chart.draw(data, options);
 <?php } ?>
             }
