@@ -126,15 +126,18 @@ if (!empty($users)) {
         $errors[] = 'Users';
     }
 }
-
-if (empty($errors)) {
+if (empty($errors) && $reportid != 1) {
     $gradeheaders[] = "'" . 'activities average' . "'";
     $position = array_search("'" . 'activities average' . "'", $gradeheaders);
 }
 $report_array = get_course_reports();
+$quizdetails = array();
 if ($reportid == 1) {
     if ($users) {
         $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
+        foreach($json_quiz_attempt as $quiz => $quizgrades){
+            $quizdetails[] = "[" . "'". $quiz . "'" . "," . trim($quizgrades, ',') . "]";
+        }
     }
 }
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
@@ -187,8 +190,11 @@ echo $formcontent;
                     data.addColumn('string', 'Activities');
 <?php foreach ($gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
-<?php } ?>
+<?php } if($reportid == 0){ ?>
             data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
+<?php } else {?>
+            data.addRows([<?php echo implode(',', $quizdetails); ?>]);
+<?php }?>
                     var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {

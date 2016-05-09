@@ -70,7 +70,7 @@ function get_user_quiz_attempts($quizid, $users) {
                 if (!empty($attempts['Attempt ' . $count])) {
                     $attempts['Attempt ' . $count] .= (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
                 } else {
-                    $attempts['Attempt ' . $count] = "'" . (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                    $attempts['Attempt ' . $count] = "," . (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
                 }
                 $count++;
             }
@@ -86,7 +86,7 @@ function get_course_quiz($courseid) {
         $activities = get_array_of_activities($courseid);
         foreach ($activities as $actinfo) {
             if ($actinfo->mod == 'quiz') {
-                $quiz_array[] = $actinfo->id;
+                $quiz_array[$actinfo->id] = $actinfo->name;
             }
         }
     }

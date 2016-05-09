@@ -28,7 +28,7 @@ if ($functionname) {
             break;
         case "get_course_quiz":
             $courseid = optional_param('courseid', 0, PARAM_INT);
-            $result = get_course_users($courseid);
+            $result = get_course_quiz($courseid);
             $result = json_encode($result);
             break;
         default:
