@@ -61,20 +61,32 @@ function get_course_users($courseid) {
 function get_user_quiz_attempts($quizid, $users) {
     global $DB;
     $attempts = array();
-
+    $maxnumofattempts = '';
     if (!empty($users)) {
         foreach ($users as $username) {
             $count = 1;
             $user = $DB->get_record('user', array('username' => $username));
             $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
-            if($quizattempts) {
-                foreach ($quizattempts as $quizattempts) {
+
+            if ($quizattempts) {
+                foreach ($quizattempts as $quizattempt) {
                     if (!empty($attempts['Attempt ' . $count])) {
-                        $attempts['Attempt ' . $count] .= (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                        $attempts['Attempt ' . $count] .= (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
                     } else {
-                        $attempts['Attempt ' . $count] = "," . (!empty($quizattempts->sumgrades) ? $quizattempts->sumgrades : 0.0) . ',';
+                        $attempts['Attempt ' . $count] = "," . (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
                     }
                     $count++;
+                }
+
+                $currentnumofattempts = count($quizattempts);
+                if (!empty($maxnumofattempts) && $maxnumofattempts > $currentnumofattempts) {
+                    $numoflessattempts = $maxnumofattempts - $currentnumofattempts;
+                    for ($i = 1; $i <= $numoflessattempts; $i++) {
+                        $attempts['Attempt ' . $count] .= 0.0;
+                        $count++;
+                    }
+                } else {
+                    $maxnumofattempts = $currentnumofattempts;
                 }
             } else {
                 $attempts['usernotattempted'][$username] = "$username has not taken this quiz yet.";
