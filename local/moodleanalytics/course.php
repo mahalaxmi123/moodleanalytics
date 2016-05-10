@@ -176,6 +176,10 @@ foreach ($courselist as $course) {
         $courses[$course->id] = $course->fullname;
     }
 }
+$axis = new stdClass();
+if ($reportid >= 0) {
+    $axis = get_axis_names($report_array[$reportid]);
+}
 $formcontent = html_writer::start_tag('div');
 if (!empty($errors)) {
     $error = implode(", ", $errors);
@@ -213,7 +217,7 @@ echo $formcontent;
             google.setOnLoadCallback(drawChart);
             function drawChart() {
             var data = new google.visualization.DataTable();
-                    data.addColumn('string', 'Activities');
+                    data.addColumn('string', 'Data');
 <?php foreach ($gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } if ($reportid == 0) { ?>
@@ -224,10 +228,10 @@ echo $formcontent;
             var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
-                    title: 'Activities',
+                    title: '<?php echo isset($axis->xaxis) ? $axis->xaxis : ''; ?>',
                     },
                             vAxis: {
-                            title: 'Grades',
+                            title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
                             },
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
@@ -243,7 +247,8 @@ echo $formcontent;
                                     //                                        pointSize : 10,
                                     //                                }},
 
-    <?php }
+        <?php
+    }
 }
 ?>
                     };

@@ -82,7 +82,7 @@ function get_user_quiz_attempts($quizid, $users) {
                 if (!empty($maxnumofattempts) && $maxnumofattempts > $currentnumofattempts) {
                     $numoflessattempts = $maxnumofattempts - $currentnumofattempts;
                     for ($i = 1; $i <= $numoflessattempts; $i++) {
-                        if(!empty($attempts['Attempt ' . $count])) {
+                        if (!empty($attempts['Attempt ' . $count])) {
                             $attempts['Attempt ' . $count] .= 0.0 . ',';
                         } else {
                             $attempts['Attempt ' . $count] .= ',' . 0.0 . ',';
@@ -116,4 +116,21 @@ function get_course_quiz($courseid) {
 function get_course_reports() {
     $report_array = array('Course progress', 'Activity attempt');
     return $report_array;
+}
+
+function get_axis_names($reportname) {
+    $axis = new stdClass();
+    switch ($reportname) {
+        case 'Course progress':
+            $axis->xaxis = 'Activities';
+            $axis->yaxis = 'Grades';
+            break;
+        case 'Activity attempt':
+            $axis->xaxis = 'Attempts';
+            $axis->yaxis = 'Grades';
+            break;
+        default :
+            break;
+    }
+    return $axis;
 }
