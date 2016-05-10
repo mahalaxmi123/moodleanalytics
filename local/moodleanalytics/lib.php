@@ -82,7 +82,11 @@ function get_user_quiz_attempts($quizid, $users) {
                 if (!empty($maxnumofattempts) && $maxnumofattempts > $currentnumofattempts) {
                     $numoflessattempts = $maxnumofattempts - $currentnumofattempts;
                     for ($i = 1; $i <= $numoflessattempts; $i++) {
-                        $attempts['Attempt ' . $count] .= 0.0;
+                        if(!empty($attempts['Attempt ' . $count])) {
+                            $attempts['Attempt ' . $count] .= 0.0 . ',';
+                        } else {
+                            $attempts['Attempt ' . $count] .= ',' . 0.0 . ',';
+                        }
                         $count++;
                     }
                 } else {
