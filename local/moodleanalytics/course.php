@@ -177,7 +177,7 @@ foreach ($courselist as $course) {
     }
 }
 $axis = new stdClass();
-if ($reportid >= 0) {
+if (!empty($reportid) & $reportid >= 0) {
     $axis = get_axis_names($report_array[$reportid]);
 }
 $formcontent = html_writer::start_tag('div');
