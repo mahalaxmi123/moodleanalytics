@@ -129,7 +129,7 @@ if ($reportid == 1) {
                 $info .= html_writer::div($message, 'alert alert-info');
                 $notattemptedusers[] = $key;
             }
-        }
+        } 
         unset($json_quiz_attempt['usernotattempted']);
         if (!empty($json_quiz_attempt)) {
             foreach ($json_quiz_attempt as $quiz => $quizgrades) {

@@ -61,6 +61,7 @@ function get_course_users($courseid) {
 function get_user_quiz_attempts($quizid, $users) {
     global $DB;
     $attempts = array();
+    $quizdetails = array();
     $maxnumofattempts = '';
     if (!empty($users)) {
         foreach ($users as $username) {
@@ -68,36 +69,74 @@ function get_user_quiz_attempts($quizid, $users) {
             $user = $DB->get_record('user', array('username' => $username));
             $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
 
+//            if ($quizattempts) {
+//                foreach ($quizattempts as $quizattempt) {
+//                    if (!empty($attempts['Attempt ' . $count])) {
+//                        $attempts['Attempt ' . $count] .= (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
+//                    } else {
+//                        $attempts['Attempt ' . $count] = "," . (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
+//                    }
+//                    $count++;
+//                }
+
             if ($quizattempts) {
                 foreach ($quizattempts as $quizattempt) {
-                    if (!empty($attempts['Attempt ' . $count])) {
-                        $attempts['Attempt ' . $count] .= (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
-                    } else {
-                        $attempts['Attempt ' . $count] = "," . (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
-                    }
+                    $attempts[$username]['Attempt ' . $count] = $quizattempt->sumgrades;
                     $count++;
                 }
 
-                $currentnumofattempts = count($quizattempts);
-                if (!empty($maxnumofattempts) && $maxnumofattempts > $currentnumofattempts) {
-                    $numoflessattempts = $maxnumofattempts - $currentnumofattempts;
-                    for ($i = 1; $i <= $numoflessattempts; $i++) {
-                        if (!empty($attempts['Attempt ' . $count])) {
-                            $attempts['Attempt ' . $count] .= 0.0 . ',';
-                        } else {
-                            $attempts['Attempt ' . $count] .= ',' . 0.0 . ',';
-                        }
-                        $count++;
-                    }
-                } else {
-                    $maxnumofattempts = $currentnumofattempts;
-                }
+//               $attempts = format_quiz_attemptwise_grades($attempts);
+//               
+//                $currentnumofattempts = count($quizattempts);
+//                if (!empty($maxnumofattempts) && $maxnumofattempts > $currentnumofattempts) {
+//                    $numoflessattempts = $maxnumofattempts - $currentnumofattempts;
+//                    for ($i = 1; $i <= $numoflessattempts; $i++) {
+//                        if (!empty($attempts['Attempt ' . $count])) {
+//                            $attempts['Attempt ' . $count] .= 0.0 . ',';
+//                        } else {
+//                            $attempts['Attempt ' . $count] .= ',' . 0.0 . ',';
+//                        }
+//                        $count++;
+//                    } 
+//                } else {
+//                    $maxnumofattempts = $currentnumofattempts;
+//                }
             } else {
-                $attempts['usernotattempted'][$username] = "$username has not taken this quiz yet.";
+                $quizdetails['usernotattempted'][$username] = "$username has not taken this quiz yet.";
+            }
+        }
+        foreach ($attempts as $attempt) {
+            $currentnumofattempts[] = count($attempt);
+            $maxnumofattempts = max($currentnumofattempts);
+        }
+        $attempts = format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
+    }
+    return array_merge($quizdetails, $attempts);
+}
+
+function format_quiz_attemptwise_grades($max, $thisattempts) {
+    foreach ($thisattempts as $thisattempt) {
+        $count = count($thisattempt);
+        if (!empty($max) && $max > $count) {
+            $less = $max - $count;
+            for ($i = 1; $i <= $less; $i++) {
+                $count += 1;
+                $thisattempt['Attempt ' . $count] = 0;
+            }
+        }
+        $modifiedattempts[] = $thisattempt;
+    }
+    foreach($modifiedattempts as $modattempts){
+        $numofattempts = count($modattempts);
+        for($num = 1; $num<=$numofattempts; $num++){
+            if(!empty($newattempts['Attempt '.$num])){
+                $newattempts['Attempt '.$num] .= $modattempts['Attempt '.$num] . ',';
+            } else {
+                $newattempts['Attempt '.$num] = ',' . $modattempts['Attempt '.$num] . ',';
             }
         }
     }
-    return $attempts;
+    return $newattempts;
 }
 
 function get_course_quiz($courseid) {
