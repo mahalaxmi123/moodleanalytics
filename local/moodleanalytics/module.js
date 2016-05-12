@@ -5,12 +5,12 @@
  */
 
 
-$(document).ready(function() {
+$(document).ready(function () {
 
-    $('#coursedropdown').change(function() {
+    $('#coursedropdown').change(function () {
 
 
-        $.getJSON("ajax.php", {id: $(this).val(), fname: 'get_course_users', ajax: 'true'}, function(j) {
+        $.getJSON("ajax.php", {id: $(this).val(), fname: 'get_course_users', ajax: 'true'}, function (j) {
             var options = '';
 
             for (var key in j) {
@@ -26,22 +26,35 @@ $(document).ready(function() {
     });
 
 
-    $('.coursedropdown').change(function() {
+    $('.coursedropdown').change(function () {
 
+        if ($('#reportdropdown').val() == 1) {
+            $.getJSON("ajax.php", {courseid: $(this).val(), fname: 'get_course_quiz', ajax: 'true'}, function (j) {
+                var options = '';
 
-        $.getJSON("ajax.php", {courseid: $(this).val(), fname: 'get_course_quiz', ajax: 'true'}, function(j) {
-            var options = '';
-
-            for (var key in j) {
-                if (key != '') {
-                    options += '<option value="' + key + '">' + j[key] + '</option>';
+                for (var key in j) {
+                    if (key != '') {
+                        options += '<option value="' + key + '">' + j[key] + '</option>';
+                    }
                 }
-            }
-            $('#quizdropdown').html(options);
-            $('#quizdropdown').prepend("<option value='' selected='selected'>Select Quiz</option>");
+                $('#quizdropdown').html(options);
+                $('#quizdropdown').prepend("<option value='' selected='selected'>Select Quiz</option>");
 
-        })
-
+            })
+        }
     });
 
+    if($('#reportdropdown').val() && $('#reportdropdown').val() == 1){
+        $('#quizdropdown').prop('disabled', false);
+    } else {
+        $('#quizdropdown').prop('disabled', true);
+    }
+    
+    $('#reportdropdown').change(function () {
+        if ($('#reportdropdown').val() == 1) {
+            $('#quizdropdown').prop('disabled', false);
+        } else {
+            $('#quizdropdown').prop('disabled', true);
+        }
+    });
 });

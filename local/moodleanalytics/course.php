@@ -186,7 +186,10 @@ if (!empty($errors)) {
     $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
-$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'));
+//if(!empty($reportid)) {
+//    $formcontent .= html_writer::tag('input', '', array('type'=>'hidden', 'id'=>'report', 'value'=>$reportid));
+//}
+$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'),array('id' => 'reportdropdown'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
 $formcontent .= 'Activity Name : ' . html_writer::select($quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
