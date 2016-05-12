@@ -10,6 +10,7 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 function get_teacher_sql($params, $column, $type) {
     $sql = '';
@@ -98,13 +99,13 @@ function format_quiz_attemptwise_grades($max, $thisattempts) {
         }
         $modifiedattempts[] = $thisattempt;
     }
-    foreach($modifiedattempts as $modattempts){
+    foreach ($modifiedattempts as $modattempts) {
         $numofattempts = count($modattempts);
-        for($num = 1; $num<=$numofattempts; $num++){
-            if(!empty($newattempts['Attempt '.$num])){
-                $newattempts['Attempt '.$num] .= $modattempts['Attempt '.$num] . ',';
+        for ($num = 1; $num <= $numofattempts; $num++) {
+            if (!empty($newattempts['Attempt ' . $num])) {
+                $newattempts['Attempt ' . $num] .= $modattempts['Attempt ' . $num] . ',';
             } else {
-                $newattempts['Attempt '.$num] = ',' . $modattempts['Attempt '.$num] . ',';
+                $newattempts['Attempt ' . $num] = ',' . $modattempts['Attempt ' . $num] . ',';
             }
         }
     }
@@ -144,4 +145,60 @@ function get_axis_names($reportname) {
             break;
     }
     return $axis;
+}
+
+/* Returns the resource completion percentage of all users in a course
+ * @param : courseid int
+ * return resource completion array 
+ */
+
+function get_activity_completion($courseid) {
+    global $DB;
+    $resource_completion_array = array();
+    $course = $DB->get_record('course', array('id' => $courseid));
+    if (!$course) {
+        return;
+    }
+    $completion = new completion_info($course);
+    $activities = $completion->get_activities();
+    $total_activities = COUNT($activities);
+    $progress = $completion->get_progress_all();
+    foreach ($progress as $userid => $userprogess_data) {
+        $completedact_count = COUNT($userprogess_data->progress);
+        if ($completedact_count) {
+            $resource_completion_array[$userid] = ($completedact_count / $total_activities) * 100;
+        } else {
+            $resource_completion_array[$userid] = 0;
+        }
+    }
+    return $resource_completion_array;
+}
+
+/* Returns users average grade in a course
+ * @param : grade  array
+ * Return : usersaveragegrades array
+ */
+
+function get_user_avggrades($grades) {
+    $useravggrades = array();
+    $activities = array();
+    foreach ($grades as $grade => $gradeinfo) {
+        foreach ($gradeinfo as $gradeval) {
+            $activities[$gradeval->grade_item->itemname] = $gradeval->grade_item->itemname;
+            if (!empty($useravggrades[$gradeval->userid])) {
+                $useravggrades[$gradeval->userid] += $gradeval->finalgrade;
+            } else {
+                $useravggrades[$gradeval->userid] = $gradeval->finalgrade;
+            }
+        }
+    }
+    $total_activities = COUNT($activities);
+    if ($total_activities) {
+        foreach ($useravggrades as $userid => $gradetotal) {
+            $useravggrades[$userid] = ($gradetotal / $total_activities);
+        }
+    } else {
+        return;
+    }
+    return $useravggrades;
 }

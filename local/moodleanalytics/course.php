@@ -35,6 +35,7 @@ if ($reset) {
 $reportname = get_string('course');
 echo $OUTPUT->header();
 $errors = array();
+$resourceactivitycompletion = get_activity_completion($courseid);
 // return tracking object
 if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
     $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
@@ -89,6 +90,9 @@ if (!empty($report) && !empty($report->grades)) {
             }
         }
     }
+    
+    $averageusergrades = get_user_avggrades($report->grades);
+    
     $USER->gradeediting[$courseid] = '';
     $averagegrade = $report->get_right_avg_row();
     $actavggrade = array();
