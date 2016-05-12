@@ -68,39 +68,11 @@ function get_user_quiz_attempts($quizid, $users) {
             $count = 1;
             $user = $DB->get_record('user', array('username' => $username));
             $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
-
-//            if ($quizattempts) {
-//                foreach ($quizattempts as $quizattempt) {
-//                    if (!empty($attempts['Attempt ' . $count])) {
-//                        $attempts['Attempt ' . $count] .= (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
-//                    } else {
-//                        $attempts['Attempt ' . $count] = "," . (!empty($quizattempt->sumgrades) ? $quizattempt->sumgrades : 0.0) . ',';
-//                    }
-//                    $count++;
-//                }
-
             if ($quizattempts) {
                 foreach ($quizattempts as $quizattempt) {
                     $attempts[$username]['Attempt ' . $count] = $quizattempt->sumgrades;
                     $count++;
                 }
-
-//               $attempts = format_quiz_attemptwise_grades($attempts);
-//               
-//                $currentnumofattempts = count($quizattempts);
-//                if (!empty($maxnumofattempts) && $maxnumofattempts > $currentnumofattempts) {
-//                    $numoflessattempts = $maxnumofattempts - $currentnumofattempts;
-//                    for ($i = 1; $i <= $numoflessattempts; $i++) {
-//                        if (!empty($attempts['Attempt ' . $count])) {
-//                            $attempts['Attempt ' . $count] .= 0.0 . ',';
-//                        } else {
-//                            $attempts['Attempt ' . $count] .= ',' . 0.0 . ',';
-//                        }
-//                        $count++;
-//                    } 
-//                } else {
-//                    $maxnumofattempts = $currentnumofattempts;
-//                }
             } else {
                 $quizdetails['usernotattempted'][$username] = "$username has not taken this quiz yet.";
             }
