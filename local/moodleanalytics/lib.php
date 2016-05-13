@@ -81,7 +81,7 @@ function get_user_quiz_attempts($quizid, $users) {
             $currentnumofattempts[] = count($attempt);
             $maxnumofattempts = max($currentnumofattempts);
         }
-        $attempts = format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
+        $attempts = $attempts ? format_quiz_attemptwise_grades($maxnumofattempts, $attempts) : array('');
     }
     return array_merge($quizdetails, $attempts);
 }
