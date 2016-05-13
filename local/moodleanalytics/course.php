@@ -262,7 +262,7 @@ echo $formcontent;
 }
 ?>
                     };
-<?php if (empty($errors) && empty($info)) { ?>
+<?php if (empty($errors)) { ?>
                 chart.draw(data, options);
 <?php } ?>
             }
