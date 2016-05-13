@@ -75,6 +75,7 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
 
 $json_grades = array();
 $users_update = array();
+$feedback = array();
 if (!empty($report) && !empty($report->grades)) {
     foreach ($report->grades as $grades => $grade) {
         foreach ($users as $key => $username) {
@@ -91,11 +92,12 @@ if (!empty($report) && !empty($report->grades)) {
                     }
                 }
             }
+            $feedback[$username] = random_value_for_feedback();
         }
     }
-    
+
     $averageusergrades = get_user_avggrades($report->grades);
-    
+
     $USER->gradeediting[$courseid] = '';
     $averagegrade = $report->get_right_avg_row();
     $actavggrade = array();
@@ -136,7 +138,7 @@ if ($reportid == 2) {
                 $info .= html_writer::div($message, 'alert alert-info');
                 $notattemptedusers[] = $key;
             }
-        } 
+        }
         unset($json_quiz_attempt['usernotattempted']);
         if (!empty($json_quiz_attempt)) {
             foreach ($json_quiz_attempt as $quiz => $quizgrades) {
@@ -153,7 +155,34 @@ if ($reportid == 2) {
     }
 }
 
-if ($reportid != 2) {
+if ($reportid == 3) {
+    if (!empty($users)) {
+        if (!empty($resourceactivitycompletion) && $averageusergrades) {
+            foreach ($resourceactivitycompletion as $resuseridkey => $rescompletiongrade) {
+                $resusers = $DB->get_record('user', array('id' => $resuseridkey));
+                $resactivitycompletion[$resusers->username] = $rescompletiongrade;
+            }
+            foreach ($averageusergrades as $avguserid => $avgusergrades) {
+                $usersforavggrade = $DB->get_record('user', array('id' => $avguserid));
+                $newaveragegrade[$usersforavggrade->username] = $avgusergrades;
+            }
+
+            foreach ($users as $thisuserkey => $thisusername) {
+                $chartdetails[] = "[" . "'" . $thisusername . "'" . "," . $newaveragegrade[$thisusername] . "," . $resactivitycompletion[$thisusername] . "," . $feedback[$thisusername] . "]";
+            }
+        }
+
+
+//        $gradeheaders[] = "'Test'";
+        $gradeheaders[] = "'Grade'";
+        $gradeheaders[] = "'Resource completion'";
+        $gradeheaders[] = "'Feedback'";
+    } else {
+        $errors[] = 'User(s)';
+    }
+}
+
+if ($reportid == 1) {
     $gradeheaders = array();
     if (!empty($users)) {
         if (!empty($users_update)) {
@@ -173,7 +202,7 @@ if ($reportid != 2) {
     }
 }
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
-$chartoptions = array(1 => 'LineChart', 2 => 'ComboChart');
+$chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
 $courselist = get_courses();
 $userlist = get_course_users($courseid);
 $quiz_array = get_course_quiz($courseid);
@@ -193,13 +222,10 @@ if (!empty($errors)) {
     $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
-//if(!empty($reportid)) {
-//    $formcontent .= html_writer::tag('input', '', array('type'=>'hidden', 'id'=>'report', 'value'=>$reportid));
-//}
-$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'),array('id' => 'reportdropdown'));
+$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
 $formcontent .= 'Activity Name : ' . html_writer::select($quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
-$formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
+$formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype, array('Select chart'), array('id' => 'chartdropdown'));
 $formcontent .= '</br>';
 $formcontent .= 'User(s) (You can select <strong>single / multiple</strong> users here): ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User(s)'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
@@ -232,8 +258,10 @@ echo $formcontent;
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } if ($reportid == 1) { ?>
                 data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
-<?php } else { ?>
+<?php } elseif ($reportid == 2) { ?>
                 data.addRows([<?php echo implode(',', $quizdetails); ?>]);
+<?php } else { ?>
+                data.addRows([<?php echo implode(',', $chartdetails); ?>]);
 <?php } ?>
             var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
@@ -243,9 +271,12 @@ echo $formcontent;
                             vAxis: {
                             title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
                             },
+<?php if ($chartoptions[$charttype] == 'BubbleChart' && $reportid == 3) {?>
+                        bubble: {textStyle: {fontSize: 11}}
+<?php } ?>
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
-    <?php if ($reportid != 2) { ?>
+    <?php if ($reportid == 1) { ?>
                             series: {<?php
         echo (isset($position) ? $position : '');
         ?>: {type: 'line', color : 'black'}},

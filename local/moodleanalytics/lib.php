@@ -126,7 +126,7 @@ function get_course_quiz($courseid) {
 }
 
 function get_course_reports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report');
     return $report_array;
 }
 
@@ -140,6 +140,10 @@ function get_axis_names($reportname) {
         case 'Activity attempt':
             $axis->xaxis = 'Attempts';
             $axis->yaxis = 'Grades';
+            break;
+        case 'Activity Status Report':
+            $axis->xaxis = 'Grades';
+            $axis->yaxis = 'Resource Completion';
             break;
         default :
             break;
@@ -201,4 +205,10 @@ function get_user_avggrades($grades) {
         return;
     }
     return $useravggrades;
+}
+
+
+function random_value_for_feedback(){
+    $feedback = rand(1,10);
+    return $feedback;
 }
