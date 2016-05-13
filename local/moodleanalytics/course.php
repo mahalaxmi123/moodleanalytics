@@ -58,7 +58,7 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
     $report->load_final_grades();
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
-        $errors[] = 'Report Type';
+        $errors[] = 'Report Name';
     }
     if (empty($courseid)) {
         $errors[] = 'Course';
@@ -67,7 +67,7 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
         $errors[] = 'Chart Type';
     }
     if (empty($users)) {
-        $errors[] = 'Users';
+        $errors[] = 'User(s)';
     }
 } else {
     echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
@@ -163,7 +163,7 @@ if ($reportid != 2) {
                 }
             }
         } else {
-            $errors[] = 'Users';
+            $errors[] = 'User(s)';
         }
     }
     $position = '';
@@ -201,7 +201,7 @@ $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, arr
 $formcontent .= 'Activity Name : ' . html_writer::select($quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype);
 $formcontent .= '</br>';
-$formcontent .= 'User : ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
+$formcontent .= 'User(s) (You can select <strong>single / multiple</strong> users here): ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User(s)'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -262,7 +262,7 @@ echo $formcontent;
 }
 ?>
                     };
-<?php if (empty($errors)) { ?>
+<?php if (empty($errors) && empty($info)) { ?>
                 chart.draw(data, options);
 <?php } ?>
             }
