@@ -57,6 +57,9 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
     $report->load_users();
     $report->load_final_grades();
 } elseif (!empty($submit)) {
+    if (empty($reportid)) {
+        $errors[] = 'Report Type';
+    }
     if (empty($courseid)) {
         $errors[] = 'Course';
     }
@@ -123,7 +126,7 @@ $report_array = get_course_reports();
 $quizdetails = array();
 $info = '';
 $notattemptedusers = array();
-if ($reportid == 1) {
+if ($reportid == 2) {
     if ($users && !empty($quizid)) {
         $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
         if (array_key_exists('usernotattempted', $json_quiz_attempt)) {
@@ -150,7 +153,7 @@ if ($reportid == 1) {
     }
 }
 
-if ($reportid != 1) {
+if ($reportid != 2) {
     $gradeheaders = array();
     if (!empty($users)) {
         if (!empty($users_update)) {
@@ -181,7 +184,7 @@ foreach ($courselist as $course) {
     }
 }
 $axis = new stdClass();
-if (!empty($reportid) & $reportid >= 0) {
+if (!empty($reportid) & $reportid >= 1) {
     $axis = get_axis_names($report_array[$reportid]);
 }
 $formcontent = html_writer::start_tag('div');
@@ -227,7 +230,7 @@ echo $formcontent;
                     data.addColumn('string', 'Data');
 <?php foreach ($gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
-<?php } if ($reportid == 0) { ?>
+<?php } if ($reportid == 1) { ?>
                 data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
 <?php } else { ?>
                 data.addRows([<?php echo implode(',', $quizdetails); ?>]);
@@ -242,7 +245,7 @@ echo $formcontent;
                             },
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
                         seriesType: 'bars',
-    <?php if ($reportid != 1) { ?>
+    <?php if ($reportid != 2) { ?>
                             series: {<?php
         echo (isset($position) ? $position : '');
         ?>: {type: 'line', color : 'black'}},

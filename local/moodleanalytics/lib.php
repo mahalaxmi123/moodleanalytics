@@ -126,7 +126,7 @@ function get_course_quiz($courseid) {
 }
 
 function get_course_reports() {
-    $report_array = array('Course progress', 'Activity attempt');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt');
     return $report_array;
 }
 

@@ -28,7 +28,7 @@ $(document).ready(function () {
 
     $('.coursedropdown').change(function () {
 
-        if ($('#reportdropdown').val() == 1) {
+        if ($('#reportdropdown').val() == 2) {
             $.getJSON("ajax.php", {courseid: $(this).val(), fname: 'get_course_quiz', ajax: 'true'}, function (j) {
                 var options = '';
 
@@ -44,14 +44,14 @@ $(document).ready(function () {
         }
     });
 
-    if($('#reportdropdown').val() && $('#reportdropdown').val() == 1){
+    if($('#reportdropdown').val() && $('#reportdropdown').val() == 2){
         $('#quizdropdown').prop('disabled', false);
     } else {
         $('#quizdropdown').prop('disabled', true);
     }
     
     $('#reportdropdown').change(function () {
-        if ($('#reportdropdown').val() == 1) {
+        if ($('#reportdropdown').val() == 2) {
             $('#quizdropdown').prop('disabled', false);
         } else {
             $('#quizdropdown').prop('disabled', true);
