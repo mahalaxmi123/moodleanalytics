@@ -35,27 +35,16 @@ if ($reset) {
 $reportname = get_string('course');
 echo $OUTPUT->header();
 $errors = array();
-$resourceactivitycompletion = get_activity_completion($courseid);
+
+$reportobj = new stdClass();
+if($reportid){
+    $reportobj = get_report_class($reportid);
+}
+
 // return tracking object
 if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
-    $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
-
-//first make sure we have proper final grades - this must be done before constructing of the grade tree
-    grade_regrade_final_grades($courseid);
-//Initialise the grader report object that produces the table
-//the class grade_report_grader_ajax was removed as part of MDL-21562
-    $report = new grade_report_grader($courseid, $gpr, $context);
-    $numusers = $report->get_numusers(true, true);
-
-    $activities = array();
-    if (!empty($report->gtree->top_element['children'])) {
-        foreach ($report->gtree->top_element['children'] as $children) {
-            $activities[$children['eid']] = $children['object']->itemname;
-        }
-    }
-// final grades MUST be loaded after the processing
-    $report->load_users();
-    $report->load_final_grades();
+    $reportobj->process_reportdata($courseid,$users,$charttype);
+    
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
         $errors[] = 'Report Name';
@@ -73,133 +62,19 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
     echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 }
 
-$json_grades = array();
-$users_update = array();
-$feedback = array();
-if (!empty($report) && !empty($report->grades)) {
-    foreach ($report->grades as $grades => $grade) {
-        foreach ($users as $key => $username) {
-            $user = $DB->get_record('user', array('username' => $username));
-            foreach ($grade as $gradeval) {
-                if ($gradeval->grade_item->itemtype != 'course') {
-                    if (!empty($user->id) && ($gradeval->userid == $user->id)) {
-                        $users_update[$user->username] = $user->username;
-                        if (!empty($json_grades[$gradeval->grade_item->itemname])) {
-                            $json_grades[$gradeval->grade_item->itemname] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
-                        } else {
-                            $json_grades[$gradeval->grade_item->itemname] = "'" . $gradeval->grade_item->itemname . "'" . ',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
-                        }
-                    }
-                }
-            }
-            $feedback[$username] = random_value_for_feedback();
-        }
-    }
-
-    $averageusergrades = get_user_avggrades($report->grades);
-
-    $USER->gradeediting[$courseid] = '';
-    $averagegrade = $report->get_right_avg_row();
-    $actavggrade = array();
-    foreach ($averagegrade as $avggradvalue) {
-        foreach ($avggradvalue->cells as $avggrade) {
-            $actitemname = '';
-            $attrclass = $avggrade->attributes['class'];
-            if (isset($attrclass) && isset($activities[$attrclass])) {
-                $actitemname = $activities[$attrclass];
-            }
-            if (!empty($avggrade->text)) {
-                $actavggrade[$actitemname] = floatval($avggrade->text);
-            }
-        }
-    }
-    foreach ($json_grades as $key => $value) {
-        $json_grades[$key] .= $actavggrade[$key] . ',';
-    }
-}
-
-$json_grades_array = array();
-foreach ($json_grades as $key => $grade_info) {
-    $grade_info = TRIM($grade_info, ',');
-    $json_grades_array[] = "[" . $grade_info . "]";
-}
-
 $report_array = get_course_reports();
-$quizdetails = array();
-$info = '';
-$notattemptedusers = array();
 if ($reportid == 2) {
-    if ($users && !empty($quizid)) {
-        $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
-        if (array_key_exists('usernotattempted', $json_quiz_attempt)) {
-            $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
-            $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
-            foreach ($notattemptedmessage['usernotattempted'] as $key => $message) {
-                $info .= html_writer::div($message, 'alert alert-info');
-                $notattemptedusers[] = $key;
-            }
-        }
-        unset($json_quiz_attempt['usernotattempted']);
-        if (!empty($json_quiz_attempt)) {
-            foreach ($json_quiz_attempt as $quiz => $quizgrades) {
-                $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
-            }
-        } else {
-            $info .= html_writer::div('User has not attempted the quiz yet.', 'alert alert-info');
-        }
-        foreach ($users as $userkey => $uservalue) {
-            if (!empty($uservalue) && !in_array($uservalue, $notattemptedusers)) {
-                $gradeheaders[] = "'" . $uservalue . " - Grade '";
-            }
-        }
-    }
+    
 }
 
 if ($reportid == 3) {
-    if (!empty($users)) {
-        if (!empty($resourceactivitycompletion) && $averageusergrades) {
-            foreach ($resourceactivitycompletion as $resuseridkey => $rescompletiongrade) {
-                $resusers = $DB->get_record('user', array('id' => $resuseridkey));
-                $resactivitycompletion[$resusers->username] = $rescompletiongrade;
-            }
-            foreach ($averageusergrades as $avguserid => $avgusergrades) {
-                $usersforavggrade = $DB->get_record('user', array('id' => $avguserid));
-                $newaveragegrade[$usersforavggrade->username] = $avgusergrades;
-            }
-
-            foreach ($users as $thisuserkey => $thisusername) {
-                $chartdetails[] = "[" . "'" . $thisusername . "'" . "," . $newaveragegrade[$thisusername] . "," . $resactivitycompletion[$thisusername] . "," . $feedback[$thisusername] . "]";
-            }
-        }
+    
 
 
-//        $gradeheaders[] = "'Test'";
-        $gradeheaders[] = "'Grade'";
-        $gradeheaders[] = "'Resource completion'";
-        $gradeheaders[] = "'Feedback'";
-    } else {
-        $errors[] = 'User(s)';
-    }
-}
+    } 
 
 if ($reportid == 1) {
-    $gradeheaders = array();
-    if (!empty($users)) {
-        if (!empty($users_update)) {
-            foreach ($users_update as $key => $userval) {
-                if (!empty($userval) && !in_array($userval, $notattemptedusers)) {
-                    $gradeheaders[] = "'" . $userval . " - Grade '";
-                }
-            }
-        } else {
-            $errors[] = 'User(s)';
-        }
-    }
-    $position = '';
-    if (empty($errors)) {
-        $gradeheaders[] = "'" . 'activities average' . "'";
-        $position = array_search("'" . 'activities average' . "'", $gradeheaders);
-    }
+
 }
 //$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
 $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
@@ -214,7 +89,7 @@ foreach ($courselist as $course) {
 }
 $axis = new stdClass();
 if (!empty($reportid) & $reportid >= 1) {
-    $axis = get_axis_names($report_array[$reportid]);
+    $axis = $reportobj->get_axis_names($report_array[$reportid]);
 }
 $formcontent = html_writer::start_tag('div');
 if (!empty($errors)) {
