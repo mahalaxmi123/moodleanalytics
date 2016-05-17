@@ -37,14 +37,13 @@ echo $OUTPUT->header();
 $errors = array();
 
 $reportobj = new stdClass();
-if($reportid){
+if ($reportid) {
     $reportobj = get_report_class($reportid);
 }
 
 // return tracking object
 if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
-    $reportobj->process_reportdata($courseid,$users,$charttype);
-    
+    $reportobj->process_reportdata($reportobj,$courseid, $users, $charttype);
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
         $errors[] = 'Report Name';
@@ -62,25 +61,25 @@ if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)
     echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 }
 
-$report_array = get_course_reports();
+$report_array = get_coursereports();
+$chartoptions = array();
+$userlist = array();
+//$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
+$chartoptions = get_chart_types();
+$userlist = get_course_users($courseid);
 if ($reportid == 2) {
     
 }
 
 if ($reportid == 3) {
     
-
-
-    } 
+}
 
 if ($reportid == 1) {
-
+    
 }
-//$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
-$chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
+
 $courselist = get_courses();
-$userlist = get_course_users($courseid);
-$quiz_array = get_course_quiz($courseid);
 $courses = array();
 foreach ($courselist as $course) {
     if ($course->id != SITEID) {
@@ -99,7 +98,9 @@ if (!empty($errors)) {
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
-$formcontent .= 'Activity Name : ' . html_writer::select($quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
+if (isset($reportobj->quiz_array)) {
+    $formcontent .= 'Activity Name : ' . html_writer::select($reportobj->quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
+}
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype, array('Select chart'), array('id' => 'chartdropdown'));
 $formcontent .= '</br>';
 $formcontent .= 'User(s) (You can select <strong>single / multiple</strong> users here): ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User(s)'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
@@ -129,10 +130,10 @@ echo $formcontent;
             function drawChart() {
             var data = new google.visualization.DataTable();
                     data.addColumn('string', 'Data');
-<?php foreach ($gradeheaders as $gradehead) { ?>
+<?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } if ($reportid == 1) { ?>
-                data.addRows([<?php echo implode(',', $json_grades_array); ?>]);
+                data.addRows([<?php echo implode(',', $reportobj->json_grades_array); ?>]);
 <?php } elseif ($reportid == 2) { ?>
                 data.addRows([<?php echo implode(',', $quizdetails); ?>]);
 <?php } else { ?>
@@ -146,7 +147,7 @@ echo $formcontent;
                             vAxis: {
                             title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
                             },
-<?php if ($chartoptions[$charttype] == 'BubbleChart' && $reportid == 3) {?>
+<?php if ($chartoptions[$charttype] == 'BubbleChart' && $reportid == 3) { ?>
                         bubble: {textStyle: {fontSize: 11}}
 <?php } ?>
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>

@@ -62,30 +62,42 @@ function get_report_class($reportid) {
     return $classes_array[$reportid];
 }
 
-class course_process {
-    /* Return course users
-     * @param : courseid int
-     */
+/* Return course users
+ * @param : courseid int
+ */
 
-    function get_course_users($courseid) {
-        global $DB;
-        $users_list = array();
-        if (!empty($courseid)) {
-            $role = $DB->get_record('role', array('shortname' => 'student'));
-            $users = get_role_users($role->id, CONTEXT_COURSE::instance($courseid));
+function get_course_users($courseid) {
+    global $DB;
+    $users_list = array();
+    if (!empty($courseid)) {
+        $role = $DB->get_record('role', array('shortname' => 'student'));
+        $users = get_role_users($role->id, CONTEXT_COURSE::instance($courseid));
 //        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
-            foreach ($users as $user) {
-                $users_list[$user->username] = $user->username;
-            }
+        foreach ($users as $user) {
+            $users_list[$user->username] = $user->username;
         }
-        return $users_list;
+    }
+    return $users_list;
+}
+
+function get_chart_types() {
+    $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
+    return $chartoptions;
+}
+
+class course_progress {
+
+    function get_chart_types() {
+        $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
+        return $chartoptions;
     }
 
-    function process_reportdata($courseid, $users, $charttype) {
+    function process_reportdata($reportobj,$courseid, $users, $charttype) {
+        global $DB,$USER;
         $json_grades = array();
         $users_update = array();
         $feedback = array();
-
+        $context = context_course::instance($courseid);
         $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
 
 //first make sure we have proper final grades - this must be done before constructing of the grade tree
@@ -179,30 +191,15 @@ class course_process {
 }
 
 class activity_attempt {
-    /* Return course users
-     * @param : courseid int
-     */
 
-    function get_course_users($courseid) {
-        global $DB;
-        $users_list = array();
-        if (!empty($courseid)) {
-            $role = $DB->get_record('role', array('shortname' => 'student'));
-            $users = get_role_users($role->id, CONTEXT_COURSE::instance($courseid));
-//        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
-            foreach ($users as $user) {
-                $users_list[$user->username] = $user->username;
-            }
-        }
-        return $users_list;
-    }
-
-    function process_reportdata($courseid, $users, $charttype) {
+    function process_reportdata($reportobj,$courseid, $users, $charttype) {
+        $quiz_array = $this->get_course_quiz($courseid);
+        $reportobj->quiz_array = $quiz_array;
         $quizdetails = array();
         $info = '';
         $notattemptedusers = array();
         if ($users && !empty($quizid)) {
-            $json_quiz_attempt = get_user_quiz_attempts($quizid, $users);
+            $json_quiz_attempt = $this->get_user_quiz_attempts($quizid, $users);
             if (array_key_exists('usernotattempted', $json_quiz_attempt)) {
                 $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
                 $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
@@ -227,6 +224,19 @@ class activity_attempt {
         }
     }
 
+    function get_course_quiz($courseid) {
+        $quiz_array = array();
+        if (!empty($courseid)) {
+            $activities = get_array_of_activities($courseid);
+            foreach ($activities as $actinfo) {
+                if ($actinfo->mod == 'quiz') {
+                    $quiz_array[$actinfo->id] = $actinfo->name;
+                }
+            }
+        }
+        return $quiz_array;
+    }
+
     function get_user_quiz_attempts($quizid, $users) {
         global $DB;
         $attempts = array();
@@ -236,7 +246,7 @@ class activity_attempt {
             foreach ($users as $username) {
                 $count = 1;
                 $user = $DB->get_record('user', array('username' => $username));
-                $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
+                $quizattempts = $this->quiz_get_user_attempts($quizid, $user->id, 'finished');
                 if ($quizattempts) {
                     foreach ($quizattempts as $quizattempt) {
                         $attempts[$username]['Attempt ' . $count] = $quizattempt->sumgrades;
@@ -250,7 +260,7 @@ class activity_attempt {
                 $currentnumofattempts[] = count($attempt);
                 $maxnumofattempts = max($currentnumofattempts);
             }
-            $attempts = $attempts ? format_quiz_attemptwise_grades($maxnumofattempts, $attempts) : array('');
+            $attempts = $attempts ? $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts) : array('');
         }
         return array_merge($quizdetails, $attempts);
     }
@@ -290,25 +300,8 @@ class activity_attempt {
 }
 
 class activity_status {
-    /* Return course users
-     * @param : courseid int
-     */
 
-    function get_course_users($courseid) {
-        global $DB;
-        $users_list = array();
-        if (!empty($courseid)) {
-            $role = $DB->get_record('role', array('shortname' => 'student'));
-            $users = get_role_users($role->id, CONTEXT_COURSE::instance($courseid));
-//        $users = get_enrolled_users(CONTEXT_COURSE::instance($courseid));
-            foreach ($users as $user) {
-                $users_list[$user->username] = $user->username;
-            }
-        }
-        return $users_list;
-    }
-
-    function process_reportdata($courseid, $users, $charttype) {
+    function process_reportdata($reportobj,$courseid, $users, $charttype) {
         $resourceactivitycompletion = get_activity_completion($courseid);
         $averageusergrades = get_user_avggrades($report->grades);
         if (!empty($users)) {
@@ -411,17 +404,4 @@ class activity_status {
         return $axis;
     }
 
-}
-
-function get_course_quiz($courseid) {
-    $quiz_array = array();
-    if (!empty($courseid)) {
-        $activities = get_array_of_activities($courseid);
-        foreach ($activities as $actinfo) {
-            if ($actinfo->mod == 'quiz') {
-                $quiz_array[$actinfo->id] = $actinfo->name;
-            }
-        }
-    }
-    return $quiz_array;
 }
