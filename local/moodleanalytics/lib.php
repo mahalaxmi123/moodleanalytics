@@ -156,7 +156,7 @@ class course_progress {
             }
         }
 
-        $reportobj->json_grades_array = $this->get_json_grades_array($json_grades);
+        $reportobj->data = $this->get_data($json_grades);
         $reportobj->gradeheaders = $this->get_headers($users, $users_update);
         $reportobj->act_avg_position = $this->get_act_avg_position($reportobj->gradeheaders);
     }
@@ -168,7 +168,7 @@ class course_progress {
         return $axis;
     }
 
-    function get_json_grades_array($json_grades) {
+    function get_data($json_grades) {
         $json_grades_array = array();
         foreach ($json_grades as $key => $grade_info) {
             $grade_info = TRIM($grade_info, ',');
@@ -225,7 +225,7 @@ class activity_attempt {
             }
             unset($json_quiz_attempt['usernotattempted']);
 
-            $reportobj->json_grades_array = $this->get_quiz_details($json_quiz_attempt);
+            $reportobj->data = $this->get_data($json_quiz_attempt);
             $reportobj->gradeheaders = $this->get_headers($users, $notattemptedusers);
         }
     }
@@ -312,7 +312,7 @@ class activity_attempt {
         return $gradeheaders;
     }
 
-    function get_quiz_details($json_quiz_attempt) {
+    function get_data($json_quiz_attempt) {
         if (!empty($json_quiz_attempt)) {
             foreach ($json_quiz_attempt as $quiz => $quizgrades) {
                 $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";

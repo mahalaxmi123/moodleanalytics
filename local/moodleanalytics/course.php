@@ -135,7 +135,7 @@ echo $formcontent;
 <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } ?>
-                data.addRows([<?php echo implode(',', $reportobj->json_grades_array); ?>]);
+                data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 
             var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
