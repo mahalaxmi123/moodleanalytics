@@ -158,6 +158,7 @@ class course_progress {
 
         $reportobj->json_grades_array = $this->get_json_grades_array($json_grades);
         $reportobj->gradeheaders = $this->get_headers($users, $users_update);
+        $reportobj->act_avg_position = $this->get_act_avg_position($reportobj->gradeheaders);
     }
 
     function get_axis_names($reportname) {
@@ -191,11 +192,15 @@ class course_progress {
         }
         $position = '';
         if (empty($errors)) {
-            $gradeheaders[] = "'" . 'activities average' . "'";
-            $position = array_search("'" . 'activities average' . "'", $gradeheaders);
+            $gradeheaders[] = "'" . 'activities average' . "'";   
         }
 
         return $gradeheaders;
+    }
+    
+    function get_act_avg_position($gradeheaders) {
+        $position = array_search("'" . 'activities average' . "'", $gradeheaders);
+        return $position;
     }
 
 }

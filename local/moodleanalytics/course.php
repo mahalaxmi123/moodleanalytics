@@ -154,9 +154,9 @@ echo $formcontent;
                         seriesType: 'bars',
     <?php if ($reportid == 1) { ?>
                             series: {<?php
-        echo (isset($position) ? $position : '');
+        echo (isset($reportobj->act_avg_position) ? $reportobj->act_avg_position : '');
         ?>: {type: 'line', color : 'black'}},
-                                    //                                    trendlines : {<?php echo $position; ?>:{
+                                    //                                    trendlines : {<?php echo $reportobj->act_avg_position; ?>:{
                                     //                                type: 'exponential',
                                     //                                        color: 'green',
                                     //                                        visibleInLegend: true,
