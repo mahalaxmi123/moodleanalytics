@@ -105,7 +105,7 @@ class course_progress {
 //Initialise the grader report object that produces the table
 //the class grade_report_grader_ajax was removed as part of MDL-21562
         $report = new grade_report_grader($courseid, $gpr, $context);
-        $numusers = $report->get_numusers(true, true);
+//        $numusers = $report->get_numusers(true, true);
 
         $activities = array();
         if (!empty($report->gtree->top_element['children'])) {
@@ -166,7 +166,7 @@ class course_progress {
         if (!empty($users)) {
             if (!empty($users_update)) {
                 foreach ($users_update as $key => $userval) {
-                    if (!empty($userval) && !in_array($userval, $notattemptedusers)) {
+                    if (!empty($userval)) {
                         $gradeheaders[] = "'" . $userval . " - Grade '";
                     }
                 }
@@ -302,11 +302,11 @@ class activity_attempt {
 class activity_status {
 
     function process_reportdata($reportobj,$courseid, $users, $charttype) {
-        $resourceactivitycompletion = get_activity_completion($courseid);
-        $averageusergrades = get_user_avggrades($report->grades);
+        $resourceactivitycompletion = $this->get_activity_completion($courseid);
+        $averageusergrades = $this->get_user_avggrades($reportobj->grades);
         if (!empty($users)) {
             foreach ($users as $key => $username) {
-                $feedback[$username] = random_value_for_feedback();
+                $feedback[$username] = $this->random_value_for_feedback();
             }
             if (!empty($resourceactivitycompletion) && $averageusergrades) {
                 foreach ($resourceactivitycompletion as $resuseridkey => $rescompletiongrade) {

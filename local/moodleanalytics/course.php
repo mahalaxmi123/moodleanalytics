@@ -75,7 +75,7 @@ if ($reportid == 3) {
     
 }
 
-if ($reportid == 1) {
+if ($reportid == 1 && !empty($users)) {
     
 }
 
