@@ -92,8 +92,8 @@ class course_progress {
         return $chartoptions;
     }
 
-    function process_reportdata($reportobj,$courseid, $users, $charttype) {
-        global $DB,$USER;
+    function process_reportdata($reportobj, $courseid, $users, $charttype) {
+        global $DB, $USER;
         $json_grades = array();
         $users_update = array();
         $feedback = array();
@@ -156,12 +156,27 @@ class course_progress {
             }
         }
 
+        $reportobj->json_grades_array = $this->get_json_grades_array($json_grades);
+        $reportobj->gradeheaders = $this->get_headers($users, $users_update);
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = 'Activities';
+        $axis->yaxis = 'Grades';
+        return $axis;
+    }
+
+    function get_json_grades_array($json_grades) {
         $json_grades_array = array();
         foreach ($json_grades as $key => $grade_info) {
             $grade_info = TRIM($grade_info, ',');
             $json_grades_array[] = "[" . $grade_info . "]";
         }
+        return $json_grades_array;
+    }
 
+    function get_headers($users, $users_update) {
         $gradeheaders = array();
         if (!empty($users)) {
             if (!empty($users_update)) {
@@ -179,20 +194,15 @@ class course_progress {
             $gradeheaders[] = "'" . 'activities average' . "'";
             $position = array_search("'" . 'activities average' . "'", $gradeheaders);
         }
-    }
 
-    function get_axis_names($reportname) {
-        $axis = new stdClass();
-        $axis->xaxis = 'Activities';
-        $axis->yaxis = 'Grades';
-        return $axis;
+        return $gradeheaders;
     }
 
 }
 
 class activity_attempt {
 
-    function process_reportdata($reportobj,$courseid, $users, $charttype) {
+    function process_reportdata($reportobj, $courseid, $users, $charttype) {
         $quiz_array = $this->get_course_quiz($courseid);
         $reportobj->quiz_array = $quiz_array;
         $quizdetails = array();
@@ -301,7 +311,7 @@ class activity_attempt {
 
 class activity_status {
 
-    function process_reportdata($reportobj,$courseid, $users, $charttype) {
+    function process_reportdata($reportobj, $courseid, $users, $charttype) {
         $resourceactivitycompletion = $this->get_activity_completion($courseid);
         $averageusergrades = $this->get_user_avggrades($reportobj->grades);
         if (!empty($users)) {
