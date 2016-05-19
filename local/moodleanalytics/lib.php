@@ -328,8 +328,14 @@ class activity_attempt {
 class activity_status {
 
     function process_reportdata($reportobj, $courseid, $users, $charttype) {
+        global $DB;
+        $context = context_course::instance($courseid);
+        $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
+        $report = new grade_report_grader($courseid, $gpr, $context);
+        $report->load_users();
+        $report->load_final_grades();
         $resourceactivitycompletion = $this->get_activity_completion($courseid);
-        $averageusergrades = $this->get_user_avggrades($reportobj->grades);
+        $averageusergrades = $this->get_user_avggrades($report->grades);
         if (!empty($users)) {
             foreach ($users as $key => $username) {
                 $feedback[$username] = $this->random_value_for_feedback();
@@ -344,9 +350,8 @@ class activity_status {
                     $newaveragegrade[$usersforavggrade->username] = $avgusergrades;
                 }
 
-                foreach ($users as $thisuserkey => $thisusername) {
-                    $chartdetails[] = "[" . "'" . $thisusername . "'" . "," . $newaveragegrade[$thisusername] . "," . $resactivitycompletion[$thisusername] . "," . $feedback[$thisusername] . "]";
-                }
+                $reportobj->data = $this->get_data($users, $newaveragegrade, $resactivitycompletion, $feedback);
+                $reportobj->gradeheaders = $this->get_headers();
             }
         } else {
             $errors[] = 'User(s)';
@@ -414,13 +419,20 @@ class activity_status {
         return $feedback;
     }
 
+    function get_data($users, $newaveragegrade, $resactivitycompletion, $feedback) {
+        foreach ($users as $thisuserkey => $thisusername) {
+            $chartdetails[] = "[" . "'" . $thisusername . "'" . "," . $newaveragegrade[$thisusername] . "," . $resactivitycompletion[$thisusername] . "," . $feedback[$thisusername] . "]";
+        }
+        return $chartdetails;
+    }
+
     function get_headers() {
         $gradeheaders = array();
         //        $gradeheaders[] = "'Test'";
         $gradeheaders[] = "'Grade'";
         $gradeheaders[] = "'Resource completion'";
         $gradeheaders[] = "'Feedback'";
-        $report->gradeheaders = $gradeheaders;
+        return $gradeheaders;
     }
 
     function get_axis_names($reportname) {
