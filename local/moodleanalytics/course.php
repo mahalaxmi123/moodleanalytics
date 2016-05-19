@@ -41,6 +41,8 @@ if ($reportid) {
     $reportobj = get_report_class($reportid);
 }
 
+$reportobj->quizid = $quizid;
+
 // return tracking object
 if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
     $reportobj->process_reportdata($reportobj,$courseid, $users, $charttype);
@@ -132,13 +134,9 @@ echo $formcontent;
                     data.addColumn('string', 'Data');
 <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
-<?php } if ($reportid == 1) { ?>
-                data.addRows([<?php echo implode(',', $reportobj->json_grades_array); ?>]);
-<?php } elseif ($reportid == 2) { ?>
-                data.addRows([<?php echo implode(',', $quizdetails); ?>]);
-<?php } else { ?>
-                data.addRows([<?php echo implode(',', $chartdetails); ?>]);
 <?php } ?>
+                data.addRows([<?php echo implode(',', $reportobj->json_grades_array); ?>]);
+
             var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
