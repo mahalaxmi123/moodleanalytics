@@ -45,7 +45,7 @@ $reportobj->quizid = $quizid;
 
 // return tracking object
 if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
-    $reportobj->process_reportdata($reportobj,$courseid, $users, $charttype);
+    $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
         $errors[] = 'Report Name';
@@ -100,9 +100,7 @@ if (!empty($errors)) {
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
-if (isset($reportobj->quiz_array)) {
-    $formcontent .= 'Activity Name : ' . html_writer::select($reportobj->quiz_array, 'quizid', $quizid, array('' => 'Select quiz'), array('id' => 'quizdropdown'));
-}
+$formcontent .= 'Activity Name : ' . html_writer::select(isset($reportobj->quiz_array) ? $reportobj->quiz_array : array(''), 'quizid', $quizid, array('' => 'Select Quiz'), array('id' => 'quizdropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype, array('Select chart'), array('id' => 'chartdropdown'));
 $formcontent .= '</br>';
 $formcontent .= 'User(s) (You can select <strong>single / multiple</strong> users here): ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User(s)'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
@@ -135,9 +133,8 @@ echo $formcontent;
 <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
 <?php } ?>
-                data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
-
-            var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
+            data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
+                    var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
                     title: '<?php echo isset($axis->xaxis) ? $axis->xaxis : ''; ?>',

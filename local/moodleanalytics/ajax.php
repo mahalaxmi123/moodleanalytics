@@ -28,8 +28,9 @@ if ($functionname) {
             $result = json_encode($result);
             break;
         case "get_course_quiz":
+            $activity_attempt = new activity_attempt();
             $courseid = optional_param('courseid', 0, PARAM_INT);
-            $result = get_course_quiz($courseid);
+            $result = $activity_attempt->get_course_quiz($courseid);
             $result = json_encode($result);
             break;
         default:

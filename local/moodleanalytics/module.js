@@ -44,12 +44,12 @@ $(document).ready(function () {
         }
     });
 
-    if($('#reportdropdown').val() && $('#reportdropdown').val() == 2){
+    if ($('#reportdropdown').val() && $('#reportdropdown').val() == 2) {
         $('#quizdropdown').prop('disabled', false);
     } else {
         $('#quizdropdown').prop('disabled', true);
     }
-    
+
     $('#reportdropdown').change(function () {
         if ($('#reportdropdown').val() == 2) {
             $('#quizdropdown').prop('disabled', false);
