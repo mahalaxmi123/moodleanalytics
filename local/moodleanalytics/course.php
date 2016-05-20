@@ -121,7 +121,7 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
-        <h5><?php echo isset($info) ? $info : ''; ?></h5>
+        <h5><?php echo isset($reportobj->info) ? $reportobj->info : ''; ?></h5>
         <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>
 </div>
@@ -130,9 +130,9 @@ echo $formcontent;
             function drawChart() {
             var data = new google.visualization.DataTable();
                     data.addColumn('string', 'Data');
-<?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
+<?php foreach ($reportobj->gradeheaders as $gradehead) { if(!empty($gradehead)){ ?>
                 data.addColumn('number',<?php echo $gradehead; ?>);
-<?php } ?>
+<?php }} ?>
             data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
                     var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {

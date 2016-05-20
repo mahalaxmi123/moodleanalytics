@@ -211,7 +211,7 @@ class activity_attempt {
         $quiz_array = $this->get_course_quiz($courseid);
         $reportobj->quiz_array = $quiz_array;
         $quizdetails = array();
-        $info = '';
+        $reportobj->info = '';
         $notattemptedusers = array();
         if ($users && !empty($reportobj->quizid)) {
             $json_quiz_attempt = $this->get_user_quiz_attempts($reportobj->quizid, $users);
@@ -219,7 +219,7 @@ class activity_attempt {
                 $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
                 $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
                 foreach ($notattemptedmessage['usernotattempted'] as $key => $message) {
-                    $info .= html_writer::div($message, 'alert alert-info');
+                    $reportobj->info .= html_writer::div($message, 'alert alert-info');
                     $notattemptedusers[] = $key;
                 }
             }
@@ -307,6 +307,10 @@ class activity_attempt {
         foreach ($users as $userkey => $uservalue) {
             if (!empty($uservalue) && !in_array($uservalue, $notattemptedusers)) {
                 $gradeheaders[] = "'" . $uservalue . " - Grade '";
+            } else {
+                if(count($uservalue) == 1 && in_array($uservalue, $notattemptedusers)){
+                    $gradeheaders[] = '';
+                }
             }
         }
         return $gradeheaders;
@@ -318,7 +322,7 @@ class activity_attempt {
                 $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
             }
         } else {
-//            $info .= html_writer::div('User has not attempted the quiz yet.', 'alert alert-info');
+            $quizdetails = array('');
         }
         return $quizdetails;
     }
