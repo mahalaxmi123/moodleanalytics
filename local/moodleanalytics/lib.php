@@ -266,7 +266,9 @@ class activity_attempt {
                 $currentnumofattempts[] = count($attempt);
                 $maxnumofattempts = max($currentnumofattempts);
             }
-            $attempts = $attempts ? $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts) : array('');
+            if(!empty($attempts)){
+                $attempts = $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
+            }
         }
         return array_merge($quizdetails, $attempts);
     }
@@ -304,25 +306,21 @@ class activity_attempt {
     }
 
     function get_headers($users, $notattemptedusers) {
+        $gradeheaders = array();
         foreach ($users as $userkey => $uservalue) {
             if (!empty($uservalue) && !in_array($uservalue, $notattemptedusers)) {
                 $gradeheaders[] = "'" . $uservalue . " - Grade '";
-            } else {
-                if(count($uservalue) == 1 && in_array($uservalue, $notattemptedusers)){
-                    $gradeheaders[] = '';
-                }
             }
         }
         return $gradeheaders;
     }
 
     function get_data($json_quiz_attempt) {
+        $quizdetails = array();
         if (!empty($json_quiz_attempt)) {
             foreach ($json_quiz_attempt as $quiz => $quizgrades) {
                 $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
             }
-        } else {
-            $quizdetails = array('');
         }
         return $quizdetails;
     }
