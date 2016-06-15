@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report',4 => 'Registrations');
     return $report_array;
 }
 
@@ -57,7 +57,8 @@ function get_coursereports() {
 function get_report_class($reportid) {
     $classes_array = array(1 => new course_progress(),
         2 => new activity_attempt(),
-        3 => new activity_status()
+        3 => new activity_status(), 
+        4 => new registrations()
     );
     return $classes_array[$reportid];
 }
@@ -266,7 +267,7 @@ class activity_attempt {
                 $currentnumofattempts[] = count($attempt);
                 $maxnumofattempts = max($currentnumofattempts);
             }
-            if(!empty($attempts)){
+            if (!empty($attempts)) {
                 $attempts = $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
             }
         }
@@ -442,6 +443,33 @@ class activity_status {
         $axis->xaxis = 'Grades';
         $axis->yaxis = 'Resource Completion';
         return $axis;
+    }
+
+}
+
+class registrations {
+
+    function get_chart_types() {
+        $chartoptions = array(1 => 'GeoChart');
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $courseid, $users, $charttype) {
+        global $DB, $USER;
+
+        $countries = $this->get_dashboard_countries();
+        foreach ($countries as $country) {
+            $json_countries[] = "['" . ucfirst($country->country) . "', $country->users]";
+        }
+
+        $reportobj->data = $json_countries;
+    }
+
+    function get_dashboard_countries() {
+        global $USER, $CFG, $DB;
+        $sql = "SELECT country, count(*) as users FROM {user} WHERE confirmed = 1 and deleted = 0 and suspended = 0 and country != '' GROUP BY country";
+        $countries = $DB->get_record_sql($sql);
+        return $countries;
     }
 
 }
