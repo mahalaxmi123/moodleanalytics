@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses');
     return $report_array;
 }
 
@@ -57,9 +57,22 @@ function get_coursereports() {
 function get_report_class($reportid) {
     $classes_array = array(1 => new course_progress(),
         2 => new activity_attempt(),
-        3 => new activity_status()
+        3 => new activity_status(),
+        4 => new new_courses()
     );
     return $classes_array[$reportid];
+}
+
+/* Returns array of days filter to call
+ *  Report for the days filter
+ */
+
+function get_days_filter() {
+    $days_filter = array(3 => 'Last 3 days',
+        7 => 'Last 7 days',
+        10 => 'Last 10 days'
+    );
+    return $days_filter;
 }
 
 /* Return course users
@@ -266,7 +279,7 @@ class activity_attempt {
                 $currentnumofattempts[] = count($attempt);
                 $maxnumofattempts = max($currentnumofattempts);
             }
-            if(!empty($attempts)){
+            if (!empty($attempts)) {
                 $attempts = $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
             }
         }
@@ -442,6 +455,57 @@ class activity_status {
         $axis->xaxis = 'Grades';
         $axis->yaxis = 'Resource Completion';
         return $axis;
+    }
+
+}
+
+class new_courses {
+
+    function process_reportdata($reportobj, $days) {
+        if ($days) {
+            $courses = $this->get_new_courses($days);
+            $coursedetails = array();
+            $daywisecourse = array();
+            $count = 0;
+            foreach($courses as $course){
+                $coursedetails[$course->timecreated][] = $course;
+            }
+            foreach($coursedetails as $key => $numofcourses){
+                $daywisecourse[date_format(date_create($key), 'jS M')] = count($numofcourses);
+            }
+            print_object($daywisecourse);
+            $reportobj->data = $this->get_data($daywisecourse);
+            $reportobj->gradeheaders = $this->get_headers();
+        }
+    }
+
+    function get_new_courses($days) {
+        global $DB;
+        $lastselecteddate = strtotime(date('Y-m-d h:m:s', strtotime("-$days days")));
+        $sql = "select id, shortname, FROM_UNIXTIME(timecreated, '%Y-%m-%d') as timecreated from {course} where timecreated > $lastselecteddate ORDER BY timecreated DESC";
+        $courses = $DB->get_records_sql($sql);
+        return $courses;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = 'Days';
+        $axis->yaxis = 'courses';
+        return $axis;
+    }
+    
+    function get_data($daywisecourse){
+        foreach ($daywisecourse as $day => $coursecount) {
+            $chartdetails[] = "[" . "'" . $day . "'" . "," . $coursecount ."]";
+        }
+        return $chartdetails;
+    }
+    
+    function get_headers() {
+        $gradeheaders = array();
+//        $gradeheaders[] = "'Date'";
+        $gradeheaders[] = "'Courses'";
+        return $gradeheaders;
     }
 
 }
