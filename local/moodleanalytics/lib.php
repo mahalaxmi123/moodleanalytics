@@ -461,9 +461,9 @@ class activity_status {
 
 class new_courses {
 
-    function process_reportdata($reportobj, $days) {
-        if ($days) {
-            $courses = $this->get_new_courses($days);
+    function process_reportdata($reportobj, $from_date, $to_date) {
+        if ($from_date && $to_date) {
+            $courses = $this->get_new_courses($from_date, $to_date);
             $coursedetails = array();
             $daywisecourse = array();
             $count = 0;
@@ -473,16 +473,16 @@ class new_courses {
             foreach($coursedetails as $key => $numofcourses){
                 $daywisecourse[date_format(date_create($key), 'jS M')] = count($numofcourses);
             }
-            print_object($daywisecourse);
+            
             $reportobj->data = $this->get_data($daywisecourse);
             $reportobj->gradeheaders = $this->get_headers();
         }
     }
 
-    function get_new_courses($days) {
+    function get_new_courses($fromdate, $todate) {
         global $DB;
-        $lastselecteddate = strtotime(date('Y-m-d h:m:s', strtotime("-$days days")));
-        $sql = "select id, shortname, FROM_UNIXTIME(timecreated, '%Y-%m-%d') as timecreated from {course} where timecreated > $lastselecteddate ORDER BY timecreated DESC";
+//        $lastselecteddate = strtotime(date('Y-m-d h:m:s', strtotime("-$days days")));
+        $sql = "select id, shortname, FROM_UNIXTIME(timecreated, '%Y-%m-%d') as timecreated from {course} where timecreated BETWEEN $fromdate AND $todate ORDER BY timecreated ASC";
         $courses = $DB->get_records_sql($sql);
         return $courses;
     }
@@ -498,7 +498,7 @@ class new_courses {
         foreach ($daywisecourse as $day => $coursecount) {
             $chartdetails[] = "[" . "'" . $day . "'" . "," . $coursecount ."]";
         }
-        return $chartdetails;
+        return !empty($chartdetails) ? $chartdetails : '';
     }
     
     function get_headers() {

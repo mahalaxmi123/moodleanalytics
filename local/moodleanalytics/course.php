@@ -18,6 +18,8 @@ $reset = optional_param('reset', '', PARAM_ALPHANUM);
 $reportid = optional_param('reportid', '', PARAM_INT);
 $quizid = optional_param('quizid', '', PARAM_INT);
 $days = optional_param('days_filter', '', PARAM_TEXT);
+$from_date = optional_param('from_date', '', PARAM_TEXT);
+$to_date = optional_param('to_date', '', PARAM_TEXT);
 $users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
 if (!empty($courseid)) {
@@ -44,12 +46,18 @@ if ($reportid) {
 
 $reportobj->quizid = $quizid;
 
+$fromdate = new DateTime($from_date);
+$from_date = $fromdate->format('U');
+$todate = new DateTime($to_date);
+$to_date = $todate->format('U') + DAY_6;
+
 // return tracking object
 if (!empty($submit)) {
-    if($reportid != 4 && !empty($courseid) && !empty($users) && !empty($charttype)) {
+    if ($reportid != 4 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
     } else {
-        $reportobj->process_reportdata($reportobj, $days);
+
+        $reportobj->process_reportdata($reportobj, $from_date, $to_date);
     }
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
@@ -76,8 +84,6 @@ $days_filter = array();
 $chartoptions = get_chart_types();
 $userlist = get_course_users($courseid);
 $days_filter = get_days_filter();
-print_object($days_filter);
-print_object($days);
 if ($reportid == 2) {
     
 }
@@ -109,6 +115,8 @@ if (!empty($errors)) {
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= html_writer::select($days_filter, 'days_filter', $days, array('' => 'Select days'), array('id' => 'daysdropdown'));
+$formcontent .= 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date'));
+$formcontent .= 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date'));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
 $formcontent .= 'Activity Name : ' . html_writer::select(isset($reportobj->quiz_array) ? $reportobj->quiz_array : array(''), 'quizid', $quizid, array('' => 'Select Quiz'), array('id' => 'quizdropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype, array('Select chart'), array('id' => 'chartdropdown'));
