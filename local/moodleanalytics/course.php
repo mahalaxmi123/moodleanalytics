@@ -42,23 +42,32 @@ if ($reportid) {
 }
 
 $reportobj->quizid = $quizid;
-
+$params = new stdClass();
+if (!empty($courseid)) {
+    $params->courseid = $courseid;
+}
+if (!empty($users)) {
+    $params->users = $users;
+}
+if (!empty($charttype)){
+    $params->charttype = $charttype;
+}
 // return tracking object
-if (!empty($submit) && !empty($courseid) && !empty($users) && !empty($charttype)) {
-    $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
+if (!empty($submit) && !empty($params)) {
+$reportobj->process_reportdata($reportobj, $params);
 } elseif (!empty($submit)) {
-    if (empty($reportid)) {
-        $errors[] = 'Report Name';
-    }
-    if (empty($courseid)) {
-        $errors[] = 'Course';
-    }
-    if (empty($charttype)) {
-        $errors[] = 'Chart Type';
-    }
-    if (empty($users)) {
-        $errors[] = 'User(s)';
-    }
+if (empty($reportid)) {
+$errors[] = 'Report Name';
+}
+if (empty($courseid)) {
+$errors[] = 'Course';
+}
+if (empty($charttype)) {
+$errors[] = 'Chart Type';
+}
+if (empty($users)) {
+$errors[] = 'User(s)';
+}
 } else {
     echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 }
@@ -128,31 +137,31 @@ echo $formcontent;
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
             function drawChart() {
-<?php if(!empty($reportobj->data)) { ?>
+<?php if (!empty($reportobj->data)) { ?>
                 var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Data');
-<?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
-<?php if(!empty($gradehead)) { ?>
-                data.addColumn('number',<?php echo $gradehead; ?>);
-<?php } ?>
-<?php } ?>
+                        data.addColumn('string', 'Data');
+    <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
+        <?php if (!empty($gradehead)) { ?>
+                        data.addColumn('number',<?php echo $gradehead; ?>);
+        <?php } ?>
+    <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 <?php } ?>
-                var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
+            var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
-                        title: '<?php echo isset($axis->xaxis) ? $axis->xaxis : ''; ?>',
+                    title: '<?php echo isset($axis->xaxis) ? $axis->xaxis : ''; ?>',
                     },
-                    vAxis: {
-                        title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
-                    },
+                            vAxis: {
+                            title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
+                            },
 <?php if ($chartoptions[$charttype] == 'BubbleChart' && $reportid == 3) { ?>
-                    bubble: {textStyle: {fontSize: 11}}
+                        bubble: {textStyle: {fontSize: 11}}
 <?php } ?>
 <?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
-                    seriesType: 'bars',
+                        seriesType: 'bars',
     <?php if ($reportid == 1) { ?>
-                    series: {<?php
+                            series: {<?php
         echo (isset($reportobj->act_avg_position) ? $reportobj->act_avg_position : '');
         ?>: {type: 'line', color : 'black'}},
                                     //                                    trendlines : {<?php echo $reportobj->act_avg_position; ?>:{
