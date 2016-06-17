@@ -59,6 +59,7 @@ function get_report_class($reportid) {
         2 => new activity_attempt(),
         3 => new activity_status(),
         4 => new registrations(),
+        5 => new enrollmentspercourse(),
     );
     return $classes_array[$reportid];
 }
@@ -494,6 +495,58 @@ class registrations {
         $header2 = new stdclass();
         $header2->type = "'number'";
         $header2->name = "'Users'";
+        $gradeheaders[] = $header2;
+        return $gradeheaders;
+    }
+
+}
+
+class enrollmentspercourse {
+
+    function get_chart_types() {
+        $chartoptions = 'PieChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_enrols = array();
+        $enrollments = $this->get_enrollments_per_course();
+        foreach ($enrollments as $enrollment) {
+            $json_enrols[] = "['" . $enrollment->fullname . "', $enrollment->nums]";
+        }
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_enrols;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_enrollments_per_course() {
+        global $USER, $CFG, $DB;
+//        $sql = $this->get_teacher_sql($params, "c.id", "courses");
+        $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {$CFG->prefix}course c, {$CFG->prefix}enrol e, {$CFG->prefix}user_enrolments ue WHERE e.courseid = c.id AND ue.enrolid =e.id GROUP BY c.id";
+        return $DB->get_records_sql($sql1);
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = 'fullname';
+        $axis->yaxis = 'nums';
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'fullname'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'nums'";
         $gradeheaders[] = $header2;
         return $gradeheaders;
     }

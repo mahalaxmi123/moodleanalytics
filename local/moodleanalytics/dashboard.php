@@ -45,6 +45,15 @@ $axis = new stdClass();
 if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names('Registrations');
 }
+$reportobj1 = new stdClass();
+if ($reportid) {
+    $reportobj1 = get_report_class(5);
+}
+$params = new stdClass();
+$reportobj1->process_reportdata($reportobj1, $params);
+
+$axis1 = new stdClass();
+$axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={
@@ -59,10 +68,10 @@ if (!empty($reportid) & $reportid >= 1) {
         <h3>Registrations</h3>
         <div id="countries" style="width:500px; height:500px;"></div>
     </div>
-<!--    <div class="box45 pull-right">
+    <div class="box45 pull-right">
         <h3>Enrollment per-course</h3>
         <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
-    </div>-->
+    </div>
 </div>
 <script type="text/javascript">
             google.setOnLoadCallback(drawRegionsMap);
@@ -87,24 +96,37 @@ if (!empty($reportid) & $reportid >= 1) {
                     chart.draw(data, {});
             }
 </script>
-<!--<script type="text/javascript">
+<script type="text/javascript">
     google.setOnLoadCallback(drawEnrolments);
             function drawEnrolments() {
-            var data = google.visualization.arrayToDataTable([
-                    ['fullname', 'nums'],<?php echo ($json_enrols) ? implode(",", $json_enrols) : ""; ?> ]);
+<?php if (!empty($reportobj1->data)) { ?>
+                var data = new google.visualization.DataTable();
+    <?php foreach ($reportobj1->headers as $header) { ?>
+        <?php if (!empty($header)) { ?>
+                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
+        <?php } ?>
+    <?php } ?>
+                data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
+<?php } ?>
+            var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('enrollmentpercourse'));
                     var options = {
-                    backgroundColor:{fill:"transparent"},
+                    hAxis: {
+                    title: '<?php echo isset($axis1->xaxis) ? $axis1->xaxis : ''; ?>',
+                    },
+                            vAxis: {
+                            title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
+                            },
+                            backgroundColor:{fill:"transparent"},
                             title: '',
                             pieHole: 0.4,
                             chartArea: {
                             width: '100%'
                             }
                     };
-                    var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('enrollmentpercourse'));
                     chart.draw(data, options);
             }
 
-</script>-->
+</script>
 
 <?php
 echo $OUTPUT->footer();
