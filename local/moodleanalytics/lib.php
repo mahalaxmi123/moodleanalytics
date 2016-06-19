@@ -60,6 +60,7 @@ function get_report_class($reportid) {
         3 => new activity_status(),
         4 => new registrations(),
         5 => new enrollmentspercourse(),
+        6 => new coursesize(),
     );
     return $classes_array[$reportid];
 }
@@ -561,20 +562,32 @@ class coursesize {
     }
 
     function process_reportdata($reportobj, $params = array()) {
-        global $DB, $USER;
-        
+        global $DB, $USER,$CFG;
+        $json_coursesizes = array();
+        $coursesizes = array();
+        $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size "
+                . "FROM {$CFG->prefix}course c "
+                . "LEFT JOIN (SELECT c.instanceid AS course, sum( f.filesize ) as coursesize "
+                . "FROM {$CFG->prefix}files f, {$CFG->prefix}context c "
+                . "WHERE c.id = f.contextid GROUP BY c.instanceid) fs ON fs.course = c.id WHERE c.category > 0 ORDER BY c.timecreated ";
+        $coursesizes = $DB->get_records_sql($coursesizesql);
+
+        foreach ($coursesizes as $csize) {
+            $csize->size = ($csize->size/(1024*1024));
+            $json_coursesizes[] = "['" . $csize->coursename . "', $csize->size]";
+        }
 
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
-        $reportobj->data = $json_enrols;
+        $reportobj->data = $json_coursesizes;
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
     }
 
     function get_axis_names($reportname) {
         $axis = new stdClass();
-        $axis->xaxis = 'Size';
+        $axis->xaxis = 'Size in MB';
         $axis->yaxis = 'Course Name';
         return $axis;
     }
@@ -587,7 +600,7 @@ class coursesize {
         $gradeheaders[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
-        $header2->name = "'Size'";
+        $header2->name = "'Size in MB'";
         $gradeheaders[] = $header2;
         return $gradeheaders;
     }
