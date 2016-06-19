@@ -46,18 +46,22 @@ if ($reportid) {
 
 $reportobj->quizid = $quizid;
 
-$fromdate = new DateTime($from_date);
-$from_date = $fromdate->format('U');
-$todate = new DateTime($to_date);
-$to_date = $todate->format('U') + DAY_6;
+//$fromdate = new DateTime($from_date);
+//$from_date = $fromdate->format('U');
+//$todate = new DateTime($to_date);
+//$to_date = $todate->format('U') + DAY_1;
+
+$from_date = strtotime($from_date);
+$to_date = strtotime($to_date)+DAY_1;
 
 // return tracking object
 if (!empty($submit)) {
-    if ($reportid != 4 && !empty($courseid) && !empty($users) && !empty($charttype)) {
+    if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
-    } else {
-
+    } elseif($reportid == 4) {
         $reportobj->process_reportdata($reportobj, $from_date, $to_date);
+    } else {
+        $reportobj->process_reportdata($reportobj);
     }
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
@@ -133,7 +137,7 @@ echo $formcontent;
         'modules':[{
         'name':'visualization',
         'version':'1',
-        'packages':['corechart','geochart','line']
+        'packages':['corechart','geochart','line','table']
         }]
 }"></script>
 <div>
@@ -150,9 +154,11 @@ echo $formcontent;
                 var data = new google.visualization.DataTable();
                         data.addColumn('string', 'Data');
     <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
-        <?php if (!empty($gradehead)) { ?>
+        <?php if (!empty($gradehead) && $reportid != 5) { ?>
                         data.addColumn('number',<?php echo $gradehead; ?>);
-        <?php } ?>
+        <?php } else { ?>
+                        data.addColumn('string',<?php echo $gradehead; ?>);
+        <?php }?>
     <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 <?php } ?>

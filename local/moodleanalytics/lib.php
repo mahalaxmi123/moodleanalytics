@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity');
     return $report_array;
 }
 
@@ -58,7 +58,8 @@ function get_report_class($reportid) {
     $classes_array = array(1 => new course_progress(),
         2 => new activity_attempt(),
         3 => new activity_status(),
-        4 => new new_courses()
+        4 => new new_courses(),
+        5 => new course_with_zero_activity()
     );
     return $classes_array[$reportid];
 }
@@ -94,7 +95,7 @@ function get_course_users($courseid) {
 }
 
 function get_chart_types() {
-    $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
+    $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart', 4 => 'Table');
     return $chartoptions;
 }
 
@@ -463,17 +464,34 @@ class new_courses {
 
     function process_reportdata($reportobj, $from_date, $to_date) {
         if ($from_date && $to_date) {
+//            var_dump((int)date('d', $to_date - $from_date - DAY_1));
+            $diffindates = (int) date('d', $to_date - $from_date - DAY_1);
+            $selecteddates = array();
+            $start_date = $from_date;
+            for ($i = 1; $i <= $diffindates; $i++) {
+                print_object(date('Y-m-d', $start_date));
+                $selecteddates[] = $start_date;
+                $start_date = $start_date + DAY_1;
+            }
+            print_object($selecteddates);
             $courses = $this->get_new_courses($from_date, $to_date);
             $coursedetails = array();
             $daywisecourse = array();
             $count = 0;
-            foreach($courses as $course){
+            foreach ($courses as $course) {
                 $coursedetails[$course->timecreated][] = $course;
             }
-            foreach($coursedetails as $key => $numofcourses){
+            $coursecreateddays = count($coursedetails);
+            foreach ($coursedetails as $key => $numofcourses) {
+                if ($coursecreateddays < $diffindates) {
+                    $numofdayswithnocourses = $diffindates - $coursecreateddays;
+                    for ($j = 1; $j <= $numofdayswithnocourses; $j++) {
+                        
+                    }
+                }
                 $daywisecourse[date_format(date_create($key), 'jS M')] = count($numofcourses);
             }
-            
+
             $reportobj->data = $this->get_data($daywisecourse);
             $reportobj->gradeheaders = $this->get_headers();
         }
@@ -493,18 +511,52 @@ class new_courses {
         $axis->yaxis = 'courses';
         return $axis;
     }
-    
-    function get_data($daywisecourse){
+
+    function get_data($daywisecourse) {
+        $chartdetails = array();
         foreach ($daywisecourse as $day => $coursecount) {
-            $chartdetails[] = "[" . "'" . $day . "'" . "," . $coursecount ."]";
+            $chartdetails[] = "[" . "'" . $day . "'" . "," . $coursecount . "]";
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
-    
+
     function get_headers() {
         $gradeheaders = array();
 //        $gradeheaders[] = "'Date'";
         $gradeheaders[] = "'Courses'";
+        return $gradeheaders;
+    }
+
+}
+
+class course_with_zero_activity {
+
+    function process_reportdata($reportobj) {
+        global $DB;
+        $sql = "SELECT fullname, FROM_UNIXTIME(timecreated, '%Y-%m-%d') as timecreated FROM  {course}
+                WHERE id NOT IN (SELECT DISTINCT course FROM {course_modules})
+                AND id != 1";
+        $noactcourses = $DB->get_records_sql($sql);
+        $reportobj->data = $this->get_data($noactcourses);
+        $reportobj->gradeheaders = $this->get_headers();
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($courseswithnoactivities) {
+//        $chartdetails = array();
+        foreach ($courseswithnoactivities as $course) {
+            $chartdetails[] = "[" . "'" . $course->fullname . "'" . "," . "'" . $course->timecreated . "'" ."]";
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+//        $gradeheaders[] = "'Date'";
+        $gradeheaders[] = "'Creation Time'";
         return $gradeheaders;
     }
 
