@@ -51,18 +51,28 @@ $reportobj->quizid = $quizid;
 //$todate = new DateTime($to_date);
 //$to_date = $todate->format('U') + DAY_1;
 
-$from_date = strtotime($from_date);
-$to_date = strtotime($to_date)+DAY_1;
+//$from_date = strtotime($from_date);
+//$to_date = strtotime($to_date)+DAY_1;
+
+$from_date = new DateTime($from_date);
+//$from_date = $fromdate->format('U');
+$to_date = new DateTime($to_date);
+//$to_date = $todate->format('U') + DAYSECS;
 
 // return tracking object
 if (!empty($submit)) {
     if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
+
     } elseif($reportid == 4) {
         $reportobj->process_reportdata($reportobj, $from_date, $to_date);
     } else {
         $reportobj->process_reportdata($reportobj);
     }
+//    } else {
+//
+//        $reportobj->process_reportdata($reportobj, $fromdate, $todate);
+//    }
 } elseif (!empty($submit)) {
     if (empty($reportid)) {
         $errors[] = 'Report Name';

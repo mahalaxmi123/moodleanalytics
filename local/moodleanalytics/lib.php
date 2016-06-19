@@ -464,32 +464,31 @@ class new_courses {
 
     function process_reportdata($reportobj, $from_date, $to_date) {
         if ($from_date && $to_date) {
-//            var_dump((int)date('d', $to_date - $from_date - DAY_1));
-            $diffindates = (int) date('d', $to_date - $from_date - DAY_1);
-            $selecteddates = array();
-            $start_date = $from_date;
-            for ($i = 1; $i <= $diffindates; $i++) {
-                print_object(date('Y-m-d', $start_date));
-                $selecteddates[] = $start_date;
-                $start_date = $start_date + DAY_1;
-            }
-            print_object($selecteddates);
-            $courses = $this->get_new_courses($from_date, $to_date);
+
+            $fromdate = $from_date->format('U');
+            $todate = $to_date->format('U') + DAYSECS;
+            $courses = $this->get_new_courses($fromdate, $todate);
             $coursedetails = array();
             $daywisecourse = array();
             $count = 0;
+            $interval = new DateInterval('P1D'); // 1 Day
+            $dateRange = new DatePeriod($from_date, $interval, $to_date);
+
+            $range = [];
+            foreach ($dateRange as $date) {
+                $range[$date->format('Y-m-d')] = 0;
+            }
             foreach ($courses as $course) {
                 $coursedetails[$course->timecreated][] = $course;
             }
-            $coursecreateddays = count($coursedetails);
+            $coursedetails = array_merge($range, $coursedetails);
             foreach ($coursedetails as $key => $numofcourses) {
-                if ($coursecreateddays < $diffindates) {
-                    $numofdayswithnocourses = $diffindates - $coursecreateddays;
-                    for ($j = 1; $j <= $numofdayswithnocourses; $j++) {
-                        
-                    }
+                if ($numofcourses != 0) {
+                    $totalcourses = count($numofcourses);
+                } else {
+                    $totalcourses = 0;
                 }
-                $daywisecourse[date_format(date_create($key), 'jS M')] = count($numofcourses);
+                $daywisecourse[date_format(date_create($key), 'jS M')] = $totalcourses;
             }
 
             $reportobj->data = $this->get_data($daywisecourse);
@@ -548,7 +547,7 @@ class course_with_zero_activity {
     function get_data($courseswithnoactivities) {
 //        $chartdetails = array();
         foreach ($courseswithnoactivities as $course) {
-            $chartdetails[] = "[" . "'" . $course->fullname . "'" . "," . "'" . $course->timecreated . "'" ."]";
+            $chartdetails[] = "[" . "'" . $course->fullname . "'" . "," . "'" . $course->timecreated . "'" . "]";
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
