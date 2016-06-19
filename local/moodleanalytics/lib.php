@@ -552,3 +552,44 @@ class enrollmentspercourse {
     }
 
 }
+
+class coursesize {
+
+    function get_chart_types() {
+        $chartoptions = 'BarChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_enrols;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = 'Size';
+        $axis->yaxis = 'Course Name';
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course Name'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'Size'";
+        $gradeheaders[] = $header2;
+        return $gradeheaders;
+    }
+
+}
