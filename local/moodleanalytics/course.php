@@ -49,7 +49,7 @@ $reportobj->quizid = $quizid;
 $fromdate = new DateTime($from_date);
 $from_date = $fromdate->format('U');
 $todate = new DateTime($to_date);
-$to_date = $todate->format('U') + DAY_6;
+$to_date = $todate->format('U') + DAYSECS;
 
 // return tracking object
 if (!empty($submit)) {
@@ -57,7 +57,7 @@ if (!empty($submit)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
     } else {
 
-        $reportobj->process_reportdata($reportobj, $from_date, $to_date);
+        $reportobj->process_reportdata($reportobj, $fromdate, $todate);
     }
 } elseif (!empty($submit)) {
     if (empty($reportid)) {

@@ -463,17 +463,25 @@ class new_courses {
 
     function process_reportdata($reportobj, $from_date, $to_date) {
         if ($from_date && $to_date) {
-            $courses = $this->get_new_courses($from_date, $to_date);
+            $fromdate = $from_date->format('U');
+            $todate = $to_date->format('U') + DAYSECS;
+            $courses = $this->get_new_courses($fromdate, $todate);
             $coursedetails = array();
             $daywisecourse = array();
             $count = 0;
-            foreach($courses as $course){
+            $interval = new DateInterval('P1D'); // 1 Day
+            $dateRange = new DatePeriod($from_date, $interval, $to_date);
+
+            $range = [];
+            foreach ($dateRange as $date) {
+                $range[$date->format('Y-m-d')] = 0;
+            }
+            foreach ($courses as $course) {
                 $coursedetails[$course->timecreated][] = $course;
             }
-            foreach($coursedetails as $key => $numofcourses){
+            foreach ($coursedetails as $key => $numofcourses) {
                 $daywisecourse[date_format(date_create($key), 'jS M')] = count($numofcourses);
             }
-            
             $reportobj->data = $this->get_data($daywisecourse);
             $reportobj->gradeheaders = $this->get_headers();
         }
@@ -493,14 +501,14 @@ class new_courses {
         $axis->yaxis = 'courses';
         return $axis;
     }
-    
-    function get_data($daywisecourse){
+
+    function get_data($daywisecourse) {
         foreach ($daywisecourse as $day => $coursecount) {
-            $chartdetails[] = "[" . "'" . $day . "'" . "," . $coursecount ."]";
+            $chartdetails[] = "[" . "'" . $day . "'" . "," . $coursecount . "]";
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
-    
+
     function get_headers() {
         $gradeheaders = array();
 //        $gradeheaders[] = "'Date'";
