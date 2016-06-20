@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions');
     return $report_array;
 }
 
@@ -59,7 +59,8 @@ function get_report_class($reportid) {
         2 => new activity_attempt(),
         3 => new activity_status(),
         4 => new new_courses(),
-        5 => new course_with_zero_activity()
+        5 => new course_with_zero_activity(),
+        6 => new unique_sessions()
     );
     return $classes_array[$reportid];
 }
@@ -556,6 +557,83 @@ class course_with_zero_activity {
         $gradeheaders = array();
 //        $gradeheaders[] = "'Date'";
         $gradeheaders[] = "'Creation Time'";
+        return $gradeheaders;
+    }
+
+}
+
+class unique_sessions {
+
+    function process_reportdata($reportobj, $from_date, $to_date) {
+
+        $fromdate = $from_date->format('U');
+        $todate = $to_date->format('U') + DAYSECS;
+        $sessions = $this->get_unique_sessions($fromdate, $todate);
+        $sessiondetails = array();
+        $daywisesession = array();
+        $count = 0;
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+
+        $range = [];
+        foreach ($dateRange as $date) {
+            $range[$date->format('Y-m-d')] = 0;
+        }
+        
+        foreach ($sessions as $session) {
+            $sessiondetails[$session->date]['session'] = $session;
+        }
+        
+        $sessiondetails = array_merge($range, $sessiondetails);
+        foreach ($sessiondetails as $key => $numofsession) {
+            if ($numofsession != 0) {
+                $totalsession = $numofsession['session']->uniqusessions;
+            } else {
+                $totalsession = 0;
+            }
+            $daywisesession[date_format(date_create($key), 'jS M')] = $totalsession;
+        }
+
+        $reportobj->data = $this->get_data($daywisesession);
+        $reportobj->gradeheaders = $this->get_headers();
+    }
+
+    function get_unique_sessions($fromdate, $todate) {
+        global $DB;
+        $sql = "SELECT FROM_UNIXTIME( lastaccess,  '%Y-%m-%d' ) AS DATE, COUNT( id ) AS uniqusessions
+                FROM mdl_user WHERE id
+                IN (
+                    SELECT DISTINCT (userid)
+                    FROM mdl_role_assignments
+                    WHERE roleid
+                    IN ( 5 )
+                )
+                AND lastaccess
+                BETWEEN 1463616000 
+                AND 1466423172";
+        $uniquesessions = $DB->get_records_sql($sql);
+        return $uniquesessions;
+    }
+
+    function get_axis_names() {
+        $axis = new stdClass();
+        $axis->xaxis = 'Days';
+        $axis->yaxis = 'Sessions';
+        return $axis;
+    }
+
+    function get_data($daywisesessions) {
+        $chartdetails = array();
+        foreach ($daywisesessions as $day => $uniquesession) {
+            $chartdetails[] = "[" . "'" . $day . "'" . "," . $uniquesession . "]";
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+//        $gradeheaders[] = "'Date'";
+        $gradeheaders[] = "'Sessions'";
         return $gradeheaders;
     }
 

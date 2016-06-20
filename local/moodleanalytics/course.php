@@ -53,7 +53,8 @@ $reportobj->quizid = $quizid;
 
 //$from_date = strtotime($from_date);
 //$to_date = strtotime($to_date)+DAY_1;
-
+$fromdate = $from_date;
+$todate = $to_date;
 $from_date = new DateTime($from_date);
 //$from_date = $fromdate->format('U');
 $to_date = new DateTime($to_date);
@@ -64,7 +65,7 @@ if (!empty($submit)) {
     if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
 
-    } elseif($reportid == 4) {
+    } elseif($reportid == 4 || $reportid == 6) {
         $reportobj->process_reportdata($reportobj, $from_date, $to_date);
     } else {
         $reportobj->process_reportdata($reportobj);
@@ -129,8 +130,8 @@ if (!empty($errors)) {
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= html_writer::select($days_filter, 'days_filter', $days, array('' => 'Select days'), array('id' => 'daysdropdown'));
-$formcontent .= 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date'));
-$formcontent .= 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date'));
+$formcontent .= 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate));
+$formcontent .= 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate));
 $formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
 $formcontent .= 'Activity Name : ' . html_writer::select(isset($reportobj->quiz_array) ? $reportobj->quiz_array : array(''), 'quizid', $quizid, array('' => 'Select Quiz'), array('id' => 'quizdropdown'));
 $formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype, array('Select chart'), array('id' => 'chartdropdown'));
