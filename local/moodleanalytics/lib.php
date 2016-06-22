@@ -609,8 +609,8 @@ class unique_sessions {
                     IN ( 5 )
                 )
                 AND lastaccess
-                BETWEEN 1463616000 
-                AND 1466423172";
+                BETWEEN $fromdate 
+                AND $todate";
         $uniquesessions = $DB->get_records_sql($sql);
         return $uniquesessions;
     }
