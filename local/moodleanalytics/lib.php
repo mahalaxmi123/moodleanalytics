@@ -606,3 +606,74 @@ class coursesize {
     }
 
 }
+
+class courseenrollments {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER,$CFG;
+        $json_courseenrollments = array();
+        $courseenrollments = array();
+        $courseenrollmentsql = "";
+        $courseenrollments = $DB->get_records_sql($courseenrollmentsql);
+
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_courseenrollments;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        return $gradeheaders;
+    }
+
+}
+
+class teachingactivity {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER,$CFG;
+        $json_teachingactivity = array();
+        $teachingact = array();
+        $sql = "";
+        $teachingact = $DB->get_records_sql($courseenrollmentsql);
+
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_teachingactivity;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        return $gradeheaders;
+    }
+
+}
