@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats');
     return $report_array;
 }
 
@@ -60,7 +60,8 @@ function get_report_class($reportid) {
         3 => new activity_status(),
         4 => new new_courses(),
         5 => new course_with_zero_activity(),
-        6 => new unique_sessions()
+        6 => new unique_sessions(),
+        7 => new scorm_stats()
     );
     return $classes_array[$reportid];
 }
@@ -579,11 +580,11 @@ class unique_sessions {
         foreach ($dateRange as $date) {
             $range[$date->format('Y-m-d')] = 0;
         }
-        
+
         foreach ($sessions as $session) {
             $sessiondetails[$session->date]['session'] = $session;
         }
-        
+
         $sessiondetails = array_merge($range, $sessiondetails);
         foreach ($sessiondetails as $key => $numofsession) {
             if ($numofsession != 0) {
@@ -634,6 +635,74 @@ class unique_sessions {
         $gradeheaders = array();
 //        $gradeheaders[] = "'Date'";
         $gradeheaders[] = "'Sessions'";
+        return $gradeheaders;
+    }
+
+}
+
+class scorm_stats {
+
+    function process_reportdata($reportobj, $from_date, $to_date) {
+
+        $fromdate = $from_date->format('U');
+        $todate = $to_date->format('U') + DAYSECS;
+        $scormstats = $this->get_scorm_stats($fromdate, $todate);
+        $scormdetails = array();
+        $coursewisescorm = array();
+        $count = 0;
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+
+        $scormcourses = array();
+        foreach ($scormstats as $scorm) {
+            $scormcourses[$scorm->course][$scorm->teacher][] = $scorm;
+        }
+        
+        foreach ($scormcourses as $key => $numofscorm) {
+            foreach ($numofscorm as $scormkey => $scormvalue) {
+                $coursewisescorm[$key][$scormkey] = count($scormvalue);
+            }
+        }
+//        print_object($coursewisescorm);
+        $reportobj->data = $this->get_data($coursewisescorm);
+        $reportobj->gradeheaders = $this->get_headers();
+    }
+
+    function get_scorm_stats($fromdate, $todate) {
+        global $DB;
+        $sql = "SELECT s.id, c.id as courseid ,s.name as scorm, c.fullname as course, u.username as teacher
+                FROM mdl_scorm s
+                INNER JOIN mdl_files f ON f.filename = s.reference
+                INNER JOIN mdl_course c ON c.id = s.course
+                INNER JOIN mdl_user u ON u.id = f.userid
+                AND f.timecreated
+                BETWEEN $fromdate 
+                AND $todate";
+        $scormstats = $DB->get_records_sql($sql);
+        return $scormstats;
+    }
+
+    function get_axis_names() {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Days';
+//        $axis->yaxis = 'Sessions';
+        return '';
+    }
+
+    function get_data($coursewisescorm) {
+        $chartdetails = array();
+        foreach ($coursewisescorm as $course => $coursevalue) {
+            foreach($coursevalue as $teacher => $scormcount){
+                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . "'" . $scormcount . "'" ."]";
+            }
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $gradeheaders[] = "'Teacher'";
+        $gradeheaders[] = "'# of Scorms'";
         return $gradeheaders;
     }
 

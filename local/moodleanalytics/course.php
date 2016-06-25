@@ -50,7 +50,6 @@ $reportobj->quizid = $quizid;
 //$from_date = $fromdate->format('U');
 //$todate = new DateTime($to_date);
 //$to_date = $todate->format('U') + DAY_1;
-
 //$from_date = strtotime($from_date);
 //$to_date = strtotime($to_date)+DAY_1;
 $fromdate = $from_date;
@@ -59,13 +58,11 @@ $from_date = new DateTime($from_date);
 //$from_date = $fromdate->format('U');
 $to_date = new DateTime($to_date);
 //$to_date = $todate->format('U') + DAYSECS;
-
 // return tracking object
 if (!empty($submit)) {
     if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
-
-    } elseif($reportid == 4 || $reportid == 6) {
+    } elseif ($reportid == 4 || $reportid == 6 || $reportid == 7) {
         $reportobj->process_reportdata($reportobj, $from_date, $to_date);
     } else {
         $reportobj->process_reportdata($reportobj);
@@ -163,13 +160,17 @@ echo $formcontent;
             function drawChart() {
 <?php if (!empty($reportobj->data)) { ?>
                 var data = new google.visualization.DataTable();
-                        data.addColumn('string', 'Data');
-    <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
-        <?php if (!empty($gradehead) && $reportid != 5) { ?>
-                        data.addColumn('number',<?php echo $gradehead; ?>);
-        <?php } else { ?>
-                        data.addColumn('string',<?php echo $gradehead; ?>);
-        <?php }?>
+    <?php if (!empty($reportobj->gradeheaders)) { ?>
+                    data.addColumn('string', 'Data');
+        <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
+            <?php if ($reportid == 5 || $reportid == 7) {?>
+                            data.addColumn('string',<?php echo $gradehead; ?>);
+            <?php } else { ?>
+                            data.addColumn('number',<?php echo $gradehead; ?>);
+            <?php } ?>
+        <?php } ?>
+    <?php } else { ?>
+                    data.addColumn('string', 'Data');
     <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 <?php } ?>
