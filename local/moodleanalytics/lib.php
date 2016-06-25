@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats', 8 => 'File Stats');
     return $report_array;
 }
 
@@ -61,7 +61,8 @@ function get_report_class($reportid) {
         4 => new new_courses(),
         5 => new course_with_zero_activity(),
         6 => new unique_sessions(),
-        7 => new scorm_stats()
+        7 => new scorm_stats(),
+        8 => new file_stats()
     );
     return $classes_array[$reportid];
 }
@@ -647,9 +648,8 @@ class scorm_stats {
         $fromdate = $from_date->format('U');
         $todate = $to_date->format('U') + DAYSECS;
         $scormstats = $this->get_scorm_stats($fromdate, $todate);
-        $scormdetails = array();
         $coursewisescorm = array();
-        $count = 0;
+
         $interval = new DateInterval('P1D'); // 1 Day
         $dateRange = new DatePeriod($from_date, $interval, $to_date);
 
@@ -657,13 +657,13 @@ class scorm_stats {
         foreach ($scormstats as $scorm) {
             $scormcourses[$scorm->course][$scorm->teacher][] = $scorm;
         }
-        
+
         foreach ($scormcourses as $key => $numofscorm) {
             foreach ($numofscorm as $scormkey => $scormvalue) {
                 $coursewisescorm[$key][$scormkey] = count($scormvalue);
             }
         }
-//        print_object($coursewisescorm);
+
         $reportobj->data = $this->get_data($coursewisescorm);
         $reportobj->gradeheaders = $this->get_headers();
     }
@@ -671,13 +671,13 @@ class scorm_stats {
     function get_scorm_stats($fromdate, $todate) {
         global $DB;
         $sql = "SELECT s.id, c.id as courseid ,s.name as scorm, c.fullname as course, u.username as teacher
-                FROM mdl_scorm s
-                INNER JOIN mdl_files f ON f.filename = s.reference
-                INNER JOIN mdl_course c ON c.id = s.course
-                INNER JOIN mdl_user u ON u.id = f.userid
+                FROM {scorm} s
+                INNER JOIN {files} f ON f.filename = s.reference
+                INNER JOIN {course} c ON c.id = s.course
+                INNER JOIN {user} u ON u.id = f.userid
                 AND f.timecreated
                 BETWEEN $fromdate 
-                AND $todate";
+                AND $todate ORDER BY f.timecreated DESC";
         $scormstats = $DB->get_records_sql($sql);
         return $scormstats;
     }
@@ -692,8 +692,8 @@ class scorm_stats {
     function get_data($coursewisescorm) {
         $chartdetails = array();
         foreach ($coursewisescorm as $course => $coursevalue) {
-            foreach($coursevalue as $teacher => $scormcount){
-                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . "'" . $scormcount . "'" ."]";
+            foreach ($coursevalue as $teacher => $scormcount) {
+                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . "'" . $scormcount . "'" . "]";
             }
         }
         return !empty($chartdetails) ? $chartdetails : '';
@@ -703,6 +703,83 @@ class scorm_stats {
         $gradeheaders = array();
         $gradeheaders[] = "'Teacher'";
         $gradeheaders[] = "'# of Scorms'";
+        return $gradeheaders;
+    }
+
+}
+
+class file_stats {
+
+    function process_reportdata($reportobj, $from_date, $to_date) {
+
+        $fromdate = $from_date->format('U');
+        $todate = $to_date->format('U') + DAYSECS;
+        $filestats = $this->get_file_stats($fromdate, $todate);
+        $coursewisefile= array();
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+
+        $filecourses = array();
+        foreach ($filestats as $file) {
+            $filecourses[$file->course][$file->teacher][] = $file;
+        }
+
+        foreach ($filecourses as $key => $numoffile) {
+            foreach ($numoffile as $filekey => $filevalue) {
+                $coursewisefile[$key][$filekey] = count($filevalue);
+            }
+        }
+        
+        $reportobj->data = $this->get_data($coursewisefile);
+        $reportobj->gradeheaders = $this->get_headers();
+    }
+
+    function get_file_stats($fromdate, $todate) {
+        global $DB;
+        $sql = "SELECT r.id, c.fullname AS course, r.name AS file , 
+                (
+                    SELECT DISTINCT CONCAT( u.firstname,  ' ', u.lastname ) 
+                    FROM {role_assignments} AS ra
+                    JOIN {user} AS u ON ra.userid = u.id
+                    JOIN {context} AS ctx ON ctx.id = ra.contextid
+                    WHERE ra.roleid
+                    IN ( 3 ) 
+                    AND ctx.instanceid = c.id
+                    AND ctx.contextlevel =50
+                    LIMIT 1
+                ) AS teacher
+                FROM {course} c
+                LEFT JOIN {resource} r ON r.course = c.id
+                WHERE c.id !=1
+                AND r.timemodified
+                BETWEEN $fromdate 
+                AND $todate ORDER BY r.timemodified DESC";
+        $filestats = $DB->get_records_sql($sql);
+        return $filestats;
+    }
+
+    function get_axis_names() {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Days';
+//        $axis->yaxis = 'Sessions';
+        return '';
+    }
+
+    function get_data($coursewisefile) {
+        $chartdetails = array();
+        foreach ($coursewisefile as $course => $coursevalue) {
+            foreach ($coursevalue as $teacher => $filecount) {
+                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . "'" . $filecount . "'" . "]";
+            }
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $gradeheaders[] = "'Teacher'";
+        $gradeheaders[] = "'# of Files'";
         return $gradeheaders;
     }
 

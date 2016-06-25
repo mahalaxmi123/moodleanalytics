@@ -62,7 +62,7 @@ $to_date = new DateTime($to_date);
 if (!empty($submit)) {
     if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
-    } elseif ($reportid == 4 || $reportid == 6 || $reportid == 7) {
+    } elseif ($reportid == 4 || $reportid == 6 || $reportid == 7 || $reportid == 8) {
         $reportobj->process_reportdata($reportobj, $from_date, $to_date);
     } else {
         $reportobj->process_reportdata($reportobj);
@@ -163,7 +163,7 @@ echo $formcontent;
     <?php if (!empty($reportobj->gradeheaders)) { ?>
                     data.addColumn('string', 'Data');
         <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
-            <?php if ($reportid == 5 || $reportid == 7) {?>
+            <?php if ($reportid == 5 || $reportid == 7 || $reportid == 8) {?>
                             data.addColumn('string',<?php echo $gradehead; ?>);
             <?php } else { ?>
                             data.addColumn('number',<?php echo $gradehead; ?>);
