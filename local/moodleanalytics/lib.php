@@ -653,10 +653,10 @@ class courseenrollments {
 //            "data" => $data;
         $courseenrollments = $DB->get_records_sql($sql);
         foreach ($courseenrollments as $cenrol) {
-            $json_courseenrollments[] = "[" . userdate($cenrol->startdate) . ',' .
-                    userdate($cenrol->enrolstart) . ',' . $cenrol->course . ',' .
-                    $cenrol->learner . ',' . $cenrol->email . ',' . $cenrol->enrol . ',' .
-                    $cenrol->enrolstart . ',' . $cenrol->enrolend . ',' . $cenrol->complete . "]";
+            $json_courseenrollments[] = '[' . '"' . userdate($cenrol->startdate) . '"' . ',' .
+                    '"' . userdate($cenrol->enrolstart) . '"' . ',' . '"' . $cenrol->course . '"' . ',' .
+                    '"' . $cenrol->learner . '"' . ',' . '"' . $cenrol->email . '"' . ',' . '"' . $cenrol->enrol . '"' . ',' .
+                    '"' . $cenrol->enrolstart . '"' . ',' . '"' . $cenrol->enrolend . '"' . ',' . '"' . $cenrol->complete . '"' . ']';
         }
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();

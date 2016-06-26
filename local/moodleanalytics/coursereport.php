@@ -64,7 +64,7 @@ $axis2 = $reportobj2->get_axis_names('courseenrollments');
         'modules':[{
         'name':'visualization',
         'version':'1',
-        'packages':['corechart','geochart']
+        'packages':['corechart','geochart', 'table']
         }]
 }"></script>
 <div>
@@ -79,9 +79,10 @@ $axis2 = $reportobj2->get_axis_names('courseenrollments');
 </div>
 
 <script type="text/javascript">
-            google.charts.load('current', {'packages':['table']});
-            google.charts.setOnLoadCallback(drawCourseenrolments);
+//            google.charts.load('current', {'packages':['table']});
+            google.setOnLoadCallback(drawCourseenrolments);
             function drawCourseenrolments() {
+                var data = new google.visualization.DataTable();
 <?php foreach ($reportobj2->headers as $header) { ?>
     <?php if (!empty($header)) { ?>
                     data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
