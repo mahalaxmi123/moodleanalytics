@@ -62,7 +62,7 @@ $to_date = new DateTime($to_date);
 if (!empty($submit)) {
     if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
         $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
-    } elseif ($reportid == 4 || $reportid == 6 || $reportid == 7 || $reportid == 8) {
+    } elseif ($reportid == 4 || $reportid == 6 || $reportid == 7 || $reportid == 8 || $reportid == 9) {
         $reportobj->process_reportdata($reportobj, $from_date, $to_date);
     } else {
         $reportobj->process_reportdata($reportobj);
@@ -151,6 +151,9 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
+        <?php if($reportid == 9){
+            echo '<p>File Size is in <strong>Bytes</strong></p>';
+        } ?>
         <h5><?php echo isset($reportobj->info) ? $reportobj->info : ''; ?></h5>
         <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>

@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats', 8 => 'File Stats');
+    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats', 8 => 'File Stats', 9 => 'Uploads');
     return $report_array;
 }
 
@@ -62,7 +62,8 @@ function get_report_class($reportid) {
         5 => new course_with_zero_activity(),
         6 => new unique_sessions(),
         7 => new scorm_stats(),
-        8 => new file_stats()
+        8 => new file_stats(),
+        9 => new uploads()
     );
     return $classes_array[$reportid];
 }
@@ -715,7 +716,7 @@ class file_stats {
         $fromdate = $from_date->format('U');
         $todate = $to_date->format('U') + DAYSECS;
         $filestats = $this->get_file_stats($fromdate, $todate);
-        $coursewisefile= array();
+        $coursewisefile = array();
 
         $interval = new DateInterval('P1D'); // 1 Day
         $dateRange = new DatePeriod($from_date, $interval, $to_date);
@@ -730,7 +731,7 @@ class file_stats {
                 $coursewisefile[$key][$filekey] = count($filevalue);
             }
         }
-        
+
         $reportobj->data = $this->get_data($coursewisefile);
         $reportobj->gradeheaders = $this->get_headers();
     }
@@ -780,6 +781,74 @@ class file_stats {
         $gradeheaders = array();
         $gradeheaders[] = "'Teacher'";
         $gradeheaders[] = "'# of Files'";
+        return $gradeheaders;
+    }
+
+}
+
+class uploads {
+
+    function process_reportdata($reportobj, $from_date, $to_date) {
+
+        $fromdate = $from_date->format('U');
+        $todate = $to_date->format('U') + DAYSECS;
+        $uploadstats = $this->get_upload_stats($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+
+        $uploaddetails = array();
+        foreach ($uploadstats as $upload) {
+            $uploaddetails[$upload->component][] = $upload;
+        }
+        
+        $uploaddatas = array();
+        $sum = 0;
+        foreach ($uploaddetails as $key => $details) {
+            $uploaddatas[$key]['count'] = count($details);
+            foreach ($details as $values) {
+                $sum = $sum + (int) $values->filesize;
+            }
+            $uploaddatas[$key]['filesize'] = $sum;
+        }
+        
+        $reportobj->data = $this->get_data($uploaddatas);
+        $reportobj->gradeheaders = $this->get_headers();
+    }
+
+    function get_upload_stats($fromdate, $todate) {
+        global $DB;
+        $sql = "SELECT 
+                SQL_CALC_FOUND_ROWS id, component, filesize
+                FROM mdl_files
+                WHERE id >0 
+                AND timemodified
+                BETWEEN $fromdate 
+                AND $todate ORDER BY timemodified DESC";
+        $uploadstats = $DB->get_records_sql($sql);
+        return $uploadstats;
+    }
+
+    function get_axis_names() {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Days';
+//        $axis->yaxis = 'Sessions';
+        return '';
+    }
+
+    function get_data($uploaddatas) {
+        $chartdetails = array();
+        foreach ($uploaddatas as $key => $uploadvalue) {
+//            $chartdetails[] = "[" . "'" . $key . "'" . "," . "'" . $teacher . "'" . "," . "'" . $filecount . "'" . "]";
+            $chartdetails[] = "[" . "'" . $key . "'" . "," . $uploadvalue['count'] . "," . $uploadvalue['filesize'] . "]";
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $gradeheaders[] = "'# of Files'";
+        $gradeheaders[] = "'File size'";
         return $gradeheaders;
     }
 
