@@ -37,7 +37,7 @@ function get_dashboard_countries() {
 function get_enrollments_per_course($params) {
     global $USER, $CFG, $DB;
     $sql = get_teacher_sql($params, "c.id", "courses");
-    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {$CFG->prefix}course c, {$CFG->prefix}enrol e, {$CFG->prefix}user_enrolments ue WHERE e.courseid = c.id AND ue.enrolid =e.id $sql GROUP BY c.id";
+    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course c, {enrol e, {user_enrolments ue WHERE e.courseid = c.id AND ue.enrolid =e.id $sql GROUP BY c.id";
     return $DB->get_records_sql($sql1);
 }
 
@@ -61,6 +61,8 @@ function get_report_class($reportid) {
         4 => new registrations(),
         5 => new enrollmentspercourse(),
         6 => new coursesize(),
+        7 => new courseenrollments(),
+        8 => new teachingactivity()
     );
     return $classes_array[$reportid];
 }
@@ -528,7 +530,7 @@ class enrollmentspercourse {
     function get_enrollments_per_course() {
         global $USER, $CFG, $DB;
 //        $sql = $this->get_teacher_sql($params, "c.id", "courses");
-        $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {$CFG->prefix}course c, {$CFG->prefix}enrol e, {$CFG->prefix}user_enrolments ue WHERE e.courseid = c.id AND ue.enrolid =e.id GROUP BY c.id";
+        $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id GROUP BY c.id";
         return $DB->get_records_sql($sql1);
     }
 
@@ -566,9 +568,9 @@ class coursesize {
         $json_coursesizes = array();
         $coursesizes = array();
         $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size "
-                . "FROM {$CFG->prefix}course c "
+                . "FROM {course c "
                 . "LEFT JOIN (SELECT c.instanceid AS course, sum( f.filesize ) as coursesize "
-                . "FROM {$CFG->prefix}files f, {$CFG->prefix}context c "
+                . "FROM {files f, {context c "
                 . "WHERE c.id = f.contextid GROUP BY c.instanceid) fs ON fs.course = c.id WHERE c.category > 0 ORDER BY c.timecreated ";
         $coursesizes = $DB->get_records_sql($coursesizesql);
 
@@ -593,16 +595,16 @@ class coursesize {
     }
 
     function get_headers() {
-        $gradeheaders = array();
+        $headers = array();
         $header1 = new stdclass();
         $header1->type = "'string'";
         $header1->name = "'Course Name'";
-        $gradeheaders[] = $header1;
+        $headers[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
         $header2->name = "'Size in MB'";
-        $gradeheaders[] = $header2;
-        return $gradeheaders;
+        $headers[] = $header2;
+        return $headers;
     }
 
 }
@@ -618,9 +620,13 @@ class courseenrollments {
         global $DB, $USER, $CFG;
         $json_courseenrollments = array();
         $courseenrollments = array();
-        global $USER, $CFG, $DB;
+        $timesql = '';
+        if (isset($params->timestart) && isset($params->timefinish)) {
+            $timesql = "AND ue.timecreated BETWEEN $params->timestart AND $params->timefinish";
+        }
+        $this->learner_roles = 5;
 
-        $sql = $DB->get_records_sql("SELECT
+        $sql = "SELECT
 			SQL_CALC_FOUND_ROWS ue.id,IF(ue.timestart = 0, ue.timecreated, ue.timecreated) as enrolstart,
 			ue.timeend as enrolend,	ccc.timeend,c.startdate,
 			c.enablecompletion,cc.timecompleted as complete,
@@ -632,22 +638,26 @@ class courseenrollments {
 			c.fullname as course
 			
 						FROM
-							{$CFG->prefix}user_enrolments ue
-							LEFT JOIN {$CFG->prefix}enrol e ON e.id = ue.enrolid
-							LEFT JOIN {$CFG->prefix}context ctx ON ctx.instanceid = e.courseid
-							LEFT JOIN {$CFG->prefix}role_assignments ra ON ra.contextid = ctx.id AND ra.userid = ue.userid
-							LEFT JOIN {$CFG->prefix}user as u ON u.id = ue.userid
-							LEFT JOIN {$CFG->prefix}course as c ON c.id = e.courseid
-							LEFT JOIN {$CFG->prefix}course_completions as cc ON cc.course = e.courseid AND cc.userid = ue.userid
-							LEFT JOIN {$CFG->prefix}course_completion_criteria as ccc ON ccc.course = e.courseid AND ccc.criteriatype = 2
-								WHERE ra.roleid IN ($this->learner_roles) AND ue.timecreated BETWEEN $params->timestart AND $params->timefinish  GROUP BY ue.id ");
+							{user_enrolments} ue
+							LEFT JOIN {enrol} e ON e.id = ue.enrolid
+							LEFT JOIN {context} ctx ON ctx.instanceid = e.courseid
+							LEFT JOIN {role_assignments} ra ON ra.contextid = ctx.id AND ra.userid = ue.userid
+							LEFT JOIN {user} as u ON u.id = ue.userid
+							LEFT JOIN {course} as c ON c.id = e.courseid
+							LEFT JOIN {course_completions} as cc ON cc.course = e.courseid AND cc.userid = ue.userid
+							LEFT JOIN {course_completion_criteria} as ccc ON ccc.course = e.courseid AND ccc.criteriatype = 2
+								WHERE ra.roleid IN ($this->learner_roles) $timesql GROUP BY ue.id ";
 
 //            "recordsTotal" => key($size),
 //            "recordsFiltered" => key($size),
 //            "data" => $data;
         $courseenrollments = $DB->get_records_sql($sql);
-
-
+        foreach ($courseenrollments as $cenrol) {
+            $json_courseenrollments[] = "[" . userdate($cenrol->startdate) . ',' .
+                    userdate($cenrol->enrolstart) . ',' . $cenrol->course . ',' .
+                    $cenrol->learner . ',' . $cenrol->email . ',' . $cenrol->enrol . ',' .
+                    $cenrol->enrolstart . ',' . $cenrol->enrolend . ',' . $cenrol->complete . "]";
+        }
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
@@ -662,8 +672,45 @@ class courseenrollments {
     }
 
     function get_headers() {
-        $gradeheaders = array("startdate", "timeend", "course", "learner", "email", "enrol", "enrolstart", "enrolend", "complete", "complete");
-        return $gradeheaders;
+        $headers = array();
+        $header4 = new stdclass();
+        $header4->type = "'string'";
+        $header4->name = "'startdate'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'timeend'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'string'";
+        $header6->name = "'Course'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'string'";
+        $header7->name = "'Learner'";
+        $headers[] = $header7;
+        $header8 = new stdclass();
+        $header8->type = "'string'";
+        $header8->name = "'email'";
+        $headers[] = $header8;
+        $header9 = new stdclass();
+        $header9->type = "'string'";
+        $header9->name = "'Enrol method'";
+        $headers[] = $header9;
+        $header10 = new stdclass();
+        $header10->type = "'string'";
+        $header10->name = "'Enrol start'";
+        $headers[] = $header10;
+        $header11 = new stdclass();
+        $header11->type = "'string'";
+        $header11->name = "'Enrol end'";
+        $headers[] = $header11;
+        $header12 = new stdclass();
+        $header12->type = "'string'";
+        $header12->name = "'Completion status'";
+        $headers[] = $header12;
+        
+        return $headers;
     }
 
 }
@@ -680,37 +727,37 @@ class teachingactivity {
         $json_teachingactivity = array();
         $teachingact = array();
         if ($CFG->version < 2014051200) {
-            $table = "log";
+            $table = "{log}";
             $teachingact = $DB->get_records_sql("SELECT
 					SQL_CALC_FOUND_ROWS u.id,CONCAT(u.firstname, ' ', u.lastname) as teacher,
 					count(ue.courseid) as courses,ff.videos,l1.urls,l0.evideos,
 					l2.assignments,l3.quizes,l4.forums,l5.attendances
 					FROM (" . $this->getUsersEnrolsSql(explode(",", $this->teacher_roles)) . ") as ue
-						LEFT JOIN {$CFG->prefix}user u ON u.id = ue.userid
-						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {$CFG->prefix}files f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) urls FROM {$CFG->prefix}$table l WHERE l.module = 'url' AND l.action = 'add' GROUP BY l.userid) as l1 ON l1.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM {$CFG->prefix}$table l WHERE l.module = 'page' AND l.action = 'add' GROUP BY l.userid) as l0 ON l0.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) assignments FROM {$CFG->prefix}$table l WHERE l.module = 'assignment' AND l.action = 'add' GROUP BY l.userid) as l2 ON l2.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM {$CFG->prefix}$table l WHERE l.module = 'quiz' AND l.action = 'add' GROUP BY l.userid) as l3 ON l3.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM {$CFG->prefix}$table l WHERE l.module = 'forum' AND l.action = 'add' GROUP BY l.userid) as l4 ON l4.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM {$CFG->prefix}$table l WHERE l.module = 'attendance' AND l.action = 'add' GROUP BY l.userid) as l5 ON l5.userid = u.id
+						LEFT JOIN {user} u ON u.id = ue.userid
+						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files} f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
+                                                LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l WHERE l.module = 'url' AND l.action = 'add' GROUP BY l.userid) as l1 ON l1.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM $table l WHERE l.module = 'page' AND l.action = 'add' GROUP BY l.userid) as l0 ON l0.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) assignments FROM $table l WHERE l.module = 'assignment' AND l.action = 'add' GROUP BY l.userid) as l2 ON l2.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM $table l WHERE l.module = 'quiz' AND l.action = 'add' GROUP BY l.userid) as l3 ON l3.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM $table l WHERE l.module = 'forum' AND l.action = 'add' GROUP BY l.userid) as l4 ON l4.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM $table l WHERE l.module = 'attendance' AND l.action = 'add' GROUP BY l.userid) as l5 ON l5.userid = u.id
 						WHERE u.deleted = 0 AND u.suspended = 0 GROUP BY ue.userid");
         } else {
-            $table = "logstore_standard_log";
+            $table = "{logstore_standard_log}";
             $teachingact = $DB->get_records_sql("SELECT
 					SQL_CALC_FOUND_ROWS u.id,CONCAT(u.firstname, ' ', u.lastname) as teacher,
 					count(ue.courseid) as courses,f1.files,ff.videos,l1.urls,l0.evideos,l2.assignments,
 					l3.quizes,l4.forums,l5.attendances FROM
 						(" . $this->getUsersEnrolsSql(explode(",", $this->teacher_roles)) . ") as ue
-						LEFT JOIN {$CFG->prefix}user u ON u.id = ue.userid
-						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) files FROM {$CFG->prefix}files f WHERE filearea = 'content' GROUP BY f.userid) as f1 ON f1.userid = u.id
-						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {$CFG->prefix}files f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) urls FROM {$CFG->prefix}$table l,{$CFG->prefix}course_modules cm, {$CFG->prefix}modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'url' AND l.action = 'created' GROUP BY l.userid) as l1 ON l1.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM {$CFG->prefix}$table l,{$CFG->prefix}course_modules cm, {$CFG->prefix}modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'page' AND l.action = 'created'GROUP BY l.userid) as l0 ON l0.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) assignments FROM {$CFG->prefix}$table l,{$CFG->prefix}course_modules cm, {$CFG->prefix}modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'assignment' AND l.action = 'created'GROUP BY l.userid) as l2 ON l2.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM {$CFG->prefix}$table l,{$CFG->prefix}course_modules cm, {$CFG->prefix}modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'quiz' AND l.action = 'created'GROUP BY l.userid) as l3 ON l3.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM {$CFG->prefix}$table l,{$CFG->prefix}course_modules cm, {$CFG->prefix}modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'forum' AND l.action = 'created'GROUP BY l.userid) as l4 ON l4.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM {$CFG->prefix}$table l,{$CFG->prefix}course_modules cm, {$CFG->prefix}modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'attendance' AND l.action = 'created'GROUP BY l.userid) as l5 ON l5.userid = u.id
+						LEFT JOIN {user u ON u.id = ue.userid
+						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) files FROM {files f WHERE filearea = 'content' GROUP BY f.userid) as f1 ON f1.userid = u.id
+						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'url' AND l.action = 'created' GROUP BY l.userid) as l1 ON l1.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'page' AND l.action = 'created'GROUP BY l.userid) as l0 ON l0.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) assignments FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'assignment' AND l.action = 'created'GROUP BY l.userid) as l2 ON l2.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'quiz' AND l.action = 'created'GROUP BY l.userid) as l3 ON l3.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'forum' AND l.action = 'created'GROUP BY l.userid) as l4 ON l4.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'attendance' AND l.action = 'created'GROUP BY l.userid) as l5 ON l5.userid = u.id
 						WHERE u.deleted = 0 AND u.suspended = 0 GROUP BY ue.userid");
         }
 
