@@ -653,11 +653,18 @@ class courseenrollments {
 //            "data" => $data;
         $courseenrollments = $DB->get_records_sql($sql);
         foreach ($courseenrollments as $cenrol) {
-            $json_courseenrollments[] = '[' . '"' . userdate($cenrol->startdate) . '"' . ',' .
-                    '"' . userdate($cenrol->enrolstart) . '"' . ',' . '"' . $cenrol->course . '"' . ',' .
-                    '"' . $cenrol->learner . '"' . ',' . '"' . $cenrol->email . '"' . ',' . '"' . $cenrol->enrol . '"' . ',' .
-                    '"' . $cenrol->enrolstart . '"' . ',' . '"' . $cenrol->enrolend . '"' . ',' . '"' . $cenrol->complete . '"' . ']';
-        }
+
+//            $json_courseenrollments[] = '[' . '"' . userdate($cenrol->startdate) . '"' . ',' .
+//                    '"' . userdate($cenrol->enrolstart) . '"' . ',' . '"' . $cenrol->course . '"' . ',' .
+//                    '"' . $cenrol->learner . '"' . ',' . '"' . $cenrol->email . '"' . ',' . '"' . $cenrol->enrol . '"' . ',' .
+//                    '"' . $cenrol->enrolstart . '"' . ',' . '"' . $cenrol->enrolend . '"' . ',' . '"' . $cenrol->complete . '"' . ']';
+
+            $json_courseenrollments[] = '[' . '"'.userdate($cenrol->startdate, get_string('strftimedate', 'langconfig')).'"' . ',' .
+                    '"'.userdate($cenrol->enrolstart, get_string('strftimedate', 'langconfig')).'"' . ',' . '"'.$cenrol->course.'"' . ',' .
+                    '"'.$cenrol->learner.'"' . ',' . '"'.$cenrol->email.'"' . ',' . '"'.$cenrol->enrol.'"' . ',' .
+                    '"'.userdate($cenrol->enrolstart, get_string('strftimedate', 'langconfig')).'"' . ',' . '"'.userdate($cenrol->enrolend, get_string('strftimedate', 'langconfig')).'"' . ',' . '"' . $cenrol->complete . '"' .']';
+//                    . ',' . $cenrol->complete ? 'Yes' : 'No' . "]";
+       }
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
@@ -709,7 +716,7 @@ class courseenrollments {
         $header12->type = "'string'";
         $header12->name = "'Completion status'";
         $headers[] = $header12;
-        
+
         return $headers;
     }
 
@@ -729,10 +736,10 @@ class teachingactivity {
         if ($CFG->version < 2014051200) {
             $table = "{log}";
             $teachingact = $DB->get_records_sql("SELECT
-					SQL_CALC_FOUND_ROWS u.id,CONCAT(u.firstname, ' ', u.lastname) as teacher,
-					count(ue.courseid) as courses,ff.videos,l1.urls,l0.evideos,
+					SQL_CALC_FOUND_ROWS u.id as userid ,CONCAT(u.firstname, ' ', u.lastname) as teacher,
+					ff.videos,l1.urls,l0.evideos,
 					l2.assignments,l3.quizes,l4.forums,l5.attendances
-					FROM (" . $this->getUsersEnrolsSql(explode(",", $this->teacher_roles)) . ") as ue
+					FROM 	{user_enrolments} ue
 						LEFT JOIN {user} u ON u.id = ue.userid
 						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files} f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
                                                 LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l WHERE l.module = 'url' AND l.action = 'add' GROUP BY l.userid) as l1 ON l1.userid = u.id
@@ -745,22 +752,35 @@ class teachingactivity {
         } else {
             $table = "{logstore_standard_log}";
             $teachingact = $DB->get_records_sql("SELECT
-					SQL_CALC_FOUND_ROWS u.id,CONCAT(u.firstname, ' ', u.lastname) as teacher,
-					count(ue.courseid) as courses,f1.files,ff.videos,l1.urls,l0.evideos,l2.assignments,
+					SQL_CALC_FOUND_ROWS u.id as userid,CONCAT(u.firstname, ' ', u.lastname) as teacher,
+					f1.files,ff.videos,l1.urls,l0.evideos,l2.assignments,
 					l3.quizes,l4.forums,l5.attendances FROM
-						(" . $this->getUsersEnrolsSql(explode(",", $this->teacher_roles)) . ") as ue
-						LEFT JOIN {user u ON u.id = ue.userid
-						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) files FROM {files f WHERE filearea = 'content' GROUP BY f.userid) as f1 ON f1.userid = u.id
-						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'url' AND l.action = 'created' GROUP BY l.userid) as l1 ON l1.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'page' AND l.action = 'created'GROUP BY l.userid) as l0 ON l0.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) assignments FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'assignment' AND l.action = 'created'GROUP BY l.userid) as l2 ON l2.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'quiz' AND l.action = 'created'GROUP BY l.userid) as l3 ON l3.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'forum' AND l.action = 'created'GROUP BY l.userid) as l4 ON l4.userid = u.id
-						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM $table l,{course_modules cm, {modules m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'attendance' AND l.action = 'created'GROUP BY l.userid) as l5 ON l5.userid = u.id
+							{user_enrolments} ue
+						LEFT JOIN {user} u ON u.id = ue.userid
+						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) files FROM {files} f WHERE filearea = 'content' GROUP BY f.userid) as f1 ON f1.userid = u.id
+						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files} f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'url' AND l.action = 'created' GROUP BY l.userid) as l1 ON l1.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'page' AND l.action = 'created'GROUP BY l.userid) as l0 ON l0.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) assignments FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'assignment' AND l.action = 'created'GROUP BY l.userid) as l2 ON l2.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'quiz' AND l.action = 'created'GROUP BY l.userid) as l3 ON l3.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'forum' AND l.action = 'created'GROUP BY l.userid) as l4 ON l4.userid = u.id
+						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'attendance' AND l.action = 'created'GROUP BY l.userid) as l5 ON l5.userid = u.id
 						WHERE u.deleted = 0 AND u.suspended = 0 GROUP BY ue.userid");
         }
-
+        foreach ($teachingact as $teachact) {
+            $courses = COUNT(enrol_get_users_courses($teachact->userid));
+            $videos = $teachact->videos != NULL ? $teachact->videos : 0;
+            $urls = $teachact->urls != NULL ? $teachact->urls : 0;
+            $evideos = $teachact->evideos != NULL ? $teachact->evideos : 0;
+            $forums = $teachact->forums != NULL ? $teachact->forums : 0;
+            $assignments = $teachact->assignments != NULL ? $teachact->assignments : 0;
+            $attendances = $teachact->attendances != NULL ? $teachact->attendances : 0;
+            $quizes = $teachact->quizes != NULL ? $teachact->quizes : 0;
+            $json_teachingactivity[] = "[" . "'".$teachact->teacher."'". ',' .
+                    $courses . ',' . $videos . ',' .
+                    $urls . ',' . $evideos . ',' . $assignments . ',' .
+                    $quizes . ',' . $forums . ',' . $attendances . "]";
+        }
 
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
@@ -777,8 +797,45 @@ class teachingactivity {
     }
 
     function get_headers() {
-        $gradeheaders = array("teacher", "courses", "ff.videos", "l1.urls", "l0.evideos", "l2.assignments", "l3.quizes", "l4.forums", "l5.attendances");
-        return $gradeheaders;
+        $headers = array();
+        $header4 = new stdclass();
+        $header4->type = "'string'";
+        $header4->name = "'teacher'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'courses'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'videos'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'number'";
+        $header7->name = "'urls'";
+        $headers[] = $header7;
+        $header8 = new stdclass();
+        $header8->type = "'number'";
+        $header8->name = "'evideos'";
+        $headers[] = $header8;
+        $header9 = new stdclass();
+        $header9->type = "'number'";
+        $header9->name = "'assignments'";
+        $headers[] = $header9;
+        $header10 = new stdclass();
+        $header10->type = "'number'";
+        $header10->name = "'quizes'";
+        $headers[] = $header10;
+        $header11 = new stdclass();
+        $header11->type = "'number'";
+        $header11->name = "'forums'";
+        $headers[] = $header11;
+        $header12 = new stdclass();
+        $header12->type = "'number'";
+        $header12->name = "'attendances'";
+        $headers[] = $header12;
+
+        return $headers;
     }
 
 }
