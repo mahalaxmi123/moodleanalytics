@@ -659,12 +659,12 @@ class courseenrollments {
 //                    '"' . $cenrol->learner . '"' . ',' . '"' . $cenrol->email . '"' . ',' . '"' . $cenrol->enrol . '"' . ',' .
 //                    '"' . $cenrol->enrolstart . '"' . ',' . '"' . $cenrol->enrolend . '"' . ',' . '"' . $cenrol->complete . '"' . ']';
 
-            $json_courseenrollments[] = '[' . '"'.userdate($cenrol->startdate, get_string('strftimedate', 'langconfig')).'"' . ',' .
-                    '"'.userdate($cenrol->enrolstart, get_string('strftimedate', 'langconfig')).'"' . ',' . '"'.$cenrol->course.'"' . ',' .
-                    '"'.$cenrol->learner.'"' . ',' . '"'.$cenrol->email.'"' . ',' . '"'.$cenrol->enrol.'"' . ',' .
-                    '"'.userdate($cenrol->enrolstart, get_string('strftimedate', 'langconfig')).'"' . ',' . '"'.userdate($cenrol->enrolend, get_string('strftimedate', 'langconfig')).'"' . ',' . '"' . $cenrol->complete . '"' .']';
+            $json_courseenrollments[] = '[' . '"' . userdate($cenrol->startdate, get_string('strftimedate', 'langconfig')) . '"' . ',' .
+                    '"' . userdate($cenrol->enrolstart, get_string('strftimedate', 'langconfig')) . '"' . ',' . '"' . $cenrol->course . '"' . ',' .
+                    '"' . $cenrol->learner . '"' . ',' . '"' . $cenrol->email . '"' . ',' . '"' . $cenrol->enrol . '"' . ',' .
+                    '"' . userdate($cenrol->enrolstart, get_string('strftimedate', 'langconfig')) . '"' . ',' . '"' . userdate($cenrol->enrolend, get_string('strftimedate', 'langconfig')) . '"' . ',' . '"' . $cenrol->complete . '"' . ']';
 //                    . ',' . $cenrol->complete ? 'Yes' : 'No' . "]";
-       }
+        }
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
@@ -733,14 +733,22 @@ class teachingactivity {
         global $DB, $USER, $CFG;
         $json_teachingactivity = array();
         $teachingact = array();
+        $teachers = $DB->get_records_sql("SELECT distinct c.id "
+                . "FROM {course} as c, {role_assignments} AS ra, {user} AS u,"
+                . " {context} AS ct WHERE c.id = ct.instanceid AND ra.roleid IN (2,3,4) "
+                . "AND ra.userid = u.id AND ct.id = ra.contextid");
+        $teachers_list = implode(',', array_keys($teachers));
         if ($CFG->version < 2014051200) {
             $table = "{log}";
             $teachingact = $DB->get_records_sql("SELECT
-					SQL_CALC_FOUND_ROWS u.id as userid ,CONCAT(u.firstname, ' ', u.lastname) as teacher,
+					SQL_CALC_FOUND_ROWS u.id as userid ,COUNT(c.id) as course , CONCAT(u.firstname, ' ', u.lastname) as teacher,
 					ff.videos,l1.urls,l0.evideos,
 					l2.assignments,l3.quizes,l4.forums,l5.attendances
 					FROM 	{user_enrolments} ue
 						LEFT JOIN {user} u ON u.id = ue.userid
+                                                LEFT JOIN {role_assignments} ra ON ra.userid = u.id
+                                                LEFT JOIN {context} ct ON ct.id = ra.contextid 
+                                                LEFT JOIN {course} c on c.id = ct.instanceid
 						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files} f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
                                                 LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l WHERE l.module = 'url' AND l.action = 'add' GROUP BY l.userid) as l1 ON l1.userid = u.id
 						LEFT JOIN (SELECT l.userid, count(l.id) evideos FROM $table l WHERE l.module = 'page' AND l.action = 'add' GROUP BY l.userid) as l0 ON l0.userid = u.id
@@ -748,15 +756,18 @@ class teachingactivity {
 						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM $table l WHERE l.module = 'quiz' AND l.action = 'add' GROUP BY l.userid) as l3 ON l3.userid = u.id
 						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM $table l WHERE l.module = 'forum' AND l.action = 'add' GROUP BY l.userid) as l4 ON l4.userid = u.id
 						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM $table l WHERE l.module = 'attendance' AND l.action = 'add' GROUP BY l.userid) as l5 ON l5.userid = u.id
-						WHERE u.deleted = 0 AND u.suspended = 0 GROUP BY ue.userid");
+						WHERE u.deleted = 0 AND u.suspended = 0 AND ra.roleid IN (2,3,4) GROUP BY ue.userid");
         } else {
             $table = "{logstore_standard_log}";
             $teachingact = $DB->get_records_sql("SELECT
-					SQL_CALC_FOUND_ROWS u.id as userid,CONCAT(u.firstname, ' ', u.lastname) as teacher,
+					SQL_CALC_FOUND_ROWS u.id as userid,COUNT(c.id) course,CONCAT(u.firstname, ' ', u.lastname) as teacher,
 					f1.files,ff.videos,l1.urls,l0.evideos,l2.assignments,
 					l3.quizes,l4.forums,l5.attendances FROM
 							{user_enrolments} ue
 						LEFT JOIN {user} u ON u.id = ue.userid
+                                                LEFT JOIN {role_assignments} ra ON ra.userid = u.id
+                                                LEFT JOIN {context} ct ON ct.id = ra.contextid 
+                                                LEFT JOIN {course} c on c.id = ct.instanceid 
 						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) files FROM {files} f WHERE filearea = 'content' GROUP BY f.userid) as f1 ON f1.userid = u.id
 						LEFT JOIN (SELECT f.userid, count(distinct(f.filename)) videos FROM {files} f WHERE f.mimetype LIKE '%video%' GROUP BY f.userid) as ff ON ff.userid = u.id
 						LEFT JOIN (SELECT l.userid, count(l.id) urls FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'url' AND l.action = 'created' GROUP BY l.userid) as l1 ON l1.userid = u.id
@@ -765,10 +776,10 @@ class teachingactivity {
 						LEFT JOIN (SELECT l.userid, count(l.id) quizes FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'quiz' AND l.action = 'created'GROUP BY l.userid) as l3 ON l3.userid = u.id
 						LEFT JOIN (SELECT l.userid, count(l.id) forums FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'forum' AND l.action = 'created'GROUP BY l.userid) as l4 ON l4.userid = u.id
 						LEFT JOIN (SELECT l.userid, count(l.id) attendances FROM $table l,{course_modules} cm, {modules} m  WHERE cm.id = l.objectid AND m.id = cm.module AND m.name = 'attendance' AND l.action = 'created'GROUP BY l.userid) as l5 ON l5.userid = u.id
-						WHERE u.deleted = 0 AND u.suspended = 0 GROUP BY ue.userid");
+						WHERE u.deleted = 0 AND u.suspended = 0 AND ra.roleid IN (2,3,4) GROUP BY ue.userid");
         }
         foreach ($teachingact as $teachact) {
-            $courses = COUNT(enrol_get_users_courses($teachact->userid));
+            $courses = $teachact->course != NULL ? $teachact->course : 0;
             $videos = $teachact->videos != NULL ? $teachact->videos : 0;
             $urls = $teachact->urls != NULL ? $teachact->urls : 0;
             $evideos = $teachact->evideos != NULL ? $teachact->evideos : 0;
@@ -776,7 +787,7 @@ class teachingactivity {
             $assignments = $teachact->assignments != NULL ? $teachact->assignments : 0;
             $attendances = $teachact->attendances != NULL ? $teachact->attendances : 0;
             $quizes = $teachact->quizes != NULL ? $teachact->quizes : 0;
-            $json_teachingactivity[] = "[" . "'".$teachact->teacher."'". ',' .
+            $json_teachingactivity[] = "[" . "'" . $teachact->teacher . "'" . ',' .
                     $courses . ',' . $videos . ',' .
                     $urls . ',' . $evideos . ',' . $assignments . ',' .
                     $quizes . ',' . $forums . ',' . $attendances . "]";
