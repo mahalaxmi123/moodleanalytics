@@ -568,9 +568,9 @@ class coursesize {
         $json_coursesizes = array();
         $coursesizes = array();
         $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size "
-                . "FROM {course c "
+                . "FROM {course} c "
                 . "LEFT JOIN (SELECT c.instanceid AS course, sum( f.filesize ) as coursesize "
-                . "FROM {files f, {context c "
+                . "FROM {files} f, {context} c "
                 . "WHERE c.id = f.contextid GROUP BY c.instanceid) fs ON fs.course = c.id WHERE c.category > 0 ORDER BY c.timecreated ";
         $coursesizes = $DB->get_records_sql($coursesizesql);
 

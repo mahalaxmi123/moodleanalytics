@@ -55,15 +55,6 @@ $reportobj1->process_reportdata($reportobj1, $params);
 $axis1 = new stdClass();
 $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
 
-$reportobj2 = new stdClass();
-if ($reportid) {
-    $reportobj2 = get_report_class(6);
-}
-$params = new stdClass();
-$reportobj2->process_reportdata($reportobj2, $params);
-
-$axis2 = new stdClass();
-$axis2 = $reportobj2->get_axis_names('coursesize');
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={
@@ -81,10 +72,6 @@ $axis2 = $reportobj2->get_axis_names('coursesize');
     <div class="box45 pull-right">
         <h3>Enrollment per-course</h3>
         <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
-    </div>
-    <div class="box46">
-        <h3>Course Size</h3>
-        <div id="coursesize" style="width: 400px; height:400px;"></div>
     </div>
 </div>
 <script type="text/javascript">
@@ -141,31 +128,5 @@ $axis2 = $reportobj2->get_axis_names('coursesize');
             }
 
 </script>
-<script type="text/javascript">
-    google.setOnLoadCallback(drawCourseSize);
-            function drawCourseSize() {
-<?php if (!empty($reportobj2->data)) { ?>
-                var data = new google.visualization.DataTable();
-    <?php foreach ($reportobj2->headers as $header) { ?>
-        <?php if (!empty($header)) { ?>
-                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
-        <?php } ?>
-    <?php } ?>
-                data.addRows([<?php echo implode(',', $reportobj2->data); ?>]);
-<?php } ?>
-            var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('coursesize'));
-                    var options = {
-                    hAxis: {
-                    title: '<?php echo isset($axis2->xaxis) ? $axis2->xaxis : ''; ?>',
-                    },
-                            vAxis: {
-                            title: '<?php echo isset($axis2->yaxis) ? $axis2->yaxis : ''; ?>',
-                            },
-                    };
-                    chart.draw(data, options);
-            }
-
-</script>
-
 <?php
 echo $OUTPUT->footer();
