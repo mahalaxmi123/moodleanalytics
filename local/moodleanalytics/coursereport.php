@@ -46,7 +46,7 @@ if (!empty($reportid) & $reportid >= 1) {
 }
 
 $reportobj1 = new stdClass();
-$reportobj1 = get_report_class(5);
+$reportobj1 = get_report_class(8);
 $params1 = new stdClass();
 $reportobj1->process_reportdata($reportobj1, $params1);
 $axis1 = new stdClass();
@@ -68,18 +68,33 @@ $axis2 = $reportobj2->get_axis_names('courseenrollments');
         }]
 }"></script>
 <div>
+    <div class="box45 pull-right">
+        <h3>Teaching activity</h3>
+        <div id="teachinactivity" style="width: 400px; height:400px;"></div>
+    </div>
     <div class="box45 pull-left">
         <h3>Course enrollments</h3>
         <div id="course-enrollments" style="width:500px; height:500px;"></div>
-    </div>
-    <div class="box45 pull-right">
-        <h3>Teaching activity</h3>
-        <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
     </div>
 </div>
 
 <script type="text/javascript">
             google.charts.load('current', {'packages':['table']});
+            google.charts.setOnLoadCallback(drawCourseenrolments);
+            function drawCourseenrolments() {
+<?php foreach ($reportobj1->headers as $header) { ?>
+    <?php if (!empty($header)) { ?>
+                    data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
+    <?php } ?>
+<?php } ?>
+            data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
+                    var table = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('teachinactivity'));
+                    table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+            }
+
+</script>
+<script type="text/javascript">
+    google.charts.load('current', {'packages':['table']});
             google.charts.setOnLoadCallback(drawCourseenrolments);
             function drawCourseenrolments() {
 <?php foreach ($reportobj2->headers as $header) { ?>
