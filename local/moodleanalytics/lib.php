@@ -46,7 +46,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(1 => 'Course progress', 2 => 'Activity attempt', 3 => 'Activity Status Report', 4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats', 8 => 'File Stats', 9 => 'Uploads');
+    $report_array = array(4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats', 8 => 'File Stats', 9 => 'Uploads');
     return $report_array;
 }
 
@@ -55,9 +55,7 @@ function get_coursereports() {
  */
 
 function get_report_class($reportid) {
-    $classes_array = array(1 => new course_progress(),
-        2 => new activity_attempt(),
-        3 => new activity_status(),
+    $classes_array = array(
         4 => new new_courses(),
         5 => new course_with_zero_activity(),
         6 => new unique_sessions(),
@@ -66,18 +64,6 @@ function get_report_class($reportid) {
         9 => new uploads()
     );
     return $classes_array[$reportid];
-}
-
-/* Returns array of days filter to call
- *  Report for the days filter
- */
-
-function get_days_filter() {
-    $days_filter = array(3 => 'Last 3 days',
-        7 => 'Last 7 days',
-        10 => 'Last 10 days'
-    );
-    return $days_filter;
 }
 
 /* Return course users
@@ -98,385 +84,24 @@ function get_course_users($courseid) {
     return $users_list;
 }
 
-function get_chart_types() {
-    $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart', 4 => 'Table');
-    return $chartoptions;
-}
-
-class course_progress {
+class new_courses {
 
     function get_chart_types() {
-        $chartoptions = array(1 => 'LineChart', 2 => 'ComboChart', 3 => 'BubbleChart');
+        $chartoptions = 'LineChart';
         return $chartoptions;
     }
 
-    function process_reportdata($reportobj, $courseid, $users, $charttype) {
-        global $DB, $USER;
-        $json_grades = array();
-        $users_update = array();
-        $feedback = array();
-        $context = context_course::instance($courseid);
-        $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
+    function process_reportdata($reportobj, $params = array()) {
+        if ($params) {
+            $fromdate = $params['fromdate']->format('U');
+            $todate = $params['todate']->format('U') + DAYSECS;
 
-//first make sure we have proper final grades - this must be done before constructing of the grade tree
-        grade_regrade_final_grades($courseid);
-//Initialise the grader report object that produces the table
-//the class grade_report_grader_ajax was removed as part of MDL-21562
-        $report = new grade_report_grader($courseid, $gpr, $context);
-//        $numusers = $report->get_numusers(true, true);
-
-        $activities = array();
-        if (!empty($report->gtree->top_element['children'])) {
-            foreach ($report->gtree->top_element['children'] as $children) {
-                $activities[$children['eid']] = $children['object']->itemname;
-            }
-        }
-// final grades MUST be loaded after the processing
-        $report->load_users();
-        $report->load_final_grades();
-
-        if (!empty($report) && !empty($report->grades)) {
-            foreach ($report->grades as $grades => $grade) {
-                foreach ($users as $key => $username) {
-                    $user = $DB->get_record('user', array('username' => $username));
-                    foreach ($grade as $gradeval) {
-                        if ($gradeval->grade_item->itemtype != 'course') {
-                            if (!empty($user->id) && ($gradeval->userid == $user->id)) {
-                                $users_update[$user->username] = $user->username;
-                                if (!empty($json_grades[$gradeval->grade_item->itemname])) {
-                                    $json_grades[$gradeval->grade_item->itemname] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
-                                } else {
-                                    $json_grades[$gradeval->grade_item->itemname] = "'" . $gradeval->grade_item->itemname . "'" . ',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            $USER->gradeediting[$courseid] = '';
-            $averagegrade = $report->get_right_avg_row();
-            $actavggrade = array();
-            foreach ($averagegrade as $avggradvalue) {
-                foreach ($avggradvalue->cells as $avggrade) {
-                    $actitemname = '';
-                    $attrclass = $avggrade->attributes['class'];
-                    if (isset($attrclass) && isset($activities[$attrclass])) {
-                        $actitemname = $activities[$attrclass];
-                    }
-                    if (!empty($avggrade->text)) {
-                        $actavggrade[$actitemname] = floatval($avggrade->text);
-                    }
-                }
-            }
-            foreach ($json_grades as $key => $value) {
-                $json_grades[$key] .= $actavggrade[$key] . ',';
-            }
-        }
-
-        $reportobj->data = $this->get_data($json_grades);
-        $reportobj->gradeheaders = $this->get_headers($users, $users_update);
-        $reportobj->act_avg_position = $this->get_act_avg_position($reportobj->gradeheaders);
-    }
-
-    function get_axis_names($reportname) {
-        $axis = new stdClass();
-        $axis->xaxis = 'Activities';
-        $axis->yaxis = 'Grades';
-        return $axis;
-    }
-
-    function get_data($json_grades) {
-        $json_grades_array = array();
-        foreach ($json_grades as $key => $grade_info) {
-            $grade_info = TRIM($grade_info, ',');
-            $json_grades_array[] = "[" . $grade_info . "]";
-        }
-        return $json_grades_array;
-    }
-
-    function get_headers($users, $users_update) {
-        $gradeheaders = array();
-        if (!empty($users)) {
-            if (!empty($users_update)) {
-                foreach ($users_update as $key => $userval) {
-                    if (!empty($userval)) {
-                        $gradeheaders[] = "'" . $userval . " - Grade '";
-                    }
-                }
-            } else {
-                $errors[] = 'User(s)';
-            }
-        }
-        $position = '';
-        if (empty($errors)) {
-            $gradeheaders[] = "'" . 'activities average' . "'";
-        }
-
-        return $gradeheaders;
-    }
-
-    function get_act_avg_position($gradeheaders) {
-        $position = array_search("'" . 'activities average' . "'", $gradeheaders);
-        return $position;
-    }
-
-}
-
-class activity_attempt {
-
-    function process_reportdata($reportobj, $courseid, $users, $charttype) {
-        $quiz_array = $this->get_course_quiz($courseid);
-        $reportobj->quiz_array = $quiz_array;
-        $quizdetails = array();
-        $reportobj->info = '';
-        $notattemptedusers = array();
-        if ($users && !empty($reportobj->quizid)) {
-            $json_quiz_attempt = $this->get_user_quiz_attempts($reportobj->quizid, $users);
-            if (array_key_exists('usernotattempted', $json_quiz_attempt)) {
-                $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
-                $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
-                foreach ($notattemptedmessage['usernotattempted'] as $key => $message) {
-                    $reportobj->info .= html_writer::div($message, 'alert alert-info');
-                    $notattemptedusers[] = $key;
-                }
-            }
-            unset($json_quiz_attempt['usernotattempted']);
-
-            $reportobj->data = $this->get_data($json_quiz_attempt);
-            $reportobj->gradeheaders = $this->get_headers($users, $notattemptedusers);
-        }
-    }
-
-    function get_course_quiz($courseid) {
-        $quiz_array = array();
-        if (!empty($courseid)) {
-            $activities = get_array_of_activities($courseid);
-            foreach ($activities as $actinfo) {
-                if ($actinfo->mod == 'quiz') {
-                    $quiz_array[$actinfo->id] = $actinfo->name;
-                }
-            }
-        }
-        return $quiz_array;
-    }
-
-    function get_user_quiz_attempts($quizid, $users) {
-        global $DB;
-        $attempts = array();
-        $quizdetails = array();
-        $maxnumofattempts = '';
-        if (!empty($users)) {
-            foreach ($users as $username) {
-                $count = 1;
-                $user = $DB->get_record('user', array('username' => $username));
-                $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
-                if ($quizattempts) {
-                    foreach ($quizattempts as $quizattempt) {
-                        $attempts[$username]['Attempt ' . $count] = $quizattempt->sumgrades;
-                        $count++;
-                    }
-                } else {
-                    $quizdetails['usernotattempted'][$username] = "$username has not taken this quiz yet.";
-                }
-            }
-            foreach ($attempts as $attempt) {
-                $currentnumofattempts[] = count($attempt);
-                $maxnumofattempts = max($currentnumofattempts);
-            }
-            if (!empty($attempts)) {
-                $attempts = $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
-            }
-        }
-        return array_merge($quizdetails, $attempts);
-    }
-
-    function format_quiz_attemptwise_grades($max, $thisattempts) {
-        foreach ($thisattempts as $thisattempt) {
-            $count = count($thisattempt);
-            if (!empty($max) && $max > $count) {
-                $less = $max - $count;
-                for ($i = 1; $i <= $less; $i++) {
-                    $count += 1;
-                    $thisattempt['Attempt ' . $count] = 0;
-                }
-            }
-            $modifiedattempts[] = $thisattempt;
-        }
-        foreach ($modifiedattempts as $modattempts) {
-            $numofattempts = count($modattempts);
-            for ($num = 1; $num <= $numofattempts; $num++) {
-                if (!empty($newattempts['Attempt ' . $num])) {
-                    $newattempts['Attempt ' . $num] .= $modattempts['Attempt ' . $num] . ',';
-                } else {
-                    $newattempts['Attempt ' . $num] = ',' . $modattempts['Attempt ' . $num] . ',';
-                }
-            }
-        }
-        return $newattempts;
-    }
-
-    function get_axis_names($reportname) {
-        $axis = new stdClass();
-        $axis->xaxis = 'Attempts';
-        $axis->yaxis = 'Grades';
-        return $axis;
-    }
-
-    function get_headers($users, $notattemptedusers) {
-        $gradeheaders = array();
-        foreach ($users as $userkey => $uservalue) {
-            if (!empty($uservalue) && !in_array($uservalue, $notattemptedusers)) {
-                $gradeheaders[] = "'" . $uservalue . " - Grade '";
-            }
-        }
-        return $gradeheaders;
-    }
-
-    function get_data($json_quiz_attempt) {
-        $quizdetails = array();
-        if (!empty($json_quiz_attempt)) {
-            foreach ($json_quiz_attempt as $quiz => $quizgrades) {
-                $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
-            }
-        }
-        return $quizdetails;
-    }
-
-}
-
-class activity_status {
-
-    function process_reportdata($reportobj, $courseid, $users, $charttype) {
-        global $DB;
-        $context = context_course::instance($courseid);
-        $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
-        $report = new grade_report_grader($courseid, $gpr, $context);
-        $report->load_users();
-        $report->load_final_grades();
-        $resourceactivitycompletion = $this->get_activity_completion($courseid);
-        $averageusergrades = $this->get_user_avggrades($report->grades);
-        if (!empty($users)) {
-            foreach ($users as $key => $username) {
-                $feedback[$username] = $this->random_value_for_feedback();
-            }
-            if (!empty($resourceactivitycompletion) && $averageusergrades) {
-                foreach ($resourceactivitycompletion as $resuseridkey => $rescompletiongrade) {
-                    $resusers = $DB->get_record('user', array('id' => $resuseridkey));
-                    $resactivitycompletion[$resusers->username] = $rescompletiongrade;
-                }
-                foreach ($averageusergrades as $avguserid => $avgusergrades) {
-                    $usersforavggrade = $DB->get_record('user', array('id' => $avguserid));
-                    $newaveragegrade[$usersforavggrade->username] = $avgusergrades;
-                }
-
-                $reportobj->data = $this->get_data($users, $newaveragegrade, $resactivitycompletion, $feedback);
-                $reportobj->gradeheaders = $this->get_headers();
-            }
-        } else {
-            $errors[] = 'User(s)';
-        }
-    }
-
-    /* Returns the resource completion percentage of all users in a course
-     * @param : courseid int
-     * return resource completion array 
-     */
-
-    function get_activity_completion($courseid) {
-        global $DB;
-        $resource_completion_array = array();
-        $course = $DB->get_record('course', array('id' => $courseid));
-        if (!$course) {
-            return;
-        }
-        $completion = new completion_info($course);
-        $activities = $completion->get_activities();
-        $total_activities = COUNT($activities);
-        $progress = $completion->get_progress_all();
-        foreach ($progress as $userid => $userprogess_data) {
-            $completedact_count = COUNT($userprogess_data->progress);
-            if ($completedact_count) {
-                $resource_completion_array[$userid] = ($completedact_count / $total_activities) * 100;
-            } else {
-                $resource_completion_array[$userid] = 0;
-            }
-        }
-        return $resource_completion_array;
-    }
-
-    /* Returns users average grade in a course
-     * @param : grade  array
-     * Return : usersaveragegrades array
-     */
-
-    function get_user_avggrades($grades) {
-        $useravggrades = array();
-        $activities = array();
-        foreach ($grades as $grade => $gradeinfo) {
-            foreach ($gradeinfo as $gradeval) {
-                $activities[$gradeval->grade_item->itemname] = $gradeval->grade_item->itemname;
-                if (!empty($useravggrades[$gradeval->userid])) {
-                    $useravggrades[$gradeval->userid] += $gradeval->finalgrade;
-                } else {
-                    $useravggrades[$gradeval->userid] = $gradeval->finalgrade;
-                }
-            }
-        }
-        $total_activities = COUNT($activities);
-        if ($total_activities) {
-            foreach ($useravggrades as $userid => $gradetotal) {
-                $useravggrades[$userid] = ($gradetotal / $total_activities);
-            }
-        } else {
-            return;
-        }
-        return $useravggrades;
-    }
-
-    function random_value_for_feedback() {
-        $feedback = rand(1, 10);
-        return $feedback;
-    }
-
-    function get_data($users, $newaveragegrade, $resactivitycompletion, $feedback) {
-        foreach ($users as $thisuserkey => $thisusername) {
-            $chartdetails[] = "[" . "'" . $thisusername . "'" . "," . $newaveragegrade[$thisusername] . "," . $resactivitycompletion[$thisusername] . "," . $feedback[$thisusername] . "]";
-        }
-        return $chartdetails;
-    }
-
-    function get_headers() {
-        $gradeheaders = array();
-        //        $gradeheaders[] = "'Test'";
-        $gradeheaders[] = "'Grade'";
-        $gradeheaders[] = "'Resource completion'";
-        $gradeheaders[] = "'Feedback'";
-        return $gradeheaders;
-    }
-
-    function get_axis_names($reportname) {
-        $axis = new stdClass();
-        $axis->xaxis = 'Grades';
-        $axis->yaxis = 'Resource Completion';
-        return $axis;
-    }
-
-}
-
-class new_courses {
-
-    function process_reportdata($reportobj, $from_date, $to_date) {
-        if ($from_date && $to_date) {
-
-            $fromdate = $from_date->format('U');
-            $todate = $to_date->format('U') + DAYSECS;
             $courses = $this->get_new_courses($fromdate, $todate);
             $coursedetails = array();
             $daywisecourse = array();
             $count = 0;
             $interval = new DateInterval('P1D'); // 1 Day
-            $dateRange = new DatePeriod($from_date, $interval, $to_date);
+            $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
 
             $range = [];
             foreach ($dateRange as $date) {
@@ -497,6 +122,7 @@ class new_courses {
 
             $reportobj->data = $this->get_data($daywisecourse);
             $reportobj->gradeheaders = $this->get_headers();
+            $reportobj->charttype = $this->get_chart_types();
         }
     }
 
@@ -508,7 +134,7 @@ class new_courses {
         return $courses;
     }
 
-    function get_axis_names($reportname) {
+    function get_axis_names() {
         $axis = new stdClass();
         $axis->xaxis = 'Days';
         $axis->yaxis = 'courses';
@@ -530,10 +156,28 @@ class new_courses {
         return $gradeheaders;
     }
 
+//    function get_headers() {
+//        $headers = array();
+//        $header1 = new stdclass();
+//        $header1->type = "'string'";
+//        $header1->name = "'Date'";
+//        $headers[] = $header1;
+//        $header2 = new stdclass();
+//        $header2->type = "'number'";
+//        $header2->name = "'Courses'";
+//        $headers[] = $header2;
+//        return $headers;
+//    }
+
 }
 
 class course_with_zero_activity {
 
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+    
     function process_reportdata($reportobj) {
         global $DB;
         $sql = "SELECT fullname, FROM_UNIXTIME(timecreated, '%Y-%m-%d') as timecreated FROM  {course}
@@ -542,6 +186,7 @@ class course_with_zero_activity {
         $noactcourses = $DB->get_records_sql($sql);
         $reportobj->data = $this->get_data($noactcourses);
         $reportobj->gradeheaders = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
     }
 
     function get_axis_names() {
@@ -567,16 +212,21 @@ class course_with_zero_activity {
 
 class unique_sessions {
 
-    function process_reportdata($reportobj, $from_date, $to_date) {
+    function get_chart_types() {
+        $chartoptions = 'LineChart';
+        return $chartoptions;
+    }
+    
+    function process_reportdata($reportobj, $params = array()) {
 
-        $fromdate = $from_date->format('U');
-        $todate = $to_date->format('U') + DAYSECS;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
         $sessions = $this->get_unique_sessions($fromdate, $todate);
         $sessiondetails = array();
         $daywisesession = array();
         $count = 0;
         $interval = new DateInterval('P1D'); // 1 Day
-        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
 
         $range = [];
         foreach ($dateRange as $date) {
@@ -599,6 +249,7 @@ class unique_sessions {
 
         $reportobj->data = $this->get_data($daywisesession);
         $reportobj->gradeheaders = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
     }
 
     function get_unique_sessions($fromdate, $todate) {
@@ -644,15 +295,20 @@ class unique_sessions {
 
 class scorm_stats {
 
-    function process_reportdata($reportobj, $from_date, $to_date) {
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+    
+    function process_reportdata($reportobj, $params = array()) {
 
-        $fromdate = $from_date->format('U');
-        $todate = $to_date->format('U') + DAYSECS;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
         $scormstats = $this->get_scorm_stats($fromdate, $todate);
         $coursewisescorm = array();
 
         $interval = new DateInterval('P1D'); // 1 Day
-        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
 
         $scormcourses = array();
         foreach ($scormstats as $scorm) {
@@ -667,6 +323,7 @@ class scorm_stats {
 
         $reportobj->data = $this->get_data($coursewisescorm);
         $reportobj->gradeheaders = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
     }
 
     function get_scorm_stats($fromdate, $todate) {
@@ -710,16 +367,21 @@ class scorm_stats {
 }
 
 class file_stats {
+    
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
 
-    function process_reportdata($reportobj, $from_date, $to_date) {
+    function process_reportdata($reportobj, $params = array()) {
 
-        $fromdate = $from_date->format('U');
-        $todate = $to_date->format('U') + DAYSECS;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
         $filestats = $this->get_file_stats($fromdate, $todate);
         $coursewisefile = array();
 
         $interval = new DateInterval('P1D'); // 1 Day
-        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
 
         $filecourses = array();
         foreach ($filestats as $file) {
@@ -734,6 +396,7 @@ class file_stats {
 
         $reportobj->data = $this->get_data($coursewisefile);
         $reportobj->gradeheaders = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
     }
 
     function get_file_stats($fromdate, $todate) {
@@ -788,20 +451,25 @@ class file_stats {
 
 class uploads {
 
-    function process_reportdata($reportobj, $from_date, $to_date) {
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+    
+    function process_reportdata($reportobj, $params) {
 
-        $fromdate = $from_date->format('U');
-        $todate = $to_date->format('U') + DAYSECS;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
         $uploadstats = $this->get_upload_stats($fromdate, $todate);
 
         $interval = new DateInterval('P1D'); // 1 Day
-        $dateRange = new DatePeriod($from_date, $interval, $to_date);
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
 
         $uploaddetails = array();
         foreach ($uploadstats as $upload) {
             $uploaddetails[$upload->component][] = $upload;
         }
-        
+
         $uploaddatas = array();
         $sum = 0;
         foreach ($uploaddetails as $key => $details) {
@@ -811,9 +479,10 @@ class uploads {
             }
             $uploaddatas[$key]['filesize'] = $sum;
         }
-        
+
         $reportobj->data = $this->get_data($uploaddatas);
         $reportobj->gradeheaders = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
     }
 
     function get_upload_stats($fromdate, $todate) {

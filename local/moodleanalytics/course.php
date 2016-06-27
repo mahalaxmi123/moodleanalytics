@@ -39,86 +39,42 @@ $reportname = get_string('course');
 echo $OUTPUT->header();
 $errors = array();
 
-$reportobj = new stdClass();
-if ($reportid) {
-    $reportobj = get_report_class($reportid);
-}
-
-$reportobj->quizid = $quizid;
-
-//$fromdate = new DateTime($from_date);
-//$from_date = $fromdate->format('U');
-//$todate = new DateTime($to_date);
-//$to_date = $todate->format('U') + DAY_1;
-//$from_date = strtotime($from_date);
-//$to_date = strtotime($to_date)+DAY_1;
-$fromdate = $from_date;
-$todate = $to_date;
-$from_date = new DateTime($from_date);
-//$from_date = $fromdate->format('U');
-$to_date = new DateTime($to_date);
-//$to_date = $todate->format('U') + DAYSECS;
-// return tracking object
 if (!empty($submit)) {
-    if ($reportid != 4 && $reportid !== 5 && !empty($courseid) && !empty($users) && !empty($charttype)) {
-        $reportobj->process_reportdata($reportobj, $courseid, $users, $charttype);
-    } elseif ($reportid == 4 || $reportid == 6 || $reportid == 7 || $reportid == 8 || $reportid == 9) {
-        $reportobj->process_reportdata($reportobj, $from_date, $to_date);
-    } else {
-        $reportobj->process_reportdata($reportobj);
-    }
-//    } else {
-//
-//        $reportobj->process_reportdata($reportobj, $fromdate, $todate);
-//    }
-} elseif (!empty($submit)) {
     if (empty($reportid)) {
         $errors[] = 'Report Name';
     }
-    if (empty($courseid)) {
-        $errors[] = 'Course';
+    if (empty($from_date)) {
+        $errors[] = 'From Date';
     }
-    if (empty($charttype)) {
-        $errors[] = 'Chart Type';
-    }
-    if (empty($users)) {
-        $errors[] = 'User(s)';
+    if (empty($to_date)) {
+        $errors[] = 'To Date';
     }
 } else {
     echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 }
 
+$reportobj = new stdClass();
+if ($reportid) {
+    $reportobj = get_report_class($reportid);
+}
+
 $report_array = get_coursereports();
-$chartoptions = array();
-$userlist = array();
-$days_filter = array();
-//$chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart', 'LineChart');
-$chartoptions = get_chart_types();
-$userlist = get_course_users($courseid);
-$days_filter = get_days_filter();
-if ($reportid == 2) {
-    
-}
+$fromdate = $from_date;
+$todate = $to_date;
+$from_date = new DateTime($from_date);
+//$from_date = $fromdate->format('U');
+$to_date = new DateTime($to_date);
 
-if ($reportid == 3) {
-    
-}
-
-if ($reportid == 1 && !empty($users)) {
-    
-}
-
-$courselist = get_courses();
-$courses = array();
-foreach ($courselist as $course) {
-    if ($course->id != SITEID) {
-        $courses[$course->id] = $course->fullname;
-    }
-}
+$params = array();
+$params['fromdate'] = $from_date;
+$params['todate'] = $to_date;
+$reportobj->process_reportdata($reportobj, $params);
 $axis = new stdClass();
 if (!empty($reportid) & $reportid >= 1) {
-    $axis = $reportobj->get_axis_names($report_array[$reportid]);
+    $axis = $reportobj->get_axis_names();
 }
+
+
 $formcontent = html_writer::start_tag('div');
 if (!empty($errors)) {
     $error = implode(", ", $errors);
@@ -126,14 +82,8 @@ if (!empty($errors)) {
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
-$formcontent .= html_writer::select($days_filter, 'days_filter', $days, array('' => 'Select days'), array('id' => 'daysdropdown'));
 $formcontent .= 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate));
 $formcontent .= 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate));
-$formcontent .= 'Course : ' . html_writer::select($courses, 'id', $courseid, array('' => 'Select course'), array('id' => 'coursedropdown', 'class' => 'coursedropdown'));
-$formcontent .= 'Activity Name : ' . html_writer::select(isset($reportobj->quiz_array) ? $reportobj->quiz_array : array(''), 'quizid', $quizid, array('' => 'Select Quiz'), array('id' => 'quizdropdown'));
-$formcontent .= 'Chart Type : ' . html_writer::select($chartoptions, 'type', $charttype, array('Select chart'), array('id' => 'chartdropdown'));
-$formcontent .= '</br>';
-$formcontent .= 'User(s) (You can select <strong>single / multiple</strong> users here): ' . html_writer::select($userlist, 'username[]', $users, array('' => 'Select User(s)'), array('id' => 'userdropdown', 'multiple' => 'multiple'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -177,7 +127,7 @@ echo $formcontent;
     <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 <?php } ?>
-            var chart = new google.visualization.<?php echo $chartoptions[$charttype]; ?>(document.getElementById('course-grade'));
+            var chart = new google.visualization.<?php echo $reportobj->charttype; ?>(document.getElementById('course-grade'));
                     var options = {
                     hAxis: {
                     title: '<?php echo isset($axis->xaxis) ? $axis->xaxis : ''; ?>',
@@ -185,32 +135,12 @@ echo $formcontent;
                             vAxis: {
                             title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
                             },
-<?php if ($chartoptions[$charttype] == 'BubbleChart' && $reportid == 3) { ?>
-                        bubble: {textStyle: {fontSize: 11}}
-<?php } ?>
-<?php if ($chartoptions[$charttype] == 'ComboChart') { ?>
-                        seriesType: 'bars',
-    <?php if ($reportid == 1) { ?>
-                            series: {<?php
-        echo (isset($reportobj->act_avg_position) ? $reportobj->act_avg_position : '');
-        ?>: {type: 'line', color : 'black'}},
-                                    //                                    trendlines : {<?php echo $reportobj->act_avg_position; ?>:{
-                                    //                                type: 'exponential',
-                                    //                                        color: 'green',
-                                    //                                        visibleInLegend: true,
-                                    //                                        pointVisible : true,
-                                    //                                        pointSize : 10,
-                                    //                                }},
 
-        <?php
-    }
 }
-?>
-                    };
 <?php if (empty($errors)) { ?>
                 chart.draw(data, options);
 <?php } ?>
-            }
+    };
 </script>
 <?php
 echo $OUTPUT->footer();
