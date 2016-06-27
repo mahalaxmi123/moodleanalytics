@@ -62,9 +62,7 @@ function get_coursereports() {
  */
 
 function get_report_class($reportid) {
-    $classes_array = array(1 => new course_progress(),
-        2 => new activity_attempt(),
-        3 => new activity_status(),
+    $classes_array = array(
         4 => new registrations(),
         5 => new enrollmentspercourse(),
         6 => new coursesize(),
