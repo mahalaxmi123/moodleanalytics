@@ -36,20 +36,31 @@ if ($reset) {
 }
 echo $OUTPUT->header();
 $errors = array();
+$reportobj1 = new stdClass();
+$reportobj1 = get_report_class(6);
+$params = new stdClass();
+$reportobj1->process_reportdata($reportobj1, $params);
+
+$axis2 = new stdClass();
+$axis2 = $reportobj1->get_axis_names('coursesize');
+
 $reportobj2 = new stdClass();
-$reportobj2 = get_report_class(6);
+$reportobj2 = get_report_class(9);
 $params = new stdClass();
 $reportobj2->process_reportdata($reportobj2, $params);
 
-$axis2 = new stdClass();
-$axis2 = $reportobj2->get_axis_names('coursesize');
+$reportobj3 = new stdClass();
+$reportobj3 = get_report_class(10);
+$params = new stdClass();
+$reportobj3->process_reportdata($reportobj3, $params);
+print_object($reportobj3);
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={
         'modules':[{
         'name':'visualization',
         'version':'1',
-        'packages':['corechart','geochart']
+        'packages':['corechart','geochart', 'table']
         }]
 }"></script>
 <div>
@@ -57,10 +68,43 @@ $axis2 = $reportobj2->get_axis_names('coursesize');
         <h3>Course Size</h3>
         <div id="coursesize" style="width: 400px; height:400px;"></div>
     </div>
+    <div class="box46">
+        <h3>Active IP Address</h3>
+        <div id="activeip" style="width: 400px; height:400px;"></div>
+    </div>
+    <div class="box46">
+        <h3>Languages used</h3>
+        <div id="languagesused" style="width: 400px; height:400px;"></div>
+    </div>
 </div>
 <script type = "text/javascript" >
             google.setOnLoadCallback(drawCourseSize);
             function drawCourseSize() {
+<?php if (!empty($reportobj1->data)) { ?>
+                var data = new google.visualization.DataTable();
+    <?php foreach ($reportobj1->headers as $header) { ?>
+        <?php if (!empty($header)) { ?>
+                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
+        <?php } ?>
+    <?php } ?>
+                data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
+<?php } ?>
+            var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('coursesize'));
+                    var options = {
+                    hAxis: {
+                    title: '<?php echo isset($axis1->xaxis) ? $axis1->xaxis : ''; ?>',
+                    },
+                            vAxis: {
+                            title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
+                            },
+                    };
+                    chart.draw(data, options);
+            }
+
+</script>
+<script type="text/javascript">
+    google.setOnLoadCallback(drawTable);
+            function drawTable() {
 <?php if (!empty($reportobj2->data)) { ?>
                 var data = new google.visualization.DataTable();
     <?php foreach ($reportobj2->headers as $header) { ?>
@@ -68,20 +112,39 @@ $axis2 = $reportobj2->get_axis_names('coursesize');
                         data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
         <?php } ?>
     <?php } ?>
-                data.addRows([<?php echo implode(',', $reportobj2->data); ?>]);
+                data.addRows([
+    <?php
+    for ($i = 0; $i < count($reportobj2->data); $i++) {
+        echo $reportobj2->data[$i];
+    }
+    ?>
 <?php } ?>
-            var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('coursesize'));
-                    var options = {
-                    hAxis: {
-                    title: '<?php echo isset($axis2->xaxis) ? $axis2->xaxis : ''; ?>',
-                    },
-                            vAxis: {
-                            title: '<?php echo isset($axis2->yaxis) ? $axis2->yaxis : ''; ?>',
-                            },
-                    };
+            ]);
+                    var table = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('activeip'));
+                    table.draw(data, {showRowNumber: true, width: '100%', height: '100%', pageSize :10});
+            }
+</script>
+<script type="text/javascript">
+    google.setOnLoadCallback(drawChart);
+            function drawChart() {
+<?php if (!empty($reportobj3->data)) { ?>
+                var data = google.visualization.arrayToDataTable([
+                        [<?php echo $reportobj3->axis->xaxis . ',' . $reportobj3->axis->yaxis; ?>],
+    <?php
+    for ($i = 0; $i < count($reportobj3->data); $i++) {
+        echo $reportobj3->data[$i];
+    }
+    ?>
+                ]);
+                        var options = {
+                        title: <?php echo "'" . $reportobj3->charttitle . "'"; ?>,
+                                pieHole: 0.4,
+                        };
+<?php } ?>
+
+            var chart = new google.visualization.<?php echo $reportobj3->charttype; ?>(document.getElementById('languagesused'));
                     chart.draw(data, options);
             }
-
 </script>
 <?php
 echo $OUTPUT->footer();
