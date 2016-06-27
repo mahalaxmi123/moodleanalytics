@@ -59,7 +59,7 @@ $params = array(
 );
 $json_enrols = array();
 foreach ($data as $enrollment) {
-    $json_enrols[] = "['" . $enrollment->fullname . "', $enrollment->nums]";
+    $json_enrols[] = '[' . '"' . $enrollment->fullname . '"' . ',' . $enrollment->nums . ']';
 }
 $chartoptions = array('BarChart', 'GeoChart', 'ColumnChart', 'Histogram', 'PieChart');
 $formcontent = html_writer::start_tag('div');

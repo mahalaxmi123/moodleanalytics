@@ -37,7 +37,7 @@ function get_dashboard_countries() {
 function get_enrollments_per_course($params) {
     global $USER, $CFG, $DB;
     $sql = get_teacher_sql($params, "c.id", "courses");
-    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course c, {enrol e, {user_enrolments ue WHERE e.courseid = c.id AND ue.enrolid =e.id $sql GROUP BY c.id";
+    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id $sql GROUP BY c.id";
     return $DB->get_records_sql($sql1);
 }
 
