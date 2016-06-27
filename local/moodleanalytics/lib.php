@@ -149,25 +149,25 @@ class new_courses {
         return !empty($chartdetails) ? $chartdetails : '';
     }
 
-    function get_headers() {
-        $gradeheaders = array();
-//        $gradeheaders[] = "'Date'";
-        $gradeheaders[] = "'Courses'";
-        return $gradeheaders;
-    }
-
 //    function get_headers() {
-//        $headers = array();
-//        $header1 = new stdclass();
-//        $header1->type = "'string'";
-//        $header1->name = "'Date'";
-//        $headers[] = $header1;
-//        $header2 = new stdclass();
-//        $header2->type = "'number'";
-//        $header2->name = "'Courses'";
-//        $headers[] = $header2;
-//        return $headers;
+//        $gradeheaders = array();
+////        $gradeheaders[] = "'Date'";
+//        $gradeheaders[] = "'Courses'";
+//        return $gradeheaders;
 //    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Date'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'Courses'";
+        $headers[] = $header2;
+        return $headers;
+    }
 
 }
 
@@ -201,11 +201,24 @@ class course_with_zero_activity {
         return !empty($chartdetails) ? $chartdetails : '';
     }
 
+//    function get_headers() {
+//        $gradeheaders = array();
+////        $gradeheaders[] = "'Date'";
+//        $gradeheaders[] = "'Creation Time'";
+//        return $gradeheaders;
+//    }
+    
     function get_headers() {
-        $gradeheaders = array();
-//        $gradeheaders[] = "'Date'";
-        $gradeheaders[] = "'Creation Time'";
-        return $gradeheaders;
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Date'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Creation Date'";
+        $headers[] = $header2;
+        return $headers;
     }
 
 }
@@ -284,11 +297,24 @@ class unique_sessions {
         return !empty($chartdetails) ? $chartdetails : '';
     }
 
+//    function get_headers() {
+//        $gradeheaders = array();
+////        $gradeheaders[] = "'Date'";
+//        $gradeheaders[] = "'Sessions'";
+//        return $gradeheaders;
+//    }
+    
     function get_headers() {
-        $gradeheaders = array();
-//        $gradeheaders[] = "'Date'";
-        $gradeheaders[] = "'Sessions'";
-        return $gradeheaders;
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Date'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'Sessions'";
+        $headers[] = $header2;
+        return $headers;
     }
 
 }
@@ -351,17 +377,34 @@ class scorm_stats {
         $chartdetails = array();
         foreach ($coursewisescorm as $course => $coursevalue) {
             foreach ($coursevalue as $teacher => $scormcount) {
-                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . "'" . $scormcount . "'" . "]";
+                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . $scormcount . "]";
             }
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
 
+//    function get_headers() {
+//        $gradeheaders = array();
+//        $gradeheaders[] = "'Teacher'";
+//        $gradeheaders[] = "'# of Scorms'";
+//        return $gradeheaders;
+//    }
+    
     function get_headers() {
-        $gradeheaders = array();
-        $gradeheaders[] = "'Teacher'";
-        $gradeheaders[] = "'# of Scorms'";
-        return $gradeheaders;
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Teacher'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# of Scorms'";
+        $headers[] = $header3;
+        return $headers;
     }
 
 }
@@ -434,17 +477,34 @@ class file_stats {
         $chartdetails = array();
         foreach ($coursewisefile as $course => $coursevalue) {
             foreach ($coursevalue as $teacher => $filecount) {
-                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . "'" . $filecount . "'" . "]";
+                $chartdetails[] = "[" . "'" . $course . "'" . "," . "'" . $teacher . "'" . "," . $filecount . "]";
             }
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
 
+//    function get_headers() {
+//        $gradeheaders = array();
+//        $gradeheaders[] = "'Teacher'";
+//        $gradeheaders[] = "'# of Files'";
+//        return $gradeheaders;
+//    }
+    
     function get_headers() {
-        $gradeheaders = array();
-        $gradeheaders[] = "'Teacher'";
-        $gradeheaders[] = "'# of Files'";
-        return $gradeheaders;
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Teacher'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# of Files'";
+        $headers[] = $header3;
+        return $headers;
     }
 
 }
@@ -514,11 +574,28 @@ class uploads {
         return !empty($chartdetails) ? $chartdetails : '';
     }
 
+//    function get_headers() {
+//        $gradeheaders = array();
+//        $gradeheaders[] = "'# of Files'";
+//        $gradeheaders[] = "'File size'";
+//        return $gradeheaders;
+//    }
+    
     function get_headers() {
-        $gradeheaders = array();
-        $gradeheaders[] = "'# of Files'";
-        $gradeheaders[] = "'File size'";
-        return $gradeheaders;
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'# of Files'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'File Size'";
+        $headers[] = $header3;
+        return $headers;
     }
 
 }

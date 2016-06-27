@@ -53,11 +53,6 @@ if (!empty($submit)) {
     echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 }
 
-$reportobj = new stdClass();
-if ($reportid) {
-    $reportobj = get_report_class($reportid);
-}
-
 $report_array = get_coursereports();
 $fromdate = $from_date;
 $todate = $to_date;
@@ -68,7 +63,12 @@ $to_date = new DateTime($to_date);
 $params = array();
 $params['fromdate'] = $from_date;
 $params['todate'] = $to_date;
-$reportobj->process_reportdata($reportobj, $params);
+
+$reportobj = new stdClass();
+if ($reportid) {
+    $reportobj = get_report_class($reportid);
+    $reportobj->process_reportdata($reportobj, $params);
+}
 $axis = new stdClass();
 if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names();
@@ -113,18 +113,11 @@ echo $formcontent;
             function drawChart() {
 <?php if (!empty($reportobj->data)) { ?>
                 var data = new google.visualization.DataTable();
-    <?php if (!empty($reportobj->gradeheaders)) { ?>
-                    data.addColumn('string', 'Data');
         <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
-            <?php if ($reportid == 5 || $reportid == 7 || $reportid == 8) {?>
-                            data.addColumn('string',<?php echo $gradehead; ?>);
-            <?php } else { ?>
-                            data.addColumn('number',<?php echo $gradehead; ?>);
-            <?php } ?>
-        <?php } ?>
-    <?php } else { ?>
-                    data.addColumn('string', 'Data');
+            <?php if (!empty($gradehead)) { ?>
+                    data.addColumn(<?php echo $gradehead->type; ?>,<?php echo $gradehead->name; ?>);
     <?php } ?>
+        <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 <?php } ?>
             var chart = new google.visualization.<?php echo $reportobj->charttype; ?>(document.getElementById('course-grade'));
