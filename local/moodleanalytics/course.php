@@ -113,9 +113,9 @@ echo $formcontent;
             function drawChart() {
 <?php if (!empty($reportobj->data)) { ?>
                 var data = new google.visualization.DataTable();
-        <?php foreach ($reportobj->gradeheaders as $gradehead) { ?>
-            <?php if (!empty($gradehead)) { ?>
-                    data.addColumn(<?php echo $gradehead->type; ?>,<?php echo $gradehead->name; ?>);
+        <?php foreach ($reportobj->headers as $header) { ?>
+            <?php if (!empty($header)) { ?>
+                    data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
     <?php } ?>
         <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
