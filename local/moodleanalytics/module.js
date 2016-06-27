@@ -44,17 +44,25 @@ $(document).ready(function () {
         }
     });
 
-    if ($('#reportdropdown').val() && $('#reportdropdown').val() == 2) {
-        $('#quizdropdown').prop('disabled', false);
+    if ($('#reportdropdown').val() && $('#reportdropdown').val() == 5) {
+        $('#from_date').hide();
+        $('#to_date').hide();
     } else {
-        $('#quizdropdown').prop('disabled', true);
+        $('#from_date').show();
+        $('#to_date').show();
     }
 
     $('#reportdropdown').change(function () {
-        if ($('#reportdropdown').val() == 2) {
-            $('#quizdropdown').prop('disabled', false);
+        if ($('#reportdropdown').val() == 5) {
+//            $('#from_date').prop('disabled', true);
+//            $('#to_date').prop('disabled', true);
+            $('#from_date').hide();
+            $('#to_date').hide();
         } else {
-            $('#quizdropdown').prop('disabled', true);
+//            $('#from_date').prop('disabled', false);
+//            $('#to_date').prop('disabled', false);
+            $('#from_date').show();
+            $('#to_date').show();
         }
     });
 });
