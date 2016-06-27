@@ -27,6 +27,13 @@ function get_teacher_sql($params, $column, $type) {
     return $sql;
 }
 
+function monthname($date) {
+    $monthNum = date('m', strtotime($date));
+    $YearNum = date('Y', strtotime($date));
+    $monthName = date("F", mktime(0, 0, 0, $monthNum, 10));
+    return "$monthName $YearNum";
+}
+
 function get_dashboard_countries() {
     global $USER, $CFG, $DB;
     //$sql = get_teacher_sql($params, "id", "users");
@@ -55,18 +62,19 @@ function get_coursereports() {
  */
 
 function get_report_class($reportid) {
-    $classes_array = array(
-        4 => new new_courses(),
-        5 => new course_with_zero_activity(),
-        6 => new unique_sessions(),
-        7 => new scorm_stats(),
-        8 => new file_stats(),
-        9 => new uploads(),
-        10 => new registrations(),
-        11=> new enrollmentspercourse(),
-        12=> new coursesize(),
-        13=> new courseenrollments(),
-        14=> new teachingactivity()
+    $classes_array = array(1 => new course_progress(),
+        2 => new activity_attempt(),
+        3 => new activity_status(),
+        4 => new registrations(),
+        5 => new enrollmentspercourse(),
+        6 => new coursesize(),
+        7 => new courseenrollments(),
+        8 => new teachingactivity(),
+        9 => new activeip(),
+        10 => new languageused(),
+        11 => new newregistrants(),
+        12 => new newcourses(),
+        13 => new enrolments(),
     );
     return $classes_array[$reportid];
 }
@@ -1003,3 +1011,434 @@ class teachingactivity {
     }
 
 }
+
+class activeip {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER, $CFG;
+        $json_activeips = array();
+        $activeips = array();
+        $activeipsql = "SELECT id, username, lastip, currentlogin FROM mdl_user WHERE timecreated >0 and currentlogin>0
+            ORDER BY lastlogin DESC";
+        //$lists = $DB->get_records_sql($sql);
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+        $activeips = $DB->get_records_sql($activeipsql);
+
+        foreach ($activeips as $activeip) {
+            //$csize->size = ($csize->size/(1024*1024));
+            //$json_coursesizes[] = "['" . $csize->coursename . "', $csize->size]";
+            $json_activeips[] = "['" . $activeip->username . "'," . "'" . $activeip->lastip . "'" . ",'" . date('d-m-y', $activeip->currentlogin) . "'" . '],';
+        }
+
+        $reportobj->data = $json_activeips;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Username'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'IP Address'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Last Acceess'";
+        $gradeheaders[] = $header3;
+        return $gradeheaders;
+    }
+
+}
+
+class languageused {
+
+    function get_chart_types() {
+        $chartoptions = 'PieChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param) {
+        global $DB, $USER, $CFG;
+        $language_codes = array(
+            'en' => 'English', 'aa' => 'Afar', 'ab' => 'Abkhazian', 'af' => 'Afrikaans',
+            'am' => 'Amharic', 'ar' => 'Arabic', 'as' => 'Assamese', 'ay' => 'Aymara',
+            'az' => 'Azerbaijani', 'ba' => 'Bashkir', 'be' => 'Byelorussian', 'bg' => 'Bulgarian',
+            'bh' => 'Bihari', 'bi' => 'Bislama', 'bn' => 'Bengali/Bangla', 'bo' => 'Tibetan',
+            'br' => 'Breton', 'ca' => 'Catalan', 'co' => 'Corsican', 'cs' => 'Czech', 'cy' => 'Welsh',
+            'da' => 'Danish', 'de' => 'German', 'dz' => 'Bhutani', 'el' => 'Greek', 'eo' => 'Esperanto',
+            'es' => 'Spanish', 'et' => 'Estonian', 'eu' => 'Basque', 'fa' => 'Persian', 'fi' => 'Finnish',
+            'fj' => 'Fiji', 'fo' => 'Faeroese', 'fr' => 'French', 'fy' => 'Frisian', 'ga' => 'Irish',
+            'gd' => 'Scots/Gaelic', 'gl' => 'Galician', 'gn' => 'Guarani', 'gu' => 'Gujarati',
+            'ha' => 'Hausa', 'hi' => 'Hindi', 'hr' => 'Croatian', 'hu' => 'Hungarian', 'hy' => 'Armenian',
+            'ia' => 'Interlingua', 'ie' => 'Interlingue', 'ik' => 'Inupiak', 'in' => 'Indonesian',
+            'is' => 'Icelandic', 'it' => 'Italian', 'iw' => 'Hebrew', 'ja' => 'Japanese',
+            'ji' => 'Yiddish', 'jw' => 'Javanese', 'ka' => 'Georgian', 'kk' => 'Kazakh', 'kl' => 'Greenlandic',
+            'km' => 'Cambodian', 'kn' => 'Kannada', 'ko' => 'Korean', 'ks' => 'Kashmiri', 'ku' => 'Kurdish',
+            'ky' => 'Kirghiz', 'la' => 'Latin', 'ln' => 'Lingala', 'lo' => 'Laothian', 'lt' => 'Lithuanian',
+            'lv' => 'Latvian/Lettish', 'mg' => 'Malagasy', 'mi' => 'Maori', 'mk' => 'Macedonian',
+            'ml' => 'Malayalam', 'mn' => 'Mongolian', 'mo' => 'Moldavian', 'mr' => 'Marathi', 'ms' => 'Malay',
+            'mt' => 'Maltese', 'my' => 'Burmese', 'na' => 'Nauru', 'ne' => 'Nepali', 'nl' => 'Dutch',
+            'no' => 'Norwegian', 'oc' => 'Occitan', 'om' => '(Afan)/Oromoor/Oriya', 'pa' => 'Punjabi',
+            'pl' => 'Polish', 'ps' => 'Pashto/Pushto', 'pt' => 'Portuguese', 'qu' => 'Quechua', 'rm' => 'Rhaeto-Romance',
+            'rn' => 'Kirundi', 'ro' => 'Romanian', 'ru' => 'Russian', 'rw' => 'Kinyarwanda', 'sa' => 'Sanskrit',
+            'sd' => 'Sindhi', 'sg' => 'Sangro', 'sh' => 'Serbo-Croatian', 'si' => 'Singhalese', 'sk' => 'Slovak',
+            'sl' => 'Slovenian', 'sm' => 'Samoan', 'sn' => 'Shona', 'so' => 'Somali', 'sq' => 'Albanian',
+            'sr' => 'Serbian', 'ss' => 'Siswati', 'st' => 'Sesotho', 'su' => 'Sundanese', 'sv' => 'Swedish',
+            'sw' => 'Swahili', 'ta' => 'Tamil', 'te' => 'Tegulu', 'tg' => 'Tajik', 'th' => 'Thai',
+            'ti' => 'Tigrinya', 'tk' => 'Turkmen', 'tl' => 'Tagalog', 'tn' => 'Setswana', 'to' => 'Tonga',
+            'tr' => 'Turkish', 'ts' => 'Tsonga', 'tt' => 'Tatar', 'tw' => 'Twi', 'uk' => 'Ukrainian',
+            'ur' => 'Urdu', 'uz' => 'Uzbek', 'vi' => 'Vietnamese', 'vo' => 'Volapuk',
+            'wo' => 'Wolof', 'xh' => 'Xhosa', 'yo' => 'Yoruba', 'zh' => 'Chinese', 'zu' => 'Zulu',);
+        $languageusedsql = "SELECT lang, COUNT(lang) AS Count FROM  `mdl_user` GROUP BY lang";
+        $languageuseds = $DB->get_records_sql($languageusedsql);
+        $json_languageused = array();
+        $language = array();
+        $count = array();
+        $languageused = array();
+
+        foreach ($languageuseds as $list) {
+            $var = $list->lang;
+            $language[] = $language_codes[$var];
+            $count[] = ($list->count);
+        }
+        $languageused = array_combine($language, $count);
+        $axis = $this->get_axis_names('PieChart');
+        $charttype = $this->get_chart_types();
+        $title = $this->get_chart_title();
+
+        foreach ($languageused as $key => $value) {
+            $json_languageused[] = "['" . $key . "'" . ',' . $value . '],';
+        }
+
+        $reportobj->data = $json_languageused;
+        $reportobj->axis = $axis;
+        $reportobj->charttype = $charttype;
+        $reportobj->charttitle = $title;
+    }
+
+    function get_chart_title() {
+        $charttitle = 'Language Used';
+        return $charttitle;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = "'Language'";
+        $axis->yaxis = "'User'";
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        return $gradeheaders;
+    }
+
+}
+
+class newregistrants {
+
+    function get_chart_types() {
+        $chartoptions = 'AnnotationChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param = array()) {
+        global $DB, $USER, $CFG;
+        $_SESSION['current_month'] = $param[0];
+        $newusersql = "SELECT * FROM mdl_user WHERE timecreated>0";
+        $lists = $DB->get_records_sql($newusersql);
+        $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
+//$eventsbyday = get_records_between('mdl_event', $_SESSION['current_month'], $lastdate);
+
+        $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
+        $presentmonth = date('m', strtotime($_SESSION['current_month']));
+        $presentyear = date('Y', strtotime($_SESSION['current_month']));
+        $nfirst = 0;
+        $nmid = 0;
+        $nlast = 0;
+        $numberofuser = 0;
+        foreach ($lists as $list) {
+            $numberofuser++;
+            if (($presentmonth != date('m', $list->timecreated)) || ($presentmonth != date('m', $list->timecreated))) {
+                continue;
+            }
+            if (date('d', $list->timecreated) == 1) {
+                $nfirst++;
+                continue;
+            }
+            if (date('d', $list->timecreated) <= 15) {
+                $nmid++;
+            } else {
+                $nlast++;
+            }
+        }
+//$firstdate = $date("Y,m",)    
+        $monthyear = date("Y,m,", strtotime($presentdate));
+        $lastdate = date("Y,m,t", strtotime($presentdate));
+        $firstdatestring = '"' . $monthyear . ',15"';
+        $middatestring = '"' . $monthyear . ',1"';
+        $lastdatestring = '"' . $lastdate . '"';
+
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->totalusers = $numberofuser;
+        $reportobj->nfirst = $nfirst;
+        $reportobj->nmid = $nmid;
+        $reportobj->nlast = $nlast;
+        $reportobj->firstdatestring = $firstdatestring;
+        $reportobj->middatestring = $middatestring;
+        $reportobj->lastdatestring = $lastdatestring;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = 'Size in MB';
+        $axis->yaxis = 'Course Name';
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'date'";
+        $header1->name = "'Date'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'Number Of Courses'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Title'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'string'";
+        $header4->name = "'Strength'";
+        $gradeheaders[] = $header4;
+        return $gradeheaders;
+    }
+
+}
+
+class newcourses {
+
+    function get_chart_types() {
+        $chartoptions = 'AnnotationChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param = array()) {
+        global $DB, $USER, $CFG;
+        $_SESSION['current_month'] = $param[0];
+        $newcoursesql = "SELECT * FROM mdl_course WHERE startdate>0";
+        $lists = $DB->get_records_sql($newcoursesql);
+        $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
+//$eventsbyday = get_records_between('mdl_event', $_SESSION['current_month'], $lastdate);
+
+        $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
+        $presentmonth = date('m', strtotime($_SESSION['current_month']));
+        $presentyear = date('Y', strtotime($_SESSION['current_month']));
+        $nfirst = 0;
+        $nmid = 0;
+        $nlast = 0;
+        $course = 0;
+        foreach ($lists as $list) {
+            $course++;
+            if (($presentmonth != date('m', $list->timecreated)) || ($presentmonth != date('m', $list->timecreated))) {
+                continue;
+            }
+            if (date('d', $list->timecreated) == 1) {
+                $nfirst++;
+                continue;
+            }
+            if (date('d', $list->timecreated) <= 15) {
+                $nmid++;
+            } else {
+                $nlast++;
+            }
+        }
+        $monthyear = date("Y,m,", strtotime($presentdate));
+        $lastdate = date("Y,m,t", strtotime($presentdate));
+        $firstdatestring = '"' . $monthyear . ',15"';
+        $middatestring = '"' . $monthyear . ',1"';
+        $lastdatestring = '"' . $lastdate . '"';
+
+
+
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        // $reportobj->data = $json_languageused;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->totalcourses = $course;
+        $reportobj->nfirst = $nfirst;
+        $reportobj->nmid = $nmid;
+        $reportobj->nlast = $nlast;
+        $reportobj->firstdatestring = $firstdatestring;
+        $reportobj->middatestring = $middatestring;
+        $reportobj->lastdatestring = $lastdatestring;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'date'";
+        $header1->name = "'Date'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'Number Of Users'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Title'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'string'";
+        $header4->name = "'Strength'";
+        $gradeheaders[] = $header4;
+        return $gradeheaders;
+    }
+
+}
+
+class enrolments {
+
+    function get_chart_types() {
+        $chartoptions = 'PieChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param) {
+        global $DB, $USER, $CFG;
+
+        $sql = "SELECT uen.id , en.enrol FROM  mdl_enrol as en , mdl_user_enrolments as uen WHERE en.id = uen.enrolid";
+        $lists = $DB->get_records_sql($sql);
+        $json_enrol = array();
+
+        $manual = 0;
+        $self = 0;
+        $guest = 0;
+        $noofenrolments = 0;
+
+        foreach ($lists as $list) {
+            $noofenrolments++;
+            if ($list->enrol == 'manual') {
+                $manual++;
+            } elseif ($list->enrol == 'self') {
+                $self++;
+            } elseif ($list->enrol == 'guest') {
+                $guest++;
+            }
+        }
+        $json_enrol[] = "['" . 'Manual' . "'," . $manual . "]";
+        $json_enrol[] = "['" . 'Self' . "'," . $self . "]";
+        $json_enrol[] = "['" . 'Guest' . "'," . $guest . "]";
+        $axis = $this->get_axis_names('PieChart');
+        $charttype = $this->get_chart_types();
+        $title = $this->get_chart_title();
+        $header = $this->get_headers();
+
+        $reportobj->axis = $axis;
+        $reportobj->headers = $header;
+        $reportobj->charttype = $charttype;
+        $reportobj->charttitle = $title;
+        $reportobj->data = $json_enrol;
+    }
+
+    function get_chart_title() {
+        $charttitle = 'Enroled User';
+        return $charttitle;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = "'Enrolments Methods'";
+        $axis->yaxis = "'Number of Enrolments'";
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Manual'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Self'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Guest'";
+        $gradeheaders[] = $header3;
+        return $gradeheaders;
+    }
+
+}
+
+/*function newregistrants_get_chart_types($chartanme) {
+    $chartoptions = $chartname;
+    return $chartoptions;
+}
+
+function newregistrants_process_reportdata() {
+    global $DB, $USER, $CFG;
+$sql = "SELECT * FROM mdl_user WHERE timecreated>0";
+$lists = $DB->get_records_sql($sql);
+    return $lists;
+}
+
+function newregistrants_get_axis_names($reportname) {
+    $axis = new stdClass();
+    $axis->xaxis = 'Size in MB';
+    $axis->yaxis = 'Course Name';
+    return $axis;
+}
+
+function newregistrants_get_headers() {
+    $gradeheaders = array();
+    $header1 = new stdclass();
+    $header1->type = "'date'";
+    $header1->name = "'Date'";
+    $gradeheaders[] = $header1;
+    $header2 = new stdclass();
+    $header2->type = "'number'";
+    $header2->name = "'Number Of Courses'";
+    $gradeheaders[] = $header2;
+    $header3 = new stdclass();
+    $header3->type = "'string'";
+    $header3->name = "'Last Acceess'";
+    $gradeheaders[] = $header3;
+    $header4 = new stdclass();
+    $header4->type = "'string'";
+    $header4->name = "'Strength'";
+    $gradeheaders[] = $header4;
+    return $gradeheaders;
+}*/
