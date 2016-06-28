@@ -229,7 +229,7 @@ class course_with_zero_activity {
         $headers = array();
         $header1 = new stdclass();
         $header1->type = "'string'";
-        $header1->name = "'Date'";
+        $header1->name = "'Course'";
         $headers[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'string'";
@@ -546,14 +546,18 @@ class uploads {
         foreach ($uploadstats as $upload) {
             $uploaddetails[$upload->component][] = $upload;
         }
-
         $uploaddatas = array();
-        $sum = 0;
         foreach ($uploaddetails as $key => $details) {
             $uploaddatas[$key]['count'] = count($details);
-            foreach ($details as $values) {
-                $sum = $sum + (int) $values->filesize;
+            $sum = 0;
+            for ($i = 0; $i < count($details); $i++) {
+                $sum = $sum + (int) $details[$i]->filesize;
+                
             }
+//            foreach ($details as $values) {
+//                print_object($values);
+//                $sum = $sum + (int) $values->filesize;
+//            }
             $uploaddatas[$key]['filesize'] = $sum;
         }
 
@@ -570,7 +574,7 @@ class uploads {
                 WHERE id >0 
                 AND timemodified
                 BETWEEN $fromdate 
-                AND $todate ORDER BY timemodified DESC";
+                AND $todate and filename != '.' ORDER BY timemodified DESC";
         $uploadstats = $DB->get_records_sql($sql);
         return $uploadstats;
     }
@@ -602,7 +606,7 @@ class uploads {
         $headers = array();
         $header1 = new stdclass();
         $header1->type = "'string'";
-        $header1->name = "'Course'";
+        $header1->name = "'Component'";
         $headers[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";

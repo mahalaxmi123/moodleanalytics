@@ -82,8 +82,8 @@ if (!empty($errors)) {
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
-$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
-$formcontent .= html_writer::tag('p', 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -101,9 +101,11 @@ echo $formcontent;
 <div>
     <div class="box45 pull-left">
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
-        <?php if($reportid == 9){
+        <?php
+        if ($reportid == 19) {
             echo '<p>File Size is in <strong>Bytes</strong></p>';
-        } ?>
+        }
+        ?>
         <h5><?php echo isset($reportobj->info) ? $reportobj->info : ''; ?></h5>
         <div id="course-grade" style="width:1000px; height:800px;"></div>
     </div>
@@ -113,11 +115,11 @@ echo $formcontent;
             function drawChart() {
 <?php if (!empty($reportobj->data)) { ?>
                 var data = new google.visualization.DataTable();
-        <?php foreach ($reportobj->headers as $header) { ?>
-            <?php if (!empty($header)) { ?>
-                    data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
-    <?php } ?>
+    <?php foreach ($reportobj->headers as $header) { ?>
+        <?php if (!empty($header)) { ?>
+                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
         <?php } ?>
+    <?php } ?>
                 data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
 <?php } ?>
             var chart = new google.visualization.<?php echo $reportobj->charttype; ?>(document.getElementById('course-grade'));
@@ -128,12 +130,11 @@ echo $formcontent;
                             vAxis: {
                             title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
                             },
-
-}
+                            }
 <?php if (empty($errors)) { ?>
                 chart.draw(data, options);
 <?php } ?>
-    };
+            };
 </script>
 <?php
 echo $OUTPUT->footer();
