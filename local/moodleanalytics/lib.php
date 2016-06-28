@@ -43,10 +43,8 @@ function get_dashboard_countries() {
 
 function get_enrollments_per_course($params) {
     global $USER, $CFG, $DB;
-    $fromdate = $params->timestart->format('U');
-    $todate = $params->timefinish->format('U') + DAYSECS;
     $sql = get_teacher_sql($params, "c.id", "courses");
-    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id and ue.timecreated between $fromdate and $todate $sql GROUP BY c.id";
+    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id $sql GROUP BY c.id";
     return $DB->get_records_sql($sql1);
 }
 
@@ -680,8 +678,10 @@ class enrollmentspercourse {
 
     function process_reportdata($reportobj, $params = array()) {
         global $DB, $USER;
+        $fromdate = $params['timestart']->format('U');
+        $todate = $params['timefinish']->format('U') + DAYSECS;
         $json_enrols = array();
-        $enrollments = $this->get_enrollments_per_course();
+        $enrollments = $this->get_enrollments_per_course($fromdate, $todate);
         foreach ($enrollments as $enrollment) {
             $json_enrols[] = '[' . '"' . $enrollment->fullname . '"' . ',' . $enrollment->nums . ']';
         }
@@ -694,10 +694,10 @@ class enrollmentspercourse {
         $reportobj->charttype = $charttype;
     }
 
-    function get_enrollments_per_course() {
+    function get_enrollments_per_course($fromdate, $todate) {
         global $USER, $CFG, $DB;
 //        $sql = $this->get_teacher_sql($params, "c.id", "courses");
-        $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id GROUP BY c.id";
+        $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id and ue.timecreated between $fromdate and $todate GROUP BY c.id";
         return $DB->get_records_sql($sql1);
     }
 

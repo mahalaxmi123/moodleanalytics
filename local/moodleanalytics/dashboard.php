@@ -18,6 +18,8 @@ $reset = optional_param('reset', '', PARAM_ALPHANUM);
 $reportid = optional_param('reportid', '', PARAM_INT);
 $quizid = optional_param('quizid', '', PARAM_INT);
 $users = optional_param_array('username', '', PARAM_TEXT);
+$from_date = optional_param('from_date', '', PARAM_TEXT);
+$to_date = optional_param('to_date', '', PARAM_TEXT);
 $context = context_system::instance();
 
 $PAGE->set_context($context);
@@ -43,9 +45,26 @@ $axis = new stdClass();
 if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names('Registrations');
 }
+
+if (!empty($submit)) {
+    if (empty($from_date)) {
+        $errors[] = 'From Date';
+    }
+    if (empty($to_date)) {
+        $errors[] = 'To Date';
+    }
+} else {
+    echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
+}
+
+$params = array();
+$fromdate = $from_date;
+$todate = $to_date;
+$params['timestart'] = new DateTime($from_date);
+$params['timefinish'] = new DateTime($to_date);
+
 $reportobj1 = new stdClass();
 $reportobj1 = get_report_class(5);
-$params = array();
 $reportobj1->process_reportdata($reportobj1, $params);
 
 $axis1 = new stdClass();
@@ -65,7 +84,20 @@ $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
         <div id="countries" style="width:500px; height:500px;"></div>
     </div>
     <div class="box45 pull-right">
-        <h3>Enrollment per-course</h3>
+        <h3>Enrollment per-course</h3><?php
+        $formcontent = "";
+        $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
+//        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+//        $formcontent .= html_writer::tag('p', 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
+        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
+        echo $formcontent;
+        if (empty($reportobj1->charttype)) {
+            echo '<h4>Sorry! no record found</h4>';
+        }
+        ?>
         <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
     </div>
 </div>
