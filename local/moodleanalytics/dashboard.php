@@ -69,6 +69,11 @@ $reportobj1->process_reportdata($reportobj1, $params);
 
 $axis1 = new stdClass();
 $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
+
+$reportobj2 = new stdClass();
+$reportobj2 = get_report_class(21);
+$params2 = new stdClass();
+$reportobj2->process_reportdata($reportobj2, $params2);
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={
@@ -99,6 +104,10 @@ $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
         }
         ?>
         <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
+    </div>
+    <div>
+        <h3>Participants</h3>
+        <div id="top_x_div" style="width: 900px; height: 500px;"></div>
     </div>
 </div>
 <script type="text/javascript">
@@ -155,5 +164,27 @@ $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
             }
 
 </script>
+<script type="text/javascript">
+    google.setOnLoadCallback(drawStuff);
+            function drawStuff() {
+<?php if (!empty($reportobj->data)) { ?>
+                var data = google.visualization.arrayToDataTable([
+                        [     <?php echo $reportobj2->title; ?>, { role: 'annotation' } ],
+    <?php echo implode(',', $reportobj2->data); ?>
+                ]);
+                        var options = {
+                        width: 600,
+                                height: 400,
+                                legend: { position: 'top', maxLines: 3 },
+                                bar: { groupWidth: '75%' },
+                                isStacked: true,
+                        };
+<?php } ?>
+            var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('top_x_div'));
+                    // Convert the Classic options to Material options.
+                    chart.draw(data, options);
+            };
+</script>
+
 <?php
 echo $OUTPUT->footer();

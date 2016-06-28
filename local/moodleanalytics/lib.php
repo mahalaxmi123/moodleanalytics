@@ -78,7 +78,9 @@ function get_report_class($reportid) {
         16 => new unique_sessions(),
         17 => new scorm_stats(),
         18 => new file_stats(),
-        19 => new uploads()
+        19 => new uploads(),
+        20 => new registrants(),
+        21 => new participations()
     );
     return $classes_array[$reportid];
 }
@@ -1412,6 +1414,115 @@ class enrolments {
     }
 
 }
+
+class registrants {
+
+    function get_chart_types() {
+        $chartoptions = 'PieChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param) {
+        global $DB, $USER, $CFG;
+        $registrantssql = "SELECT auth, COUNT(auth) AS Count FROM  `mdl_user` GROUP BY auth";
+        $registrants = $DB->get_records_sql($registrantssql);
+        $json_registrants = array();
+        $typeenrol = array();
+        $count = array();
+        $registrant = array();
+
+        foreach ($registrants as $list) {
+            $typeenrol[] = $list->auth;
+            //$language[] = $language_codes[$var];
+            $count[] = ($list->count);
+        }
+        $registrant = array_combine($typeenrol, $count);
+        $axis = $this->get_axis_names('PieChart');
+        $charttype = $this->get_chart_types();
+        $title = $this->get_chart_title();
+
+        foreach ($registrant as $key => $value) {
+            $json_registrants[] = "['" . ucfirst($key) . "'" . ',' . $value . '],';
+        }
+
+        $reportobj->data = $json_registrants;
+        $reportobj->axis = $axis;
+        $reportobj->charttype = $charttype;
+        $reportobj->charttitle = $title;
+    }
+
+    function get_chart_title() {
+        $charttitle = 'Registrants';
+        return $charttitle;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        $axis->xaxis = "'Enrollment_type'";
+        $axis->yaxis = "'User'";
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        return $gradeheaders;
+    }
+
+}
+
+class participations {
+
+    function get_chart_types() {
+        $chartoptions = 'ColumnChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj2, $param) {
+        global $DB, $USER, $CFG;
+        $courses = $DB->get_records('course', array());
+        $data = array();
+        foreach ($courses as $course) {
+            $complete = 0;
+            $notcomplete = 0;
+            if (($course->id) == SITEID)
+                continue;
+            $coursecontext = context_course::instance($course->id);
+            $courseusers = get_enrolled_users($coursecontext);
+            $completeobj = new completion_info($course);
+            foreach ($courseusers as $courseuser) {
+
+                if ($completeobj->is_course_complete($courseuser->id)) {
+                    $complete++;
+                } else {
+                    $notcomplete++;
+                }
+            }
+            $data[] = "['".$course->fullname."',".$complete.','.$notcomplete.",' ']";
+        }
+        $charttype = $this->get_chart_types();
+        $charttitle = $this->get_chart_title();
+        $reportobj2->data = $data;
+        $reportobj2->title = $charttitle;
+        $reportobj2->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+   
+    function get_chart_title() {
+        $charttitle = "'Course Name'".','."'Completed'".','."'Not Completed'";
+        return $charttitle;
+    }
+    
+    function get_headers() {
+        $gradeheaders = array();
+        return $gradeheaders;
+    }
+
+}
+
 
 /*function newregistrants_get_chart_types($chartanme) {
     $chartoptions = $chartname;

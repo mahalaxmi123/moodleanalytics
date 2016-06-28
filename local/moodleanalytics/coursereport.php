@@ -122,6 +122,11 @@ $reportobj4 = get_report_class(11);
 $params = array();
 $params[] = $_SESSION['current_month'];
 $reportobj4->process_reportdata($reportobj4, $params);
+
+$reportobj6 = new stdClass();
+$reportobj6 = get_report_class(20);
+$params6 = new stdClass();
+$reportobj6->process_reportdata($reportobj6, $params6);
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={
@@ -136,7 +141,7 @@ $reportobj4->process_reportdata($reportobj4, $params);
     <div id='chart_div' style='width: 900px; height: 500px;'></div>
 </div>
 <div>
-    <h3>Registrants</h3>
+    <h3>New Registrants</h3>
     <div id='chart_div_new' style='width: 900px; height: 500px;'></div>
 </div>
 <div>
@@ -148,6 +153,12 @@ $reportobj4->process_reportdata($reportobj4, $params);
         <h3>Course enrollments</h3>
         <div id="course-enrollments" style="width:500px; height:500px;"></div>
     </div>
+    <div>
+        <h3>Registrants</h3>
+        <div id="registrants" style="width: 500px; height: 500px;"></div>
+    </div>
+</div>
+<div>
     <div class="box45 pull-left">
         <h3>User enrol</h3>
         <div id="user-enrol" style="width: 500px; height: 500px;"></div>
@@ -285,6 +296,28 @@ $reportobj4->process_reportdata($reportobj4, $params);
                     title: <?php echo "'" . $reportobj5->charttitle . "'"; ?>
                     };
                     var chart = new google.visualization.<?php echo $reportobj5->charttype; ?>(document.getElementById('user-enrol'));
+                    chart.draw(data, options);
+            }
+</script>
+<script type="text/javascript">
+    google.setOnLoadCallback(drawChart3);
+            function drawChart3() {
+<?php if (!empty($reportobj6->data)) { ?>
+                var data = google.visualization.arrayToDataTable([
+                        [<?php echo $reportobj6->axis->xaxis . ',' . $reportobj6->axis->yaxis; ?>],
+    <?php
+    for ($i = 0; $i < count($reportobj6->data); $i++) {
+        echo $reportobj6->data[$i];
+    }
+    ?>
+                ]);
+                        var options = {
+                        title: <?php echo "'" . $reportobj6->charttitle . "'"; ?>,
+                                pieHole: 0.4,
+                        };
+<?php } ?>
+
+            var chart = new google.visualization.<?php echo $reportobj6->charttype; ?>(document.getElementById('registrants'));
                     chart.draw(data, options);
             }
 </script>
