@@ -50,11 +50,11 @@ if (!empty($reportid) & $reportid >= 1) {
 }
 
 $reportobj1 = new stdClass();
-$reportobj1 = get_report_class(5);
+$reportobj1 = get_report_class(8);
 $params1 = array();
 $reportobj1->process_reportdata($reportobj1, $params1);
 $axis1 = new stdClass();
-$axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
+$axis1 = $reportobj1->get_axis_names('teachingactivity');
 
 $reportobj2 = new stdClass();
 $reportobj2 = get_report_class(7);
