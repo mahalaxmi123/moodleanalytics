@@ -43,8 +43,10 @@ function get_dashboard_countries() {
 
 function get_enrollments_per_course($params) {
     global $USER, $CFG, $DB;
+    $fromdate = $params->timestart->format('U');
+    $todate = $params->timefinish->format('U') + DAYSECS;
     $sql = get_teacher_sql($params, "c.id", "courses");
-    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id $sql GROUP BY c.id";
+    $sql1 = "SELECT c.id, c.fullname, count( ue.id ) AS nums FROM {course} c, {enrol} e, {user_enrolments} ue WHERE e.courseid = c.id AND ue.enrolid =e.id and ue.timecreated between $fromdate and $todate $sql GROUP BY c.id";
     return $DB->get_records_sql($sql1);
 }
 
@@ -194,7 +196,7 @@ class course_with_zero_activity {
         $chartoptions = 'Table';
         return $chartoptions;
     }
-    
+
     function process_reportdata($reportobj) {
         global $DB;
         $sql = "SELECT fullname, FROM_UNIXTIME(timecreated, '%Y-%m-%d') as timecreated FROM  {course}
@@ -224,7 +226,7 @@ class course_with_zero_activity {
 //        $gradeheaders[] = "'Creation Time'";
 //        return $gradeheaders;
 //    }
-    
+
     function get_headers() {
         $headers = array();
         $header1 = new stdclass();
@@ -246,7 +248,7 @@ class unique_sessions {
         $chartoptions = 'LineChart';
         return $chartoptions;
     }
-    
+
     function process_reportdata($reportobj, $params = array()) {
 
         $fromdate = $params['fromdate']->format('U');
@@ -320,7 +322,7 @@ class unique_sessions {
 //        $gradeheaders[] = "'Sessions'";
 //        return $gradeheaders;
 //    }
-    
+
     function get_headers() {
         $headers = array();
         $header1 = new stdclass();
@@ -342,7 +344,7 @@ class scorm_stats {
         $chartoptions = 'Table';
         return $chartoptions;
     }
-    
+
     function process_reportdata($reportobj, $params = array()) {
 
         $fromdate = $params['fromdate']->format('U');
@@ -406,7 +408,7 @@ class scorm_stats {
 //        $gradeheaders[] = "'# of Scorms'";
 //        return $gradeheaders;
 //    }
-    
+
     function get_headers() {
         $headers = array();
         $header1 = new stdclass();
@@ -427,7 +429,7 @@ class scorm_stats {
 }
 
 class file_stats {
-    
+
     function get_chart_types() {
         $chartoptions = 'Table';
         return $chartoptions;
@@ -506,7 +508,7 @@ class file_stats {
 //        $gradeheaders[] = "'# of Files'";
 //        return $gradeheaders;
 //    }
-    
+
     function get_headers() {
         $headers = array();
         $header1 = new stdclass();
@@ -532,7 +534,7 @@ class uploads {
         $chartoptions = 'Table';
         return $chartoptions;
     }
-    
+
     function process_reportdata($reportobj, $params) {
 
         $fromdate = $params['fromdate']->format('U');
@@ -597,7 +599,7 @@ class uploads {
 //        $gradeheaders[] = "'File size'";
 //        return $gradeheaders;
 //    }
-    
+
     function get_headers() {
         $headers = array();
         $header1 = new stdclass();
@@ -681,7 +683,7 @@ class enrollmentspercourse {
         $json_enrols = array();
         $enrollments = $this->get_enrollments_per_course();
         foreach ($enrollments as $enrollment) {
-            $json_enrols[] = '[' . '"' . $enrollment->fullname . '"' . ',' .  $enrollment->nums . ']';
+            $json_enrols[] = '[' . '"' . $enrollment->fullname . '"' . ',' . $enrollment->nums . ']';
         }
 
         $headers = $this->get_headers();
@@ -741,7 +743,7 @@ class coursesize {
 
         foreach ($coursesizes as $csize) {
             $csize->size = ($csize->size / (1024 * 1024));
-            $json_coursesizes[] = '['. '"' . $csize->coursename . '"' . ',' . $csize->size . ']';
+            $json_coursesizes[] = '[' . '"' . $csize->coursename . '"' . ',' . $csize->size . ']';
         }
 
         $headers = $this->get_headers();
