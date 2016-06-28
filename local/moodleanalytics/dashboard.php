@@ -15,7 +15,7 @@ $courseid = optional_param('id', '', PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
-$reportid = optional_param('reportid', 10, PARAM_INT);
+$reportid = optional_param('reportid', '', PARAM_INT);
 $quizid = optional_param('quizid', '', PARAM_INT);
 $users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
@@ -35,9 +35,7 @@ echo $OUTPUT->header();
 $errors = array();
 
 $reportobj = new stdClass();
-if ($reportid) {
-    $reportobj = get_report_class($reportid);
-}
+$reportobj = get_report_class(4);
 $params = array();
 $reportobj->process_reportdata($reportobj, $params);
 
@@ -46,15 +44,12 @@ if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names('Registrations');
 }
 $reportobj1 = new stdClass();
-if ($reportid) {
-    $reportobj1 = get_report_class(11);
-}
+$reportobj1 = get_report_class(5);
 $params = array();
 $reportobj1->process_reportdata($reportobj1, $params);
 
 $axis1 = new stdClass();
 $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
-
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={

@@ -16,7 +16,7 @@ $courseid = optional_param('id', '', PARAM_INT);        // course id
 $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
-$reportid = optional_param('reportid', 10, PARAM_INT);
+$reportid = optional_param('reportid', '', PARAM_INT);
 $quizid = optional_param('quizid', '', PARAM_INT);
 $users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
@@ -40,7 +40,7 @@ echo $OUTPUT->header();
 $errors = array();
 
 $reportobj = new stdClass();
-$reportobj = get_report_class($reportid);
+$reportobj = get_report_class(4);
 $params = new stdClass();
 
 $reportobj->process_reportdata($reportobj, $params);
@@ -57,7 +57,7 @@ $axis1 = new stdClass();
 $axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
 
 $reportobj2 = new stdClass();
-$reportobj2 = get_report_class(13);
+$reportobj2 = get_report_class(7);
 $params2 = array();
 $reportobj2->process_reportdata($reportobj2, $params2);
 $axis2 = new stdClass();
@@ -147,6 +147,8 @@ $reportobj4->process_reportdata($reportobj4, $params);
     <div class="box45 pull-left">
         <h3>Course enrollments</h3>
         <div id="course-enrollments" style="width:500px; height:500px;"></div>
+    </div>
+    <div class="box45 pull-left">
         <h3>User enrol</h3>
         <div id="user-enrol" style="width: 500px; height: 500px;"></div>
     </div>
@@ -272,7 +274,7 @@ $reportobj4->process_reportdata($reportobj4, $params);
 
 </script>
 <script type="text/javascript">
-            google.setOnLoadCallback(drawChart2);
+    google.setOnLoadCallback(drawChart2);
             function drawChart2() {
             var data = google.visualization.arrayToDataTable([
                     [<?php echo $reportobj5->axis->xaxis . ',' . $reportobj5->axis->yaxis; ?>],

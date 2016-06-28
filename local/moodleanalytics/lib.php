@@ -53,7 +53,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(4 => 'New Courses', 5 => 'Courses with zero activity', 6 => 'Unique Sessions', 7 => 'Scorm Stats', 8 => 'File Stats', 9 => 'Uploads');
+    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads');
     return $report_array;
 }
 
@@ -73,6 +73,12 @@ function get_report_class($reportid) {
         11 => new newregistrants(),
         12 => new newcourses(),
         13 => new enrolments(),
+        14 => new new_courses(),
+        15 => new course_with_zero_activity(),
+        16 => new unique_sessions(),
+        17 => new scorm_stats(),
+        18 => new file_stats(),
+        19 => new uploads()
     );
     return $classes_array[$reportid];
 }
