@@ -43,10 +43,10 @@ if (!empty($submit)) {
     if (empty($reportid)) {
         $errors[] = 'Report Name';
     }
-    if (empty($from_date) && $reportid != 5) {
+    if (empty($from_date) && $reportid != 15) {
         $errors[] = 'From Date';
     }
-    if (empty($to_date) && $reportid != 5) {
+    if (empty($to_date) && $reportid != 15) {
         $errors[] = 'To Date';
     }
 } else {

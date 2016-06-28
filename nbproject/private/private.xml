@@ -6,7 +6,10 @@
             <file>file:/var/www/html/moodle-analytics/index.php</file>
             <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/lib.php</file>
             <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/coursereport.php</file>
+            <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/index.php</file>
+            <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/dashboard.php</file>
             <file>file:/var/www/html/moodle-analytics/local/intelliboard/externallib.php</file>
+            <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/performance.php</file>
             <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/module.js</file>
             <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/course.php</file>
         </group>
