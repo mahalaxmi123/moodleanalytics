@@ -130,6 +130,9 @@ echo $formcontent;
                             vAxis: {
                             title: '<?php echo isset($axis->yaxis) ? $axis->yaxis : ''; ?>',
                             },
+                            <?php if($reportobj->charttype == 'Table'){ ?>
+                                pageSize : 10,
+                            <?php }?>
                             }
 <?php if (empty($errors)) { ?>
                 chart.draw(data, options);

@@ -53,7 +53,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads');
+    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts');
     return $report_array;
 }
 
@@ -80,7 +80,8 @@ function get_report_class($reportid) {
         18 => new file_stats(),
         19 => new uploads(),
         20 => new registrants(),
-        21 => new participations()
+        21 => new participations(),
+        22 => new scorm_attempts()
     );
     return $classes_array[$reportid];
 }
@@ -554,7 +555,6 @@ class uploads {
             $sum = 0;
             for ($i = 0; $i < count($details); $i++) {
                 $sum = $sum + (int) $details[$i]->filesize;
-                
             }
 //            foreach ($details as $values) {
 //                print_object($values);
@@ -1497,7 +1497,7 @@ class participations {
                     $notcomplete++;
                 }
             }
-            $data[] = "['".$course->fullname."',".$complete.','.$notcomplete.",' ']";
+            $data[] = "['" . $course->fullname . "'," . $complete . ',' . $notcomplete . ",' ']";
         }
         $charttype = $this->get_chart_types();
         $charttitle = $this->get_chart_title();
@@ -1510,12 +1510,12 @@ class participations {
         $axis = new stdClass();
         return $axis;
     }
-   
+
     function get_chart_title() {
-        $charttitle = "'Course Name'".','."'Completed'".','."'Not Completed'";
+        $charttitle = "'Course Name'" . ',' . "'Completed'" . ',' . "'Not Completed'";
         return $charttitle;
     }
-    
+
     function get_headers() {
         $gradeheaders = array();
         return $gradeheaders;
@@ -1523,43 +1523,152 @@ class participations {
 
 }
 
+/* function newregistrants_get_chart_types($chartanme) {
+  $chartoptions = $chartname;
+  return $chartoptions;
+  }
 
-/*function newregistrants_get_chart_types($chartanme) {
-    $chartoptions = $chartname;
-    return $chartoptions;
+  function newregistrants_process_reportdata() {
+  global $DB, $USER, $CFG;
+  $sql = "SELECT * FROM mdl_user WHERE timecreated>0";
+  $lists = $DB->get_records_sql($sql);
+  return $lists;
+  }
+
+  function newregistrants_get_axis_names($reportname) {
+  $axis = new stdClass();
+  $axis->xaxis = 'Size in MB';
+  $axis->yaxis = 'Course Name';
+  return $axis;
+  }
+
+  function newregistrants_get_headers() {
+  $gradeheaders = array();
+  $header1 = new stdclass();
+  $header1->type = "'date'";
+  $header1->name = "'Date'";
+  $gradeheaders[] = $header1;
+  $header2 = new stdclass();
+  $header2->type = "'number'";
+  $header2->name = "'Number Of Courses'";
+  $gradeheaders[] = $header2;
+  $header3 = new stdclass();
+  $header3->type = "'string'";
+  $header3->name = "'Last Acceess'";
+  $gradeheaders[] = $header3;
+  $header4 = new stdclass();
+  $header4->type = "'string'";
+  $header4->name = "'Strength'";
+  $gradeheaders[] = $header4;
+  return $gradeheaders;
+  } */
+
+class scorm_attempts {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $scormattemptstats = $this->get_scorm_attempts($fromdate, $todate);
+        $scormwiseattempts = array();
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($scormattemptstats);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_scorm_attempts($fromdate, $todate) {
+        global $DB;
+        $sql = "SELECT
+			SQL_CALC_FOUND_ROWS u.id+st.scormid+st.timemodified as id,
+			CONCAT(u.firstname,' ',u.lastname) as user,
+			st.userid,
+			st.scormid,
+			sc.name,
+			c.fullname,
+			count(DISTINCT(st.attempt)) as attempts,
+			cmc.completionstate,
+			cmc.timemodified as completiondate,
+			sv.starttime,
+			sm.duration,
+			sm.timemodified as lastaccess,
+			round(sg.score, 0) as score
+					FROM mdl_scorm_scoes_track AS st
+					LEFT JOIN mdl_user AS u ON st.userid=u.id
+					LEFT JOIN mdl_scorm AS sc ON sc.id=st.scormid
+					LEFT JOIN mdl_course c ON c.id = sc.course
+					LEFT JOIN mdl_modules m ON m.name = 'scorm'
+					LEFT JOIN mdl_course_modules cm ON cm.module = m.id AND cm.instance = sc.id
+					LEFT JOIN mdl_course_modules_completion cmc ON cmc.coursemoduleid = cm.id AND cmc.userid = u.id
+
+					LEFT JOIN (SELECT userid, timemodified, scormid, SEC_TO_TIME( SUM( TIME_TO_SEC( value ) ) ) AS duration FROM mdl_scorm_scoes_track where element = 'cmi.core.total_time' GROUP BY userid, scormid) AS sm ON sm.scormid =st.scormid and sm.userid=st.userid
+					LEFT JOIN (SELECT userid, MIN(value) as starttime, scormid FROM mdl_scorm_scoes_track where element = 'x.start.time' GROUP BY userid, scormid) AS sv ON sv.scormid =st.scormid and sv.userid=st.userid
+					LEFT JOIN (SELECT gi.iteminstance, (gg.finalgrade/gg.rawgrademax)*100 AS score, gg.userid FROM mdl_grade_items gi, mdl_grade_grades gg WHERE gi.itemmodule='scorm' and gg.itemid=gi.id  GROUP BY gi.iteminstance, gg.userid) AS sg ON sg.iteminstance =st.scormid and sg.userid=st.userid
+					WHERE sc.id > 0 and sv.starttime BETWEEN $fromdate 
+                                        AND $todate GROUP BY st.userid, st.scormid ORDER BY sv.starttime DESC";
+
+        $scormattemptstats = $DB->get_records_sql($sql);
+        return $scormattemptstats;
+    }
+
+    function get_axis_names() {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Days';
+//        $axis->yaxis = 'Sessions';
+        return '';
+    }
+
+    function get_data($scormattemptstats) {
+        $chartdetails = array();
+        foreach ($scormattemptstats as $key => $value) {
+                $chartdetails[] = '[' . '"' . $value->user . '"' . ',' . '"' . $value->name . '"' . ',' . '"' . $value->fullname . '"' . ',' . $value->attempts . ',' . '"' . $value->duration .  '"' . ',' . '"' . date("Y-m-d H:i:s", $value->starttime) . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->completiondate) . '"'. ',' . $value->score .']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Learner'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'SCORM Activity Name'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Course name'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Attempts'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'Total Time Spent'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'string'";
+        $header6->name = "'Started On'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'string'";
+        $header7->name = "'Completed On'";
+        $headers[] = $header7;
+        $header8 = new stdclass();
+        $header8->type = "'number'";
+        $header8->name = "'Average Grade'";
+        $headers[] = $header8;
+        return $headers;
+    }
+
 }
-
-function newregistrants_process_reportdata() {
-    global $DB, $USER, $CFG;
-$sql = "SELECT * FROM mdl_user WHERE timecreated>0";
-$lists = $DB->get_records_sql($sql);
-    return $lists;
-}
-
-function newregistrants_get_axis_names($reportname) {
-    $axis = new stdClass();
-    $axis->xaxis = 'Size in MB';
-    $axis->yaxis = 'Course Name';
-    return $axis;
-}
-
-function newregistrants_get_headers() {
-    $gradeheaders = array();
-    $header1 = new stdclass();
-    $header1->type = "'date'";
-    $header1->name = "'Date'";
-    $gradeheaders[] = $header1;
-    $header2 = new stdclass();
-    $header2->type = "'number'";
-    $header2->name = "'Number Of Courses'";
-    $gradeheaders[] = $header2;
-    $header3 = new stdclass();
-    $header3->type = "'string'";
-    $header3->name = "'Last Acceess'";
-    $gradeheaders[] = $header3;
-    $header4 = new stdclass();
-    $header4->type = "'string'";
-    $header4->name = "'Strength'";
-    $gradeheaders[] = $header4;
-    return $gradeheaders;
-}*/
