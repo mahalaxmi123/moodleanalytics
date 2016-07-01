@@ -104,7 +104,6 @@ function get_course_users($courseid) {
     return $users_list;
 }
 
-
 class course_progress {
 
     function get_chart_types() {
@@ -230,7 +229,6 @@ class course_progress {
     }
 
 }
-
 
 class activity_attempt {
 
@@ -506,7 +504,6 @@ class activity_status {
     }
 
 }
-
 
 class new_courses {
 
@@ -2033,7 +2030,10 @@ class scorm_attempts {
     function get_data($scormattemptstats) {
         $chartdetails = array();
         foreach ($scormattemptstats as $key => $value) {
-                $chartdetails[] = '[' . '"' . $value->user . '"' . ',' . '"' . $value->name . '"' . ',' . '"' . $value->fullname . '"' . ',' . $value->attempts . ',' . '"' . $value->duration .  '"' . ',' . '"' . date("Y-m-d H:i:s", $value->starttime) . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->completiondate) . '"'. ',' . $value->score .']';
+            if ($value->score == "") {
+                $value->score = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->user . '"' . ',' . '"' . $value->name . '"' . ',' . '"' . $value->fullname . '"' . ',' . $value->attempts . ',' . '"' . $value->duration . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->starttime) . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->completiondate) . '"' . ',' . $value->score . ']';
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
