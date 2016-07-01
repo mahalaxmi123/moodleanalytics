@@ -83,14 +83,66 @@ $reportobj2->process_reportdata($reportobj2, $params2);
         'packages':['corechart','geochart']
         }]
 }"></script>
-<div>
-    <div class="box45 pull-left">
-        <h3>Registrations</h3>
-        <div id="countries" style="width:500px; height:500px;"></div>
+
+
+   <!-- bootstrap theme -->
+    <link href="css/style.css" rel="stylesheet">
+  
+<div id="main-page">
+     <div class="row">
+				<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+					<div class="info-box blue-bg">
+						<i class="fa fa-cloud-download"></i>
+						
+						<div class="title">Admins</div>						
+					</div><!--/.info-box-->			
+				</div><!--/.col-->
+				
+				<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+					<div class="info-box brown-bg">
+						<i class="fa fa-shopping-cart"></i>
+						
+						<div class="title">Trainers</div>						
+					</div><!--/.info-box-->			
+				</div><!--/.col-->	
+                
+				<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+					<div class="info-box green-bg">
+						<i class="fa fa-cubes"></i>
+						<div class="title">Learners</div>						
+					</div><!--/.info-box-->			
+				</div><!--/.col-->
+				
+	</div><!--/.row-->
+    
+    <div class="row">
+   	<div class="btn-group">
+    <button type="button" class="btn btn-primary">Daily</button>
+    <button type="button" class="btn btn-primary">Weekly</button>
+    <button type="button" class="btn btn-primary">Monthly</button>
+      </ul>
     </div>
-    <div class="box45 pull-right">
-        <h3>Enrollment per-course</h3><?php
-        $formcontent = "";
+    	
+    </div>
+            
+ <div id="Section-First">
+    <div class="row-fluid">
+    	<div class=" span12">
+        </div>	
+  			
+    </div>
+ </div>
+		
+<div id="Section-Second">
+    <div class="row-fluid">
+    	<div class="register span6">
+        	<h3>Registrations</h3>
+  			<div id="countries" class="span6" style="width:500px; height:400px;"></div>
+        </div>
+        
+    	<div class="enroll span6">
+        	<h3>Enrollment per-course</h3><?php
+  			$formcontent = "";
         $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
 //        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
 //        $formcontent .= html_writer::tag('p', 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
@@ -103,9 +155,12 @@ $reportobj2->process_reportdata($reportobj2, $params2);
             echo '<h4>Sorry! no record found</h4>';
         }
         ?>
-        <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
-    </div>
-    <div>
+			<div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
+    	
+	</div>
+</div>
+
+ 
         <h3>Participants</h3>
         <div id="top_x_div" style="width: 900px; height: 500px;"></div>
     </div>
