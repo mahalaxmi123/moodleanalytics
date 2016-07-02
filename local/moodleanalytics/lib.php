@@ -53,7 +53,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner');
+    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance');
     return $report_array;
 }
 
@@ -83,7 +83,8 @@ function get_report_class($reportid) {
         21 => new participations(),
         22 => new scorm_attempts(),
         23 => new course_stats(),
-        24 => new progress_by_learner()
+        24 => new progress_by_learner(),
+        25 => new teaching_performance()
     );
     return $classes_array[$reportid];
 }
@@ -2294,8 +2295,8 @@ class progress_by_learner {
 					WHERE ra.roleid IN (5) AND u.id = ra.userid AND u.deleted = 0 AND u.suspended = 0 AND u.timecreated BETWEEN $fromdate AND $todate
                                         ORDER BY u.timecreated DESC";
 
-        $coursestats = $DB->get_records_sql($sql);
-        return $coursestats;
+        $learnerprogress = $DB->get_records_sql($sql);
+        return $learnerprogress;
     }
 
     function get_axis_names() {
@@ -2352,6 +2353,109 @@ class progress_by_learner {
         $header7->type = "'number'";
         $header7->name = "'Score'";
         $headers[] = $header7;
+        return $headers;
+    }
+}
+
+
+class teaching_performance {   
+         
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $teacherperformance = $this->get_teaching_performance($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($teacherperformance);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_teaching_performance($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+					SQL_CALC_FOUND_ROWS u.id,
+					CONCAT(u.firstname, ' ', u.lastname) teacher,
+					count(ue.courseid) as courses,
+					sum(l.learners) as learners,
+					sum(ls.learners) as activelearners,
+					sum(c.completed) as completedlearners,
+					AVG( g.grade ) AS grade
+				FROM
+					(".getUsersEnrolsSql(explode(",", 3)).") as ue
+					LEFT JOIN {$CFG->prefix}user as u ON u.id = ue.userid
+					LEFT JOIN (".getCourseLearnersSql().") l ON l.courseid = ue.courseid
+					LEFT JOIN (".getCourseLearnersSql('learners', strtotime('-30 days'), time()).") ls ON ls.courseid = ue.courseid
+					LEFT JOIN (".getCourseCompletedSql().") c ON c.course = ue.courseid
+					LEFT JOIN (".getCourseGradeSql().") g ON g.courseid = ue.courseid
+                                        WHERE ue.timecreated BETWEEN $fromdate AND $todate GROUP BY u.id
+                                        ORDER BY ue.timecreated DESC";
+
+        $teacherperformance = $DB->get_records_sql($sql);
+        return $teacherperformance;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($teacherperformance) {
+        $chartdetails = array();
+        foreach ($teacherperformance as $key => $value) {
+            if ($value->courses == "") {
+                $value->courses = 0;
+            }
+            if ($value->learners == "") {
+                $value->learners = 0;
+            }
+            if ($value->activelearners == "") {
+                $value->activelearners = 0;
+            }
+            if ($value->completedlearners == "") {
+                $value->completedlearners = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->teacher . '"' . ',' . $value->courses . ',' . $value->learners . ',' . $value->activelearners . ',' . $value->completedlearners . ',' . $value->grade . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Teacher'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'# of courses'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# of students enrolled'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'# of active students within the last 30 days'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'# of students completed courses'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Average grade for all courses'";
+        $headers[] = $header6;
         return $headers;
     }
 }
