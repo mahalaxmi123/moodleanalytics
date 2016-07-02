@@ -53,7 +53,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance');
+    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance', 26 => 'Activity Stats');
     return $report_array;
 }
 
@@ -84,7 +84,8 @@ function get_report_class($reportid) {
         22 => new scorm_attempts(),
         23 => new course_stats(),
         24 => new progress_by_learner(),
-        25 => new teaching_performance()
+        25 => new teaching_performance(),
+        26 => new activity_stats()
     );
     return $classes_array[$reportid];
 }
@@ -2152,11 +2153,11 @@ class scorm_attempts {
         $headers[] = $header8;
         return $headers;
     }
+
 }
 
-
 class course_stats {
-        
+
     function get_chart_types() {
         $chartoptions = 'Table';
         return $chartoptions;
@@ -2189,9 +2190,9 @@ class course_stats {
 				cm.modules
 					FROM {$CFG->prefix}course as c
 						LEFT JOIN (SELECT course, count( id ) AS modules FROM {$CFG->prefix}course_modules WHERE visible = 1 GROUP BY course) cm ON cm.course = c.id
-						LEFT JOIN (".getCourseGradeSql().") as gc ON gc.courseid = c.id
-						LEFT JOIN (".getCourseLearnersSql().") e ON e.courseid = c.id
-						LEFT JOIN (".getCourseCompletedSql().") as cc ON cc.course = c.id
+						LEFT JOIN (" . getCourseGradeSql() . ") as gc ON gc.courseid = c.id
+						LEFT JOIN (" . getCourseLearnersSql() . ") e ON e.courseid = c.id
+						LEFT JOIN (" . getCourseCompletedSql() . ") as cc ON cc.course = c.id
 							WHERE c.visible=1 AND c.category > 0 AND c.timecreated BETWEEN $fromdate AND $todate
                                                         ORDER BY c.timecreated DESC";
 
@@ -2251,11 +2252,11 @@ class course_stats {
         $headers[] = $header6;
         return $headers;
     }
+
 }
 
+class progress_by_learner {
 
-class progress_by_learner {   
-         
     function get_chart_types() {
         $chartoptions = 'Table';
         return $chartoptions;
@@ -2355,11 +2356,11 @@ class progress_by_learner {
         $headers[] = $header7;
         return $headers;
     }
+
 }
 
+class teaching_performance {
 
-class teaching_performance {   
-         
     function get_chart_types() {
         $chartoptions = 'Table';
         return $chartoptions;
@@ -2390,12 +2391,12 @@ class teaching_performance {
 					sum(c.completed) as completedlearners,
 					AVG( g.grade ) AS grade
 				FROM
-					(".getUsersEnrolsSql(explode(",", 3)).") as ue
+					(" . getUsersEnrolsSql(explode(",", 3)) . ") as ue
 					LEFT JOIN {$CFG->prefix}user as u ON u.id = ue.userid
-					LEFT JOIN (".getCourseLearnersSql().") l ON l.courseid = ue.courseid
-					LEFT JOIN (".getCourseLearnersSql('learners', strtotime('-30 days'), time()).") ls ON ls.courseid = ue.courseid
-					LEFT JOIN (".getCourseCompletedSql().") c ON c.course = ue.courseid
-					LEFT JOIN (".getCourseGradeSql().") g ON g.courseid = ue.courseid
+					LEFT JOIN (" . getCourseLearnersSql() . ") l ON l.courseid = ue.courseid
+					LEFT JOIN (" . getCourseLearnersSql('learners', strtotime('-30 days'), time()) . ") ls ON ls.courseid = ue.courseid
+					LEFT JOIN (" . getCourseCompletedSql() . ") c ON c.course = ue.courseid
+					LEFT JOIN (" . getCourseGradeSql() . ") g ON g.courseid = ue.courseid
                                         WHERE ue.timecreated BETWEEN $fromdate AND $todate GROUP BY u.id
                                         ORDER BY ue.timecreated DESC";
 
@@ -2458,4 +2459,91 @@ class teaching_performance {
         $headers[] = $header6;
         return $headers;
     }
+
+}
+
+class activity_stats {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $activitystats = $this->get_activity_stats($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($activitystats);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_activity_stats($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+		SQL_CALC_FOUND_ROWS cm.id,
+		m.name AS module,
+		m.name AS moduletype,
+		cm.added,
+		cm.completion,
+		cmc.completed,
+		gc.grade
+		FROM {$CFG->prefix}course_modules cm
+		LEFT JOIN {$CFG->prefix}modules m ON m.id = cm.module
+		LEFT JOIN (SELECT coursemoduleid, COUNT(DISTINCT(id)) AS completed FROM `{$CFG->prefix}course_modules_completion` GROUP BY coursemoduleid) cmc ON cmc.coursemoduleid = cm.id
+                LEFT JOIN (SELECT gi.iteminstance, gi.itemmodule, AVG( (g.finalgrade/g.rawgrademax)*100 ) AS grade FROM {$CFG->prefix}grade_items gi, {$CFG->prefix}grade_grades g WHERE gi.itemtype = 'mod' AND g.itemid = gi.id AND g.finalgrade IS NOT NULL GROUP BY gi.iteminstance, gi.itemmodule) as gc ON gc.itemmodule = m.name AND gc.iteminstance = cm.instance
+		WHERE cm.visible = 1 AND cm.added BETWEEN $fromdate AND $todate GROUP BY cm.id";
+
+        $activitystats = $DB->get_records_sql($sql);
+        return $activitystats;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($activitystats) {
+        $chartdetails = array();
+        foreach ($activitystats as $key => $value) {
+            if ($value->completed == "") {
+                $value->completed = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->module . '"' . ',' . '"' . $value->moduletype . '"' . ',' . $value->completed . ',' . $value->grade . ',' . '"' . date("Y-m-d", $value->added) . '"' . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Activity'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Type'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# Of Learners Completed This Activity'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Average Score'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'Created'";
+        $headers[] = $header5;
+        return $headers;
+    }
+
 }
