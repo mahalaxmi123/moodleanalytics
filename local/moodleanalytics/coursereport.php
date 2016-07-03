@@ -166,8 +166,8 @@ $reportobj6->process_reportdata($reportobj6, $params6);
 </div>
 <script type="text/javascript">
 //            google.charts.load('current', {'packages':['table']});
-            google.setOnLoadCallback(drawCourseenrolments);
-            function drawCourseenrolments() {
+            google.setOnLoadCallback(drawteachinactivity);
+            function drawteachinactivity() {
 
             var data = new google.visualization.DataTable();
 <?php foreach ($reportobj1->headers as $header) { ?>

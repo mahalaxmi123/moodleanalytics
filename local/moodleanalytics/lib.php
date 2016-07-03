@@ -2014,7 +2014,7 @@ class quizstats {
     function process_reportdata($reportobj, $params = array()) {
         global $DB, $USER;
         $json_quizstats = array();
-        $quizstats = $this->get_quizstats_data($params);
+        $json_quizstats = $this->get_quizstats_data($params);
 
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
@@ -2026,6 +2026,7 @@ class quizstats {
 
     function get_quizstats_data($params) {
         global $USER, $CFG, $DB;
+        $this->teacher_roles = '3,4';
         $data = $DB->get_records_sql("SELECT
 				SQL_CALC_FOUND_ROWS c.id,
 				c.fullname,
@@ -2043,10 +2044,19 @@ class quizstats {
 						LEFT JOIN (" . $this->getQuizAttemptsSql("duration") . ") qs ON qs.quiz = q.id
 						LEFT JOIN (" . $this->getQuizAttemptsSql() . ") qa ON qa.quiz = q.id
 						LEFT JOIN (" . $this->getQuizAttemptsSql("grade") . ") qg ON qg.quiz = q.id
-						WHERE  c.visible = 1 AND c.category > 0 $sql_filter
-						GROUP BY c.id $sql_having $sql_orger $sql_limit");
-
-        return $data;
+						WHERE  c.visible = 1 AND c.category > 0
+						GROUP BY c.id");
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $coursename = "'$value->fullname'";
+            $teacher = !empty($value->teacher) ? "'$value->teacher'" : "'-'";
+            $quizzes = !empty($value->quizzes) ? "$value->quizzes" : 0;
+            $attempts = !empty($value->attempts) ? "$value->attempts" : 0;
+            $averagegrades = !empty($value->grade) ? "$value->grade" : 0;
+            $totaltimespent = !empty($value->duration) ? "$value->duration" : 0;
+            $json_data[] = "[" . $coursename . ',' . $teacher . ',' . $quizzes . ',' . $attempts . ',' . $totaltimespent . ',' . $averagegrades . "]";
+        }
+        return $json_data;
     }
 
     function getQuizAttemptsSql($type = "attempts") {
@@ -2109,8 +2119,6 @@ class quizstats {
 
     function get_axis_names($reportname) {
         $axis = new stdClass();
-        $axis->xaxis = 'Country';
-        $axis->yaxis = 'Users';
         return $axis;
     }
 
@@ -2118,12 +2126,28 @@ class quizstats {
         $gradeheaders = array();
         $header1 = new stdclass();
         $header1->type = "'string'";
-        $header1->name = "'Country'";
+        $header1->name = "'Course Name'";
         $gradeheaders[] = $header1;
         $header2 = new stdclass();
-        $header2->type = "'number'";
-        $header2->name = "'Users'";
+        $header2->type = "'string'";
+        $header2->name = "'Teacher'";
         $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Quizzes'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Attempts'";
+        $gradeheaders[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Total time spent'";
+        $gradeheaders[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Average grades'";
+        $gradeheaders[] = $header6;
         return $gradeheaders;
     }
 
