@@ -53,7 +53,7 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance', 26 => 'Activity Stats', 27 => 'Course Progress', 28 => 'Learner Progress By Course');
+    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance', 26 => 'Activity Stats', 27 => 'Course Progress', 28 => 'Learner Progress By Course', 29 => 'Quiz Grades');
     return $report_array;
 }
 
@@ -87,7 +87,8 @@ function get_report_class($reportid) {
         25 => new teaching_performance(),
         26 => new activity_stats(),
         27 => new course_progress(),
-        28 => new learner_progress_by_course()
+        28 => new learner_progress_by_course(),
+        29 => new quiz_grades()
     );
     return $classes_array[$reportid];
 }
@@ -2763,4 +2764,109 @@ class learner_progress_by_course {
         return $headers;
     }
 
+}
+
+
+class quiz_grades {
+    
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $quizgrades = $this->get_quiz_grades($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($quizgrades);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_quiz_grades($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+				SQL_CALC_FOUND_ROWS qa.id,
+				q.name,
+				q.course,
+				c.fullname,
+				qa.timestart,
+				qa.timefinish,
+				qa.state,
+				(qa.timefinish - qa.timestart) as duration,
+				(qa.sumgrades/q.sumgrades*100) as grade,
+				CONCAT(u.firstname, ' ', u.lastname) learner
+				FROM {$CFG->prefix}quiz_attempts qa
+					LEFT JOIN {$CFG->prefix}quiz q ON q.id = qa.quiz
+					LEFT JOIN {$CFG->prefix}user u ON u.id = qa.userid
+					LEFT JOIN {$CFG->prefix}course c ON c.id = q.course
+					LEFT JOIN {$CFG->prefix}context ctx ON ctx.instanceid = c.id
+					LEFT JOIN {$CFG->prefix}role_assignments ra ON ra.contextid = ctx.id AND ra.userid = u.id
+				WHERE ra.roleid  IN (5) and qa.timestart BETWEEN $fromdate AND $todate";
+
+        $quizgrades = $DB->get_records_sql($sql);
+        return $quizgrades;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($quizgrades) {
+        $chartdetails = array();
+        foreach ($quizgrades as $key => $value) {
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            if ($value->state == "inprogress") {
+                $value->state = "In Progress";
+                $value->duration = 0;
+                $value->timefinish = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->name . '"' . ',' . '"' . $value->learner . '"' . ',' . '"' . $value->fullname . '"' . ',' . '"' . $value->state . '"' . ',' . '"' . date("Y-m-d", $value->timestart) . '"' . ',' . '"' . date("Y-m-d", $value->timefinish) . '"' . ',' . '"' . date("H:i:s", $value->duration) . '"' . ',' . round($value->grade) . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Quiz name'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Learner'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Course name'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'string'";
+        $header4->name = "'Progress'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'Started on'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'string'";
+        $header6->name = "'Completed'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'string'";
+        $header7->name = "'Time taken'";
+        $headers[] = $header7;
+        $header8 = new stdclass();
+        $header8->type = "'number'";
+        $header8->name = "'Average Grade'";
+        $headers[] = $header8;
+        return $headers;
+    }
 }
