@@ -14,8 +14,7 @@
     color: #fff;
 }
 
-#Section-Second {  background-color: #fff; }
-
+#Section-First {background-color:#fff; height:350px; margin-top:30px;}
 #Section-Second .enroll { padding-right: 20px; }
  
 
@@ -85,5 +84,42 @@
 	
 	}
 	
-#Section-Second { margin-top: 20px;}
+.mdlanalytics-total {
+   margin-top: 30px;
+   box-sizing: border-box;
+
+   border: 1px solid #E3E3E3;
+	}
+	
+
+	
+.mdlanalytics-total h3 {
+    width: 16%;
+    margin-top: 30px;
+	float:left;
+    text-align: center;
+    line-height: inherit;
+}
+	
+	
+.mdlanalytics-total .count{
+    width: 16%;
+    margin: 0;
+    text-align: center;
+    float: left;
+    border-left: 1px solid #E3E3E3;
+    box-sizing: border-box;
+}
+
+.mdlanalytics-total .count .items {
+	font-size: 22px;
+    font-weight: normal;
+	}
+	
+.mdlanalytics-total .count p{ padding-top: 18px; font-size: 26px; */}
+
+	
+
+	
+#Section-Second { margin-top: 40px;}
 #Section-Second .span6 { float: right;}

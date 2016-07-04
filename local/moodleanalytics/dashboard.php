@@ -87,6 +87,8 @@ $reportobj2->process_reportdata($reportobj2, $params2);
 
    <!-- bootstrap theme -->
     <link href="css/style.css" rel="stylesheet">
+     <link href="css/font-awesome.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet"/>    
   
 <div id="main-page">
      <div class="row">
@@ -132,6 +134,40 @@ $reportobj2->process_reportdata($reportobj2, $params2);
   			
     </div>
  </div>
+ 
+<div class="mdlanalytics-total clearfix">
+	<h3>Total</h3>
+    
+     <div class="count"><p>643</p> 
+     	<div class="icons">
+        	<i class="fa fa-users"></i></i><span class="items">User</span>
+        </div>
+     </div>
+  
+     <div class="count"><p>23</p>  
+     	<div class="icons">
+        	<i class="zmdi zmdi-book"></i><span class="items">Categories</span>
+        </div>
+     </div>
+     
+     <div class="count"><p>138</p> 
+     	<div class="icons">
+        	<i class="fa fa-book"></i><span class="items">Courses</span>
+        </div>
+     </div>
+     
+     <div class="count"><p>1553</p>
+     	<div class="icons">
+        	<i class="fa fa-file-text-o"></i><span class="items">Modules</span>
+            </div>
+     </div>
+     
+     <div class="count"><p>931.8mb</p>
+     	<div class="icons">
+        	<i class="fa fa-simplybuilt"></i><span class="items">Space</span>
+        </div>
+     </div>
+</div> 
 		
 <div id="Section-Second">
     <div class="row-fluid">
@@ -155,15 +191,15 @@ $reportobj2->process_reportdata($reportobj2, $params2);
             echo '<h4>Sorry! no record found</h4>';
         }
         ?>
+        
 			<div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
-    	
+    	</div>
 	</div>
 </div>
-
- 
+	
+<div id="Section-Third">
         <h3>Participants</h3>
         <div id="top_x_div" style="width: 900px; height: 500px;"></div>
-    </div>
 </div>
 <script type="text/javascript">
             google.setOnLoadCallback(drawRegionsMap);
