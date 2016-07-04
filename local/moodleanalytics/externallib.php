@@ -12,15 +12,16 @@ require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
-function get_tabular_reports(){
+function get_tabular_reports() {
     $classes_array = array(
         'learner_progress' => "Learner progress",
         'student_performance' => "Student performance",
         'activity_progress' => "Activity progress",
-       // 'overdue_users' => "Overdue users",
+        'overdue_users' => "Overdue users",
     );
     return $classes_array;
 }
+
 function get_tabular_reports_class($reportname = '') {
     $classes_array = array(
         'learner_progress' => new learner_progress(),
@@ -363,7 +364,7 @@ class activity_progress {
             $activity = !empty($value->itemname) ? "'$value->itemname'" : "'-'";
             $learner = !empty($value->learner) ? "'$value->learner'" : "'-'";
             $email = !empty($value->email) ? "'$value->email'" : "'-'";
-            $completedon = !empty($value->graduated) ? "'".userdate($value->graduated, get_string('strftimedate', 'langconfig'))."'" : "'-'";
+            $completedon = !empty($value->graduated) ? "'" . userdate($value->graduated, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
             $score = !empty($value->grade) ? "$value->grade" : 0;
             $status = !empty($value->completion) ? (!empty($value->completionstate) ? "'Completed'" : "'Not completed'") : "'Completion not enabled'";
             $json_data[] = "[" . $activity . ',' . $learner . ',' . $email . ',' . $completedon . ',' . $score . ',' . $status . "]";
@@ -438,7 +439,7 @@ class overdue_users {
     function process_reportdata($reportobj, $params = array()) {
         global $DB, $USER;
         $json_overdueusers = array();
-        $overdueusers = $this->get_overdueusers_data($params);
+        $json_overdueusers = $this->get_overdueusers_data($params);
 
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
@@ -450,7 +451,45 @@ class overdue_users {
 
     function get_overdueusers_data($params) {
         global $DB;
-        $sql = "";
+        $sql_filter = '';
+        if (!empty($params->date_from) && !empty($params->to_from)) {
+            $sql_filter = " AND gg.timecreated BETWEEN $params->date_from AND $params->to_from";
+        }
+        $sql = "SELECT
+					SQL_CALC_FOUND_ROWS ue.id,
+					ue.timecreated as enrolled,
+					cc.timecompleted as complete,
+					(g.finalgrade/g.rawgrademax)*100 AS grade,
+					u.id as uid,
+					u.email,
+					CONCAT(u.firstname, ' ', u.lastname) learner,
+					c.id as cid,
+					c.enablecompletion,
+					c.fullname as course
+						FROM (" . $this->getUsersEnrolsSql() . ") as ue
+							LEFT JOIN {user} as u ON u.id = ue.userid
+							LEFT JOIN {course} as c ON c.id = ue.courseid
+							LEFT JOIN {course_completions} as cc ON cc.course = ue.courseid AND cc.userid = u.id
+							LEFT JOIN {grade_items} gi ON gi.courseid = ue.courseid AND gi.itemtype = 'course'
+							LEFT JOIN {grade_grades} g ON g.itemid = gi.id AND g.userid = u.id
+								WHERE u.deleted = 0 AND u.suspended = 0 $sql_filter";
+        $data = $DB->get_records_sql($sql);
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $course = !empty($value->course) ? "'$value->course'" : "'-'";
+            $learner = !empty($value->learner) ? "'$value->learner'" : "'-'";
+            $email = !empty($value->email) ? "'$value->email'" : "'-'";
+            if (!empty($value->enablecompletion)) {
+                $completedon = !empty($value->complete) ? "'" . userdate($value->complete, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
+            }else{
+                $completedon = "'-'";
+            }
+            $score = !empty($value->grade) ? "$value->grade" : 0;
+            $status = !empty($value->enablecompletion) ? (!empty($value->complete) ? "'Completed'" : "'Not completed'") : "'Completion not enabled'";
+            $enrolledon = !empty($value->enrolled) ? "'" . userdate($value->enrolled, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
+            $json_data[] = "[" . $learner . ',' . $course . ',' . $email . ',' . $enrolledon . ',' . $completedon . ',' . $score . ',' . $status . "]";
+        }
+        return $json_data;
     }
 
     function getUsersEnrolsSql($roles = array(), $enrols = array()) {
@@ -498,7 +537,7 @@ class overdue_users {
     function get_headers() {
         $headers = array();
         $headers_names = array("'Learner'", "'Course name'", "'Email'", "'Enrolled on'", "'Completed On'", "'Score'", "'Status'");
-        $headers_type = array("'Learner'" => "'string'", "'Course name'" => "'string'", "'Email'" => "'string'", "'Enrolled on'" => "'string'", "'Completed On'" => "'string'", "'Score'" => 'number', "'Status'" => "'string'");
+        $headers_type = array("'Learner'" => "'string'", "'Course name'" => "'string'", "'Email'" => "'string'", "'Enrolled on'" => "'string'", "'Completed On'" => "'string'", "'Score'" => "'number'", "'Status'" => "'string'");
         foreach ($headers_names as $key => $header) {
             $head = new stdClass();
             $head->type = $headers_type[$header];
