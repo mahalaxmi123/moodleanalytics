@@ -12,7 +12,16 @@ require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
-function get_tabular_reports_class($reportname) {
+function get_tabular_reports(){
+    $classes_array = array(
+        'learner_progress' => "Learner progress",
+        'student_performance' => "Student performance",
+        'activity_progress' => "Activity progress",
+       // 'overdue_users' => "Overdue users",
+    );
+    return $classes_array;
+}
+function get_tabular_reports_class($reportname = '') {
     $classes_array = array(
         'learner_progress' => new learner_progress(),
         'student_performance' => new student_performance(),
@@ -48,12 +57,12 @@ class learner_progress {
         $sql_filter = "";
         $sql_join = "";
         $WHERE = "";
-        if ($params->courseid) {
+        if (!empty($params->courseid)) {
             $sql_filter = isset($params->courseid) ? " AND c.id IN ($params->courseid) " : "";
         }
         $filterColumn = '';
-        if ($params->timestart && $params->timefinish) {
-            $filterColumn = "ue.timecreated BETWEEN $params->timestart AND $params->timefinish";
+        if (!empty($params->date_from) && !empty($params->to_from)) {
+            $filterColumn = "ue.timecreated BETWEEN $params->date_from AND $params->to_from";
         }
         if ($sql_filter || $filterColumn) {
             $WHERE = "WHERE $filterColumn $sql_filter";
@@ -186,8 +195,8 @@ class student_performance {
     function get_studentperformance_data($params) {
         global $DB;
         $where = "";
-        if ($params->timestart && $params->timefinish) {
-            $where = "AND ue.timecreated BETWEEN $params->timestart AND $params->timefinish";
+        if (!empty($params->date_from) && !empty($params->to_from)) {
+            $where = "AND ue.timecreated BETWEEN $params->date_from AND $params->to_from";
         }
         $sql_filter = "";
         if ($params->courseid) {
@@ -327,8 +336,8 @@ class activity_progress {
     function get_activityprogress_data($params) {
         global $DB, $CFG;
         $sql_filter = '';
-        if ($params->timestart && $params->timefinish) {
-            $sql_filter = " AND gg.timecreated BETWEEN $params->timestart AND $params->timefinish";
+        if (!empty($params->date_from) && !empty($params->to_from)) {
+            $sql_filter = " AND gg.timecreated BETWEEN $params->date_from AND $params->to_from";
         }
         $sql = "SELECT	SQL_CALC_FOUND_ROWS gg.id,
 					gi.itemname,
