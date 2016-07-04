@@ -2935,10 +2935,13 @@ class quiz_grades {
             }
             if ($value->state == "inprogress") {
                 $value->state = "In Progress";
-                $value->duration = 0;
-                $value->timefinish = 0;
+                $value->duration = "00:00:00";
+                $value->timefinish = "";
+            } else {
+                $value->duration = gmdate("H:i:s", $value->timefinish - $value->timestart);
+                $value->timefinish = date("Y-m-d", $value->timefinish);
             }
-            $chartdetails[] = '[' . '"' . $value->name . '"' . ',' . '"' . $value->learner . '"' . ',' . '"' . $value->fullname . '"' . ',' . '"' . $value->state . '"' . ',' . '"' . date("Y-m-d", $value->timestart) . '"' . ',' . '"' . date("Y-m-d", $value->timefinish) . '"' . ',' . '"' . date("H:i:s", $value->duration) . '"' . ',' . round($value->grade) . ']';
+            $chartdetails[] = '[' . '"' . $value->name . '"' . ',' . '"' . $value->learner . '"' . ',' . '"' . $value->fullname . '"' . ',' . '"' . $value->state . '"' . ',' . '"' . date("Y-m-d", $value->timestart) . '"' . ',' . '"' . $value->timefinish . '"' . ',' . '"' . $value->duration . '"' . ',' . round($value->grade) . ']';
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }

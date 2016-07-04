@@ -105,6 +105,9 @@ echo $formcontent;
         if ($reportid == 19) {
             echo '<p>File Size is in <strong>Bytes</strong></p>';
         }
+        if(!empty($submit) && empty($reportobj->data)){
+            echo '<p><h3>Sorry! Data not found</h3></p>';
+        }
         ?>
         <h5><?php echo isset($reportobj->info) ? $reportobj->info : ''; ?></h5>
         <div id="course-grade" style="width:1000px; height:800px;"></div>
