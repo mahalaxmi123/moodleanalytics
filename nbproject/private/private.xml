@@ -11,6 +11,10 @@
             <file>file:/var/www/html/moodle-analytics/local/intelliboard/externallib.php</file>
             <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/module.js</file>
             <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/course.php</file>
+            <file>file:/C:/xampp/htdocs/moodleanalytics/local/intelliboard/externallib.php</file>
+            <file>file:/C:/xampp/htdocs/moodleanalytics/local/moodleanalytics/lib.php</file>
+            <file>file:/C:/xampp/htdocs/moodleanalytics/local/moodleanalytics/coursereport.php</file>
+            <file>file:/C:/xampp/htdocs/moodleanalytics/local/moodleanalytics/dashboard.php</file>
         </group>
     </open-files>
 </project-private>

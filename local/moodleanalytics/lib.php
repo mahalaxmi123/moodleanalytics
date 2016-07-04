@@ -36,7 +36,7 @@ function monthname($date) {
 
 function get_dashboard_countries() {
     global $USER, $CFG, $DB;
-    //$sql = get_teacher_sql($params, "id", "users");
+//$sql = get_teacher_sql($params, "id", "users");
 
     return $DB->get_records_sql("SELECT country, count(*) as users FROM {user} WHERE confirmed = 1 and deleted = 0 and suspended = 0 and country != '' GROUP BY country");
 }
@@ -88,7 +88,8 @@ function get_report_class($reportid) {
         26 => new activity_stats(),
         27 => new course_progress(),
         28 => new learner_progress_by_course(),
-        29 => new quiz_grades()
+        29 => new quiz_grades(),
+        30 => new quizstats()
     );
     return $classes_array[$reportid];
 }
@@ -1534,14 +1535,14 @@ class activeip {
         $activeips = array();
         $activeipsql = "SELECT id, username, lastip, currentlogin FROM mdl_user WHERE timecreated >0 and currentlogin>0
             ORDER BY lastlogin DESC";
-        //$lists = $DB->get_records_sql($sql);
+//$lists = $DB->get_records_sql($sql);
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
         $activeips = $DB->get_records_sql($activeipsql);
 
         foreach ($activeips as $activeip) {
-            //$csize->size = ($csize->size/(1024*1024));
-            //$json_coursesizes[] = "['" . $csize->coursename . "', $csize->size]";
+//$csize->size = ($csize->size/(1024*1024));
+//$json_coursesizes[] = "['" . $csize->coursename . "', $csize->size]";
             $json_activeips[] = "['" . $activeip->username . "'," . "'" . $activeip->lastip . "'" . ",'" . date('d-m-y', $activeip->currentlogin) . "'" . '],';
         }
 
@@ -1797,7 +1798,7 @@ class newcourses {
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
-        // $reportobj->data = $json_languageused;
+// $reportobj->data = $json_languageused;
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
         $reportobj->totalcourses = $course;
@@ -1930,7 +1931,7 @@ class registrants {
 
         foreach ($registrants as $list) {
             $typeenrol[] = $list->auth;
-            //$language[] = $language_codes[$var];
+//$language[] = $language_codes[$var];
             $count[] = ($list->count);
         }
         $registrant = array_combine($typeenrol, $count);
@@ -2020,45 +2021,154 @@ class participations {
 
 }
 
-/* function newregistrants_get_chart_types($chartanme) {
-  $chartoptions = $chartname;
-  return $chartoptions;
-  }
+class quizstats {
 
-  function newregistrants_process_reportdata() {
-  global $DB, $USER, $CFG;
-  $sql = "SELECT * FROM mdl_user WHERE timecreated>0";
-  $lists = $DB->get_records_sql($sql);
-  return $lists;
-  }
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
 
-  function newregistrants_get_axis_names($reportname) {
-  $axis = new stdClass();
-  $axis->xaxis = 'Size in MB';
-  $axis->yaxis = 'Course Name';
-  return $axis;
-  }
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_quizstats = array();
+        $json_quizstats = $this->get_quizstats_data($params);
 
-  function newregistrants_get_headers() {
-  $gradeheaders = array();
-  $header1 = new stdclass();
-  $header1->type = "'date'";
-  $header1->name = "'Date'";
-  $gradeheaders[] = $header1;
-  $header2 = new stdclass();
-  $header2->type = "'number'";
-  $header2->name = "'Number Of Courses'";
-  $gradeheaders[] = $header2;
-  $header3 = new stdclass();
-  $header3->type = "'string'";
-  $header3->name = "'Last Acceess'";
-  $gradeheaders[] = $header3;
-  $header4 = new stdclass();
-  $header4->type = "'string'";
-  $header4->name = "'Strength'";
-  $gradeheaders[] = $header4;
-  return $gradeheaders;
-  } */
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_quizstats;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_quizstats_data($params) {
+        global $USER, $CFG, $DB;
+        $this->teacher_roles = '3,4';
+        $data = $DB->get_records_sql("SELECT
+				SQL_CALC_FOUND_ROWS c.id,
+				c.fullname,
+				count(q.id) as quizzes,
+				sum(qs.duration) as duration,
+				sum(qa.attempts) as attempts,
+				avg(qg.grade) as grade,
+				(SELECT DISTINCT CONCAT(u.firstname,' ',u.lastname)
+									  FROM {role_assignments} AS ra
+									  JOIN {user} AS u ON ra.userid = u.id
+									  JOIN {context} AS ctx ON ctx.id = ra.contextid
+									  WHERE ra.roleid IN ($this->teacher_roles)  AND ctx.instanceid = c.id AND ctx.contextlevel = 50 LIMIT 1) AS teacher FROM
+						{quiz} q
+						LEFT JOIN {course} c ON c.id = q.course
+						LEFT JOIN (" . $this->getQuizAttemptsSql("duration") . ") qs ON qs.quiz = q.id
+						LEFT JOIN (" . $this->getQuizAttemptsSql() . ") qa ON qa.quiz = q.id
+						LEFT JOIN (" . $this->getQuizAttemptsSql("grade") . ") qg ON qg.quiz = q.id
+						WHERE  c.visible = 1 AND c.category > 0
+						GROUP BY c.id");
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $coursename = "'$value->fullname'";
+            $teacher = !empty($value->teacher) ? "'$value->teacher'" : "'-'";
+            $quizzes = !empty($value->quizzes) ? "$value->quizzes" : 0;
+            $attempts = !empty($value->attempts) ? "$value->attempts" : 0;
+            $averagegrades = !empty($value->grade) ? "$value->grade" : 0;
+            $totaltimespent = !empty($value->duration) ? "$value->duration" : 0;
+            $json_data[] = "[" . $coursename . ',' . $teacher . ',' . $quizzes . ',' . $attempts . ',' . $totaltimespent . ',' . $averagegrades . "]";
+        }
+        return $json_data;
+    }
+
+    function getQuizAttemptsSql($type = "attempts") {
+        global $CFG;
+
+        if ($type == "grade") {
+            $sql = "avg((qa.sumgrades/q.sumgrades)*100) as $type";
+        } elseif ($type == "duration") {
+            $sql = "sum(qa.timefinish - qa.timestart) $type";
+        } else {
+            $sql = "count(distinct(qa.id)) $type";
+        }
+
+        return "SELECT qa.quiz, $sql FROM {quiz} q,{quiz_attempts} qa,
+							(" . $this->getUsersEnrolsSql() . ") ue
+						WHERE	qa.quiz = q.id AND
+							q.course = ue.courseid AND
+							qa.userid = ue.userid AND
+							qa.timefinish > 0 AND
+							qa.timestart > 0
+						GROUP BY qa.quiz";
+    }
+
+    function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+        global $CFG;
+        $this->learner_roles = '3';
+        if (empty($roles)) {
+            $roles = explode(",", $this->learner_roles);
+        }
+
+        $sql_filter = "";
+        if ($roles and $roles[0] != 0) {
+            $sql_roles = array();
+            foreach ($roles as $role) {
+                $sql_roles[] = "ra.roleid = $role";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+        }
+        if ($enrols) {
+            $sql_enrols = array();
+            foreach ($enrols as $enrol) {
+                $sql_enrols[] = "e.enrol = '$enrol'";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+        }
+
+        return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{user_enrolments} ue,
+						{enrol} e,
+						{role_assignments} ra,
+						{context} ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course Name'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Teacher'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Quizzes'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Attempts'";
+        $gradeheaders[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Total time spent'";
+        $gradeheaders[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Average grades'";
+        $gradeheaders[] = $header6;
+        return $gradeheaders;
+    }
+
+}
 
 class scorm_attempts {
 

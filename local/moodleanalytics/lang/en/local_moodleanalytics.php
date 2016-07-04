@@ -25,4 +25,4 @@ $string['totalusersatpresent'] = 'Total Users At Present:';
 $string['totalenrolments'] = 'Total Enrolments At Present:';
 $string['donutchartlanguageused'] = 'Language Used:';
 $string['toptenactiveuser'] = 'Top 10 Active Users:';
-//$string['newregistrants'] = 'New Registrants';
+$string['tabularreports'] = 'Tabular reports';
