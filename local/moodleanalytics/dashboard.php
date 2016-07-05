@@ -91,30 +91,29 @@ $reportobj2->process_reportdata($reportobj2, $params2);
     <link href="css/font-awesome.min.css" rel="stylesheet"/>    
   
 <div id="main-page">
-     <div class="row">
-				<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
-					<div class="info-box blue-bg">
-						<i class="fa fa-cloud-download"></i>
-						
+     <div class="row-fluid">
+     		<div class="Information-block">
+				<div class="col-md-3 col-sm-12 col-xs-12">
+                	<div class="info-box blue-bg">
+                     	<p>10</p>
 						<div class="title">Admins</div>						
 					</div><!--/.info-box-->			
 				</div><!--/.col-->
 				
-				<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+				<div class="col-md-3 col-sm-12 col-xs-12">
 					<div class="info-box brown-bg">
-						<i class="fa fa-shopping-cart"></i>
-						
+                    	<p>23</p>
 						<div class="title">Trainers</div>						
 					</div><!--/.info-box-->			
 				</div><!--/.col-->	
                 
-				<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+				<div class="col-md-3 col-sm-12 col-xs-12">
 					<div class="info-box green-bg">
-						<i class="fa fa-cubes"></i>
+                    	<p>610</p>
 						<div class="title">Learners</div>						
 					</div><!--/.info-box-->			
 				</div><!--/.col-->
-				
+			</div>	
 	</div><!--/.row-->
     
     <div class="row">
@@ -128,11 +127,7 @@ $reportobj2->process_reportdata($reportobj2, $params2);
     </div>
             
  <div id="Section-First">
-    <div class="row-fluid">
-    	<div class=" span12">
-        </div>	
-  			
-    </div>
+   
  </div>
  
 <div class="mdlanalytics-total clearfix">
@@ -162,7 +157,7 @@ $reportobj2->process_reportdata($reportobj2, $params2);
             </div>
      </div>
      
-     <div class="count"><p>931.8mb</p>
+     <div class="count"><p>931.8<sub>MB</sub></p>
      	<div class="icons">
         	<i class="fa fa-simplybuilt"></i><span class="items">Space</span>
         </div>
@@ -170,13 +165,13 @@ $reportobj2->process_reportdata($reportobj2, $params2);
 </div> 
 		
 <div id="Section-Second">
-    <div class="row-fluid">
+   <div class="row">
     	<div class="register span6">
         	<h3>Registrations</h3>
   			<div id="countries" class="span6" style="width:500px; height:400px;"></div>
         </div>
         
-    	<div class="enroll span6">
+    	<div class="enroll span5">
         	<h3>Enrollment per-course</h3><?php
   			$formcontent = "";
         $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
@@ -192,7 +187,7 @@ $reportobj2->process_reportdata($reportobj2, $params2);
         }
         ?>
         
-			<div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
+			<div id="enrollmentpercourse" style="width: 400px;"></div>
     	</div>
 	</div>
 </div>

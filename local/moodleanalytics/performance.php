@@ -63,20 +63,43 @@ $reportobj3->process_reportdata($reportobj3, $params);
         'packages':['corechart','geochart', 'table']
         }]
 }"></script>
-<div>
-    <div class="box46">
-        <h3>Course Size</h3>
-        <div id="coursesize" style="width: 400px; height:400px;"></div>
+<div id="Load-page">
+     <div class="row">
+     
+   
+     <div class="performance row-fluid">
+     	<div class="Performance-total ">
+            	<h3>Size On Disk</h3>
+                
+                   <p>931.8<sub>MB</sub> <br/><span style="font-size:18px; font-weight: normal;">Total</span></p>
+                   <p>619.5<sub>MB</sub><br/><span style="font-size:18px; font-weight: normal;">Courses</span></p>
+                   <p>109.5<sub>MB</sub> <br/><span style="font-size:18px; font-weight: normal;">Users</span></p>
+           
+	  	</div>	
+      </div>
+      
+       
+      <div id="first-block"> 
+          <div class="row-fluid" >
+          	 <div class="languge-block span6">
+          		<h3>Languages used</h3>
+           		<div id="languagesused" style="width: 400px; height:400px;"></div>
+              </div>
+    
+            <div class="Course-block span6">
+          		<h3>Course Size</h3>
+           		<div id="coursesize" style="width: 400px; height:400px;"></div>
+            </div>
+  		</div>
     </div>
-    <div class="box46">
-        <h3>Active IP Address</h3>
-        <div id="activeip" style="width: 400px; height:400px;"></div>
-    </div>
-    <div class="box46">
-        <h3>Languages used</h3>
-        <div id="languagesused" style="width: 400px; height:400px;"></div>
-    </div>
-</div>
+  
+  
+   		<div class="IP-address">
+                <h3>Active IP Address</h3>
+                <div id="activeip" style="width: 400px; height:400px;"></div>
+        </div>
+   </div>
+
 <script type = "text/javascript" >
             google.setOnLoadCallback(drawCourseSize);
             function drawCourseSize() {

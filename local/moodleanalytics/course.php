@@ -98,8 +98,9 @@ echo $formcontent;
         'packages':['corechart','geochart','line','table']
         }]
 }"></script>
-<div>
-    <div class="box45 pull-left">
+
+<div id="course-page">
+     <div class="row">
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
         <?php
         if ($reportid == 19) {
