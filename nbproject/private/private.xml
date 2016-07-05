@@ -4,17 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/course.php</file>
+            <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/intelliboard/externallib.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/ajax.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/lib.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/module.js</file>
-            <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/lib.php</file>
-            <file>file:/var/www/html/moodle-analytics/local/intelliboard/externallib.php</file>
-            <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/module.js</file>
-            <file>file:/var/www/html/moodle-analytics/local/moodleanalytics/course.php</file>
-            <file>file:/C:/xampp/htdocs/moodleanalytics/local/intelliboard/externallib.php</file>
-            <file>file:/C:/xampp/htdocs/moodleanalytics/local/moodleanalytics/lib.php</file>
-            <file>file:/C:/xampp/htdocs/moodleanalytics/local/moodleanalytics/coursereport.php</file>
-            <file>file:/C:/xampp/htdocs/moodleanalytics/local/moodleanalytics/dashboard.php</file>
         </group>
     </open-files>
 </project-private>
