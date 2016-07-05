@@ -162,7 +162,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	}
 	
 	
-
+/*Performance-total Css Start */
 
 
 .Performance-total {
@@ -193,6 +193,12 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	line-height: 32px;
 }
 
+/*Performance-total Css End */
+
+
+
+/* Load page content Css Start */
+
 .IP-address { margin: 30px 0px;}
 .IP-address h3 { text-align: center;} 
 #activeip { margin: auto; }
@@ -200,4 +206,8 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 .languge-block h3 { margin-left: 60px;}
  #languagesused { margin: 0px auto;}
+ 
+ 
+/* Load page content Css End */
+
 
