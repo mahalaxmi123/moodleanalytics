@@ -91,7 +91,7 @@ class learner_progress {
         foreach ($data as $key => $value) {
             $name = "'" . $value->name . "'";
             $email = "'" . $value->email . "'";
-            $coursename = "'" . $value->course . "'";
+            $coursename = "'" . clean_param($value->course, PARAM_ALPHANUMEXT) . "'";
             $enrolmethod = "'" . $value->enrols . "'";
             $grade = !empty($value->grade) ? $value->grade : 0;
             $status = isset($value->completed) ? "'Completed'" : "'Incompleted'";
@@ -231,7 +231,7 @@ class student_performance {
         $json_data = array();
         foreach ($data as $key => $value) {
             $name = "'" . $value->student . "'";
-            $coursename = "'" . $value->fullname . "'";
+            $coursename = "'" . clean_param($value->fullname, PARAM_ALPHANUMEXT) . "'";
             $started = "'" . userdate($value->started, get_string('strftimedate', 'langconfig')) . "'";
             $grade = !empty($value->grade) ? $value->grade : 0;
             $completedact = !empty($value->completed) ? $value->completed : 0;
