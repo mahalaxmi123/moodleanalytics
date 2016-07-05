@@ -46,29 +46,28 @@ if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names('Registrations');
 }
 
-if (!empty($submit)) {
-    if (empty($from_date)) {
-        $errors[] = 'From Date';
-    }
-    if (empty($to_date)) {
-        $errors[] = 'To Date';
-    }
-} else {
-    echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
-}
+//if (!empty($submit)) {
+//    if (empty($from_date)) {
+//        $errors[] = 'From Date';
+//    }
+//    if (empty($to_date)) {
+//        $errors[] = 'To Date';
+//    }
+//} else {
+//    echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
+//}
 
-$params = array();
-$fromdate = $from_date;
-$todate = $to_date;
-$params['timestart'] = new DateTime($from_date);
-$params['timefinish'] = new DateTime($to_date);
+//$params = array();
+//$fromdate = $from_date;
+//$todate = $to_date;
+//$params['timestart'] = new DateTime($from_date);
+//$params['timefinish'] = new DateTime($to_date);
 
-$reportobj1 = new stdClass();
-$reportobj1 = get_report_class(5);
-$reportobj1->process_reportdata($reportobj1, $params);
 
-$axis1 = new stdClass();
-$axis1 = $reportobj1->get_axis_names('enrollmentspercourse');
+$reportobj5 = new stdClass();
+$reportobj5 = get_report_class(13);
+$params = new stdClass();
+$reportobj5->process_reportdata($reportobj5, $params);
 
 $reportobj2 = new stdClass();
 $reportobj2 = get_report_class(21);
@@ -88,25 +87,31 @@ $reportobj2->process_reportdata($reportobj2, $params2);
         <h3>Registrations</h3>
         <div id="countries" style="width:500px; height:500px;"></div>
     </div>
-    <div class="box45 pull-right">
-        <h3>Enrollment per-course</h3><?php
-        $formcontent = "";
-        $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
+<!--    <div class="box45 pull-right">
+        <h3>Enrollment per-course</h3>
+            //<?php
+//        $formcontent = "";
+//        $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
 //        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
 //        $formcontent .= html_writer::tag('p', 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
-        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
-        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
-        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
-        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
-        echo $formcontent;
-        if (empty($reportobj1->charttype)) {
-            echo '<h4>Sorry! no record found</h4>';
-        }
-        ?>
+//        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+//        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+//        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
+//        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
+//        echo $formcontent;
+//        if (empty($reportobj1->charttype)) {
+//            echo '<h4>Sorry! no record found</h4>';
+//        }
+//        ?>
         <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
+    </div>-->
+    
+    <div class = "box45 pull-right">
+        <h3>Enrollments</h3>
+        <div id="user-enrol" style="width: 400px; height: 400px;"></div>
     </div>
     <div>
-        <h3>Participants</h3>
+        <h3>Participation</h3>
         <div id="top_x_div" style="width: 900px; height: 500px;"></div>
     </div>
 </div>
@@ -134,35 +139,20 @@ $reportobj2->process_reportdata($reportobj2, $params2);
             }
 </script>
 <script type="text/javascript">
-    google.setOnLoadCallback(drawEnrolments);
-            function drawEnrolments() {
-<?php if (!empty($reportobj1->data)) { ?>
-                var data = new google.visualization.DataTable();
-    <?php foreach ($reportobj1->headers as $header) { ?>
-        <?php if (!empty($header)) { ?>
-                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
-        <?php } ?>
-    <?php } ?>
-                data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
-<?php } ?>
-            var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('enrollmentpercourse'));
-                    var options = {
-                    hAxis: {
-                    title: '<?php echo isset($axis1->xaxis) ? $axis1->xaxis : ''; ?>',
-                    },
-                            vAxis: {
-                            title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
-                            },
-                            backgroundColor:{fill:"transparent"},
-                            title: '',
-                            pieHole: 0.4,
-                            chartArea: {
-                            width: '100%'
-                            }
-                    };
-                    chart.draw(data, options);
-            }
+    google.setOnLoadCallback(drawChart2);
+            function drawChart2() {
+            var data = google.visualization.arrayToDataTable([
+                    [<?php echo $reportobj5->axis->xaxis . ',' . $reportobj5->axis->yaxis; ?>],
+<?php echo implode(',', $reportobj5->data); ?>
 
+            ]);
+//                    var options = {
+//                    title: <?php echo "'" . $reportobj5->charttitle . "'"; ?>
+//                    };
+                    var chart = new google.visualization.<?php echo $reportobj5->charttype; ?>(document.getElementById('user-enrol'));
+//                    chart.draw(data, options);
+                    chart.draw(data, {});
+            }
 </script>
 <script type="text/javascript">
     google.setOnLoadCallback(drawStuff);
