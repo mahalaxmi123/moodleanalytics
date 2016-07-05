@@ -476,7 +476,7 @@ class overdue_users {
         $data = $DB->get_records_sql($sql);
         $json_data = array();
         foreach ($data as $key => $value) {
-            $course = !empty($value->course) ? "''" . clean_param($value->course, PARAM_ALPHANUMEXT) . "''" : "'-'";
+            $course = !empty($value->course) ? "'" . clean_param($value->course, PARAM_ALPHANUMEXT) . "'" : "'-'";
             $learner = !empty($value->learner) ? "'$value->learner'" : "'-'";
             $email = !empty($value->email) ? "'$value->email'" : "'-'";
             if (!empty($value->enablecompletion)) {
