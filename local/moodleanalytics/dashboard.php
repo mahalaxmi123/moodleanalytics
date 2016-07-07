@@ -20,6 +20,7 @@ $quizid = optional_param('quizid', '', PARAM_INT);
 $users = optional_param_array('username', '', PARAM_TEXT);
 $from_date = optional_param('from_date', '', PARAM_TEXT);
 $to_date = optional_param('to_date', '', PARAM_TEXT);
+$view = optional_param('view', 'first', PARAM_ALPHA);
 $context = context_system::instance();
 
 $PAGE->set_context($context);
@@ -56,40 +57,59 @@ if (!empty($reportid) & $reportid >= 1) {
 //} else {
 //    echo html_writer::div('Please select the filters to proceed.', 'alert alert-info');
 //}
-
 //$params = array();
 //$fromdate = $from_date;
 //$todate = $to_date;
 //$params['timestart'] = new DateTime($from_date);
 //$params['timefinish'] = new DateTime($to_date);
 
-
-$reportobj5 = new stdClass();
-$reportobj5 = get_report_class(13);
-$params = new stdClass();
-$reportobj5->process_reportdata($reportobj5, $params);
+$params1 = new stdClass();
+$reportobj1 = new stdClass();
+$reportobj1 = get_report_class(13);
+$reportobj1->process_reportdata($reportobj1, $params1);
 
 $reportobj2 = new stdClass();
 $reportobj2 = get_report_class(21);
 $params2 = new stdClass();
 $reportobj2->process_reportdata($reportobj2, $params2);
+
+$params3 = array();
+$params3['endtime'] = time();
+$reportobj3 = new stdClass();
+$reportobj3 = get_report_class(32);
+if ($view == 'monthly' || $view == 'first') {
+    $reportobj3->process_reportdata_month($reportobj3, $params3);
+}
+if ($view == 'weekly') {
+    $reportobj3->process_reportdata_week($reportobj3, $params3);
+}
+if ($view == 'daily') {
+    $reportobj3->process_reportdata_daily($reportobj3, $params3);
+}
+echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=monthly', array()), get_string('monthly', 'local_moodleanalytics'));
+echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=weekly', array()), get_string('weekly', 'local_moodleanalytics'));
+echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=daily', array()), get_string('daily', 'local_moodleanalytics'));
 ?>
 <script type="text/javascript"
         src="https://www.google.com/jsapi?autoload={
         'modules':[{
         'name':'visualization',
         'version':'1',
-        'packages':['corechart','geochart']
+        'packages':['corechart','geochart', 'line']
         }]
 }"></script>
 <div>
+    <div class="box45">
+        <h3>Users Activity</h3>
+        <div id="linechart_material" style="width: 900px; height: 500px"></div>
+    </div>
     <div class="box45 pull-left">
         <h3>Registrations</h3>
         <div id="countries" style="width:500px; height:500px;"></div>
     </div>
-<!--    <div class="box45 pull-right">
-        <h3>Enrollment per-course</h3>
-            //<?php
+    <!--    <div class="box45 pull-right">
+            <h3>Enrollment per-course</h3>
+                //<?php
 //        $formcontent = "";
 //        $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
 //        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
@@ -102,10 +122,11 @@ $reportobj2->process_reportdata($reportobj2, $params2);
 //        if (empty($reportobj1->charttype)) {
 //            echo '<h4>Sorry! no record found</h4>';
 //        }
-//        ?>
-        <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
-    </div>-->
-    
+//        
+?>
+            <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
+        </div>-->
+
     <div class = "box45 pull-right">
         <h3>Enrollments</h3>
         <div id="user-enrol" style="width: 400px; height: 400px;"></div>
@@ -142,14 +163,14 @@ $reportobj2->process_reportdata($reportobj2, $params2);
     google.setOnLoadCallback(drawChart2);
             function drawChart2() {
             var data = google.visualization.arrayToDataTable([
-                    [<?php echo $reportobj5->axis->xaxis . ',' . $reportobj5->axis->yaxis; ?>],
-<?php echo implode(',', $reportobj5->data); ?>
+                    [<?php echo $reportobj1->axis->xaxis . ',' . $reportobj1->axis->yaxis; ?>],
+<?php echo implode(',', $reportobj1->data); ?>
 
             ]);
 //                    var options = {
-//                    title: <?php echo "'" . $reportobj5->charttitle . "'"; ?>
+//                    title: <?php echo "'" . $reportobj1->charttitle . "'"; ?>
 //                    };
-                    var chart = new google.visualization.<?php echo $reportobj5->charttype; ?>(document.getElementById('user-enrol'));
+                    var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('user-enrol'));
 //                    chart.draw(data, options);
                     chart.draw(data, {});
             }
@@ -175,6 +196,34 @@ $reportobj2->process_reportdata($reportobj2, $params2);
                     chart.draw(data, options);
             };
 </script>
+<script type="text/javascript">
+//  google.charts.load('current', {'packages':['line']});
+      google.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+      var data = new google.visualization.DataTable();
+        <?php foreach ($reportobj3->headers as $header) { ?>
+        <?php if (!empty($header)) { ?>
+                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
+        <?php } ?>
+    <?php } ?>
+
+data.addRows([<?php echo implode(',', $reportobj3->data); ?>]);
+
+
+      var options = {
+       chart: {
+        },
+        width: 900,
+        height: 500
+      };
+
+      var chart = new google.charts.Line(document.getElementById('linechart_material'));
+
+      chart.draw(data, options);
+    }
+    </script>
 
 <?php
 echo $OUTPUT->footer();

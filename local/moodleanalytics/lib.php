@@ -90,7 +90,8 @@ function get_report_class($reportid) {
         28 => new learner_progress_by_course(),
         29 => new quiz_grades(),
         30 => new quizstats(),
-        31 => new quiz_attempts()
+        31 => new quiz_attempts(),
+        32 => new dashboardchart()
     );
     return $classes_array[$reportid];
 }
@@ -3118,6 +3119,276 @@ class quiz_attempts {
         $header7->name = "'Created'";
         $headers[] = $header7;
         return $headers;
+    }
+
+}
+
+
+
+class dashboardchart {
+
+    function get_chart_types() {
+        $chartoptions = 'LineChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata_month($reportobj, $param = array()) {
+        global $DB, $USER, $CFG;
+        //echo $param['endtime'];
+        $strendtime = $param['endtime'];
+        $endtime = date('d-m-Y', $param['endtime']);
+        // echo $endtime;
+        $starttime = strtotime('-3month', $param['endtime']);
+
+        $starttimemonth = date('m-Y', $starttime);
+        $firstdateofstartmonth = "01-" . $starttimemonth;
+        $strstarttime = ($firstdateofstartmonth);
+
+        $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime('-3month', $param['endtime'])), date('Y', strtotime('-3month', $param['endtime'])));
+        //echo $lastdate;
+        //echo $fromtime;
+        $enroluser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%d-%M' ) as enrolment_date,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%M' ) as enrolment_month,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m-%Y' ) as enrolment_year FROM mdl_user WHERE  timecreated BETWEEN '" . $strstarttime . "' AND  '" . $strendtime . "'";
+        $enrol_user = $DB->get_records_sql($enroluser);
+        $completeuser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%d-%M' ) as completed_date,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%M' ) as completed_month,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m-%Y' ) as completed_year FROM mdl_course_completions WHERE  timecompleted BETWEEN '" . $strstarttime . "' AND  '" . $strendtime . "'";
+        // print_object($enrol_user);
+        $complete_user = $DB->get_records_sql($completeuser);
+        $montharray = array();
+
+        $montharray[] = date('M', $param['endtime']);
+        $montharray[] = date('M', strtotime('-1month', $param['endtime']));
+        $montharray[] = date('M', strtotime('-2month', $param['endtime']));
+        $montharray[] = date('M', strtotime('-3month', $param['endtime']));
+        $yeararray[] = date('m-Y', $param['endtime']);
+        $yeararray[] = date('m-Y', strtotime('-1month', $param['endtime']));
+        $yeararray[] = date('m-Y', strtotime('-2month', $param['endtime']));
+        $yeararray[] = date('m-Y', strtotime('-3month', $param['endtime']));
+
+        $montharray = array_unique($montharray);
+        $yeararray = array_unique($yeararray);
+
+        $midlastofmonth = array();
+        $arraytocombine = array();
+        for ($i = 0; $i < count($montharray); $i++) {
+            $lastdate = cal_days_in_month(CAL_GREGORIAN, substr($yeararray[$i], 0, 2), substr($yeararray[$i], 3));
+            $midlastofmonth[] = "$lastdate" . "-" . substr($yeararray[$i], 0, 2);
+            $midlastofmonth[] = "15-" . substr($yeararray[$i], 0, 2);
+            $arraytocombine[] = "$lastdate" . "-" . $montharray[$i];
+            $arraytocombine[] = "15-" . $montharray[$i];
+        }
+
+        $valuefinal = array();
+        $valuefinalcomplete = array();
+        // var_dump($midlastofmonth);
+        foreach ($midlastofmonth as $key => $value) {
+            // echo $value;
+
+            $count = 0;
+            $countcomplete = 0;
+            foreach ($enrol_user as $enrol) {
+                if (substr($value, 3) != substr($enrol->enrolment_year, 0, 2))
+                    continue;
+                if (substr($value, 0, 2) >= substr($enrol->enrolment_date, 0, 2)) {
+                    $count++;
+                }
+            }
+            foreach ($complete_user as $complete) {
+                if (substr($value, 3) != substr($complete->complete_year, 0, 2))
+                    continue;
+                if (substr($value, 0, 2) >= substr($complete->complete_date, 0, 2)) {
+                    $countcomplete++;
+                }
+            }
+            $valuefinal[] = $count;
+            $valuefinalcomplete[] = $countcomplete;
+        }
+        // var_dump($valuefinal);
+        for ($i = 0; $i < count($valuefinal); $i++) {
+            if ($i % 2 == 0) {
+                $valuefinal[$i] = $valuefinal[$i] - $valuefinal[$i + 1];
+            }
+        }
+        $noofenrolments = array_combine($arraytocombine, $valuefinal);
+        //var_dump($noofenrolments);
+        $json_noofenrolments = array();
+        $i = 0;
+        foreach ($noofenrolments as $key => $value) {
+            $json_noofenrolments[] = "['" . $key . "'," . $value . "," . $valuefinalcomplete[$i] . ']';
+            $i++;
+        }
+        krsort($json_noofenrolments);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->data = $json_noofenrolments;
+    }
+
+    function process_reportdata_daily($reportobj, $param = array()) {
+        global $DB, $USER, $CFG;
+        $fulldayname = array('Sun' => 'Sunday', 'Mon' => 'Monday', 'Tue' => 'Tuesday', 'Wed' => 'Wednesday', 'Thu' => 'Thursday', 'Fri' => 'Friday', 'Sat' => 'Saturday');
+        //echo $param['endtime'];
+        $strendtime = $param['endtime'];
+        $endtime = date('d-m-Y', $param['endtime']);
+        //   echo $endtime;
+        $starttime = strtotime('-6day', $param['endtime']);
+
+        $starttimemonth = date('d-m-Y', $starttime);
+
+        $enroluser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%d-%M' ) as enrolment_date,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%M' ) as enrolment_month,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m-%Y' ) as enrolment_year FROM mdl_user WHERE  timecreated BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $enrol_user = $DB->get_records_sql($enroluser);
+        $completeuser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%d-%M' ) as completed_date,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%M' ) as completed_month,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m-%Y' ) as completed_year FROM mdl_course_completions WHERE  timecompleted BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $complete_user = $DB->get_records_sql($completeuser);
+        // print_object($enrol_user);
+        $daymontharray = array();
+        $datemontharray = array();
+        $datemontharray[] = date('d', $param['endtime']);
+
+        for ($i = 1; $i <= 6; $i++) {
+            $datemontharray[] = date('d', strtotime('-' . $i . 'day', $param['endtime']));
+        }
+        //var_dump($datemontharray);
+        $daymontharray[] = $fulldayname[date('D', $param['endtime'])];
+        for ($i = 1; $i <= 6; $i++) {
+            $daymontharray[] = $fulldayname[date('D', strtotime('-' . $i . 'day', $param['endtime']))];
+        }
+        //var_dump($daymontharray);
+        $valuefinal = array();
+        $valuefinalcomplete = array();
+        foreach ($datemontharray as $key => $value) {
+            //echo $value;
+
+            $count = 0;
+            $countcomplete = 0;
+            foreach ($enrol_user as $enrol) {
+                if ($value == substr($enrol->enrolment_date, 0, 2)) {
+                    $count++;
+                }
+            }
+            foreach ($complete_user as $complete) {
+                if ($value == substr($complete->complete_date, 0, 2)) {
+                    $countcomplete++;
+                }
+            }
+            $valuefinal[] = $count;
+            $valuefinalcomplete[] = $countcomplete;
+        }
+        $noofenrolments = array_combine($daymontharray, $valuefinal);
+        //var_dump($noofenrolments);
+        $json_noofenrolments = array();
+        $i = 0;
+        foreach ($noofenrolments as $key => $value) {
+            $json_noofenrolments[] = "['" . $key . "'," . $value . ',' . $valuefinalcomplete[$i] . ']';
+            $i++;
+        }
+        krsort($json_noofenrolments);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->data = $json_noofenrolments;
+    }
+
+    function process_reportdata_week($reportobj, $param = array()) {
+
+        global $DB, $USER, $CFG;
+
+        $strendtime = $param['endtime'];
+        $endtime = date('d-m-Y', $param['endtime']);
+
+        $starttime = strtotime('-4week', $param['endtime']);
+
+        $starttimemonth = date('d-m-Y', $starttime);
+        $enroluser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m%d' ) as enrolment_date,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%M' ) as enrolment_month,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m-%Y' ) as enrolment_year FROM mdl_user WHERE  timecreated BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $enrol_user = $DB->get_records_sql($enroluser);
+        $completeuser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m%d' ) as completed_date,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%M' ) as completed_month,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m-%Y' ) as completed_year FROM mdl_course_completions WHERE  timecompleted BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $complete_user = $DB->get_records_sql($completeuser);
+        $daymontharray = array();
+        $datemontharray = array();
+        $datemontharray[] = date('md', $param['endtime']);
+
+        for ($i = 1; $i <= 3; $i++) {
+            $datemontharray[] = date('md', strtotime('-' . $i . 'week', $param['endtime']));
+        }
+        $daymontharray[] = date('d-M', $param['endtime']);
+        for ($i = 1; $i <= 3; $i++) {
+            $daymontharray[] = date('d-M', strtotime('-' . $i . 'week', $param['endtime']));
+        }
+        // var_dump($daymontharray);
+        for ($i = 0; $i < count($datemontharray); $i++) {
+
+            $count = 0;
+            $countcomplete = 0;
+            foreach ($enrol_user as $enrol) {
+
+                if ($i == (count($datemontharray) - 1)) {
+                    if ($datemontharray[$i] >= $enrol->enrolment_date) {
+                        $count++;
+                    }
+                } else {
+                    if (($datemontharray[$i] >= $enrol->enrolment_date) && ($datemontharray[$i + 1] <= $enrol->enrolment_date)) {
+                        $count++;
+                    }
+                }
+            }
+            foreach ($complete_user as $complete) {
+
+                if ($i == (count($datemontharray) - 1)) {
+                    if ($datemontharray[$i] >= $complete->complete_date) {
+                        $countcomplete++;
+                    }
+                } else {
+                    if (($datemontharray[$i] >= $complete->complete_date) && ($datemontharray[$i + 1] <= $complete->complete_date)) {
+                        $countcomplete++;
+                    }
+                }
+            }
+            $valuefinal[] = $count;
+            $valuefinalcomplete[] = $countcomplete;
+        }
+        //var_dump($valuefinal);
+
+        $noofenrolments = array_combine($daymontharray, $valuefinal);
+        // var_dump($noofenrolments);
+        $json_noofenrolments = array();
+        $i = 0;
+        foreach ($noofenrolments as $key => $value) {
+            $json_noofenrolments[] = "['" . $key . "'," . $value . ',' . $valuefinalcomplete[$i] . ']';
+            $i++;
+        }
+        krsort($json_noofenrolments);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->data = $json_noofenrolments;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Time'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'User Enrol'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'Course Completion'";
+        $gradeheaders[] = $header3;
+        return $gradeheaders;
     }
 
 }
