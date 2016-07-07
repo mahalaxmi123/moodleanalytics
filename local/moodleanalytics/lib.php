@@ -2021,7 +2021,7 @@ class participations {
                     $notcomplete++;
                 }
             }
-            $data[] = "['" . $course->fullname . "'," . $complete . ',' . $notcomplete . ",' ']";
+            $data[] = '[' . '"' . $course->fullname . '"' . ',' . $complete . ',' . $notcomplete . ']';
         }
         $charttype = $this->get_chart_types();
         $charttitle = $this->get_chart_title();

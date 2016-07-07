@@ -2,7 +2,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	color: #6e8090;
 	}
 
-#page { background-color: #ecf0f5;}
+#page { background-color: #fff;}
 
 #page-local-moodleanalytics-dashboard #main-page .row {
     margin-left: 30px !important;
@@ -95,7 +95,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /*Section-First Css Start */
- #Section-First {background-color:#fff; height:350px; margin-top:30px;}
+ #Section-First {background-color:#ecf0f5; height:350px; margin-top:30px;}
 
 /*Section-First Css End*/
 
@@ -105,16 +105,16 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 .mdlanalytics-total {
    margin: 50px auto;
    box-sizing: border-box;
-
-   border: 1px solid #E3E3E3;
-	}
+   border: 1px solid #b5a7a7;
+}
 	
 
 	
 .mdlanalytics-total h3 {
     width: 16%;
     margin-top: 30px;
-	float:left;
+    font-size: 28px;
+    float: left;
     text-align: center;
     line-height: inherit;
 }
@@ -125,16 +125,18 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     margin: 0;
     text-align: center;
     float: left;
-    border-left: 1px solid #E3E3E3;
+    border-left: 1px solid #b5a7a7;
     box-sizing: border-box;
 }
 
 .mdlanalytics-total .count .items {
-	font-size: 18px;
-    font-weight: normal;
+    font-size: 16px;
+    font-weight: 600;
 	}
 	
-.mdlanalytics-total .count p{ padding-top: 18px; font-size: 26px; */}
+.mdlanalytics-total .count p{ padding-top: 18px;
+    font-size: 30px;
+    font-weight: bold;}
 	
 
 /*Mdlanalytics-total Css End */
@@ -142,17 +144,13 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /*Section-Second Css Start */
+#Section-Second .Enrollments-block {
+    float: left;
+}
 
-#Section-Second .span5 {
-	color: #6b6b6b;
-    font-family: sans-serif;
-    border-bottom: 2px solid #a69797;
-	}
-
-#Section-Second { margin-top: 40px; background-color:#fff;}
-#Section-Second .span6 { float: right; margin-bottom: 10px;}
-#Section-Second .enroll {padding: 0px 30px 10px;
-    background-color: #fff;}
+#Section-Second .participation{
+    flaot:right;
+}
 
 /*Section-Second Css Endt */ 
 

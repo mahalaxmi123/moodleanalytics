@@ -91,21 +91,21 @@ if (empty($to_date_5)) {
     $to_date_5 = new DateTime($to_date_5);
 }
 
-$formcontent = html_writer::start_tag('div');
-if (!empty($errors)) {
-    $error = implode(", ", $errors);
-    $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
-}
-
-$formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
-$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
-$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
-$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
-$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
-$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
-$formcontent .= html_writer::end_tag('form');
-$formcontent .= html_writer::end_tag('div');
-echo $formcontent;
+//$formcontent = html_writer::start_tag('div');
+//if (!empty($errors)) {
+//    $error = implode(", ", $errors);
+//    $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
+//}
+//
+//$formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
+////$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
+//$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+//$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+//$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
+//$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
+//$formcontent .= html_writer::end_tag('form');
+//$formcontent .= html_writer::end_tag('div');
+//echo $formcontent;
 
 $params2 = array();
 $params2['timestart'] = $from_date_5;

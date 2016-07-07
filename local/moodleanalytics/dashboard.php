@@ -130,69 +130,88 @@ $reportobj2->process_reportdata($reportobj2, $params2);
  </div>
  
 <div class="mdlanalytics-total clearfix">
-	<h3>Total</h3>
+	<h3>TOTAL</h3>
     
      <div class="count"><p>643</p> 
      	<div class="icons">
-        	<i class="fa fa-users"></i></i><span class="items">User</span>
+        	<i class="fa fa-users"></i></i><span class="items">USER</span>
         </div>
      </div>
   
      <div class="count"><p>23</p>  
      	<div class="icons">
-        	<i class="zmdi zmdi-book"></i><span class="items">Categories</span>
+        	<i class="zmdi zmdi-book"></i><span class="items">CATEGORIES</span>
         </div>
      </div>
      
      <div class="count"><p>138</p> 
      	<div class="icons">
-        	<i class="fa fa-book"></i><span class="items">Courses</span>
+        	<i class="fa fa-book"></i><span class="items">COURSES</span>
         </div>
      </div>
      
      <div class="count"><p>1553</p>
      	<div class="icons">
-        	<i class="fa fa-file-text-o"></i><span class="items">Modules</span>
+        	<i class="fa fa-file-text-o"></i><span class="items">MODULES</span>
             </div>
      </div>
      
-     <div class="count"><p>931.8<span style="font-size:14px";>MB</span></p>
+     <div class="count"><p>931.8<span style="font-size:16px";>MB</span></p>
      	<div class="icons">
-        	<i class="fa fa-simplybuilt"></i><span class="items">Space</span>
+        	<i class="fa fa-simplybuilt"></i><span class="items">SPACE</span>
         </div>
      </div>
 </div> 
 		
 <div id="Section-Second">
    <div class="row">
-    	<div class="register span6">
+        <div class = "Enrollments-block span5">
+            <h3>Enrollments</h3>
+            <div id="user-enrol" style="width: 400px; height: 400px;"></div>
+        </div>
+       
+        <div class="participation span6">
+            <h3>Participation</h3>
+            <div id="participation-block" style="width: 500px; height: 500px;"></div>
+        </div>
+       
+    	
+    </div>
+</div>
+       
+       
+        
+<div id="Section-third">
+   <div class="row">
+       <div class="register">
         	<h3>Registrations</h3>
-  			<div id="countries" class="span6" style="width:500px; height:400px;"></div>
+  		<div id="countries" style="width:500px; height:400px;"></div>
         </div>
         
-    	<div class="enroll span5">
+    </div>
+</div>        
+<!--    	<div class="enroll span5">
         	<h3>Enrollment per-course</h3><?php
-  			$formcontent = "";
-        $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
-//        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
-//        $formcontent .= html_writer::tag('p', 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
-        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
-        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
-        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
-        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
-        echo $formcontent;
-        if (empty($reportobj1->charttype)) {
-            echo '<h4>Sorry! no record found</h4>';
-        }
-        ?>
+//  			$formcontent = "";
+//        $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php'), 'method' => 'post'));
+////        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+////        $formcontent .= html_writer::tag('p', 'To Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'text', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+//        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+//        $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+//        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
+//        $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
+//        echo $formcontent;
+//        if (empty($reportobj1->charttype)) {
+//            echo '<h4>Sorry! no record found</h4>';
+//        }
+//        ?>
         
 			<div id="enrollmentpercourse" style="width: 400px;"></div>
-    	</div>
-	</div>
-</div>
+    	</div>-->
+
 	
-<div id="Section-Third">
-        <h3>Participants</h3>
+<!--<div id="Section-Third">
+        <h3>Participants</h3>-->
 <!--    <div class="box45 pull-right">
         <h3>Enrollment per-course</h3>
             //<?php
@@ -212,14 +231,6 @@ $reportobj2->process_reportdata($reportobj2, $params2);
         <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
     </div>-->
     
-    <div class = "box45 pull-right">
-        <h3>Enrollments</h3>
-        <div id="user-enrol" style="width: 400px; height: 400px;"></div>
-    </div>
-    <div>
-        <h3>Participation</h3>
-        <div id="top_x_div" style="width: 900px; height: 500px;"></div>
-</div>
 <script type="text/javascript">
             google.setOnLoadCallback(drawRegionsMap);
             function drawRegionsMap() {
@@ -264,7 +275,7 @@ $reportobj2->process_reportdata($reportobj2, $params2);
             function drawStuff() {
 <?php if (!empty($reportobj->data)) { ?>
                 var data = google.visualization.arrayToDataTable([
-                        [     <?php echo $reportobj2->title; ?>, { role: 'annotation' } ],
+                        [     <?php echo $reportobj2->title; ?> ],
     <?php echo implode(',', $reportobj2->data); ?>
                 ]);
                         var options = {
@@ -275,7 +286,7 @@ $reportobj2->process_reportdata($reportobj2, $params2);
                                 isStacked: true,
                         };
 <?php } ?>
-            var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('top_x_div'));
+            var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('participation-block'));
                     // Convert the Classic options to Material options.
                     chart.draw(data, options);
             };
