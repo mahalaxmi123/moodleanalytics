@@ -7,6 +7,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 #page-local-moodleanalytics-dashboard #main-page .row {
     margin-left: 30px !important;
 }
+.row { margin-left: 0px !important;}
 
 /* Header Css Start */
 
@@ -52,20 +53,20 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	
 	
 	.blue-bg { color: #fff;
-    background: #57889c;
-    background-color: #57889c;
+   
+    background-color: #5aa0a2;
 	}
 	
 .brown-bg {
     color: #fff;
-    background: #d1b993;
-    background-color: #d1b993;
+  
+    background-color: #e0ac61;
 }
 
 .green-bg {
     color: #fff;
-    background: #1a2732;
-    background-color: #1a2732;
+ 
+    background-color: #a6adb2;
 }
 
 
@@ -78,6 +79,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	#main-page .btn-group {
 	float:right;
 	background-image :none;
+	margin-top:10px;
 	
 	}
 	
@@ -143,7 +145,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 #Section-Second { margin-top: 40px; background-color:#fff;}
 #Section-Second .span6 { float: right; margin-bottom: 10px;}
-#Section-Second .enroll { padding-right: 20px; float:right; }
+#Section-Second .enroll { padding: 20px 40px; }
 
 /*Section-Second Css Endt */ 
 
@@ -167,30 +169,31 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 .Performance-total {
     float: right;
-    width: 50%;
+    width: 60%;
 	border: 1px solid  #E3E3E3;
 }
 
 .Performance-total h3 {
-    width: 18%;
+    width: 16%;
     font-weight: normal;
     margin: 20px 0;
     text-align: center;
     float: left;
+    font-size: 20px;
     line-height: inherit;
 }
 
 .Performance-total p {
-    width: 26%;
-    font-size: 20px;
+    width: 28%;
+    font-size: 28px;
     padding: 10px 0px;
-    font-weight: 600;
+    font-weight: normal;
     margin: 0;
     text-align: center;
     float: left;
     border-left: 1px solid #E3E3E3;
     box-sizing: border-box;
-	line-height: 32px;
+    line-height: 32px;
 }
 
 /*Performance-total Css End */
@@ -200,8 +203,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 /* Load page content Css Start */
 
 .IP-address { margin: 30px 0px;}
-.IP-address h3 { text-align: center;} 
-#activeip { margin: auto; }
+.IP-address h3, #activeip {margin: 0px 60px;}
 #first-block {margin: 20px 0px; }
 
 .languge-block h3 { margin-left: 60px;}
@@ -210,4 +212,39 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
  
 /* Load page content Css End */
 
+
+/* Course page content Css Start */
+.left-Coursebar-total {
+	border: 1px solid  #E3E3E3;
+	}
+
+	
+.left-Coursebar-total p {
+    width: 25%;
+    
+}
+
+.left-Coursebar-total p, .Right-Coursebar-total p  {
+	font-size: 30px;
+    padding: 10px 0px;
+    font-weight: normal;
+    margin: 0;
+    text-align: center;
+    float: left;
+    border-left: 1px solid #E3E3E3;
+    box-sizing: border-box;
+	line-height: 32px;
+	}
+
+
+.Right-Coursebar-total{
+	border: 1px solid  #E3E3E3;
+	float:right;
+	} 
+	
+.Right-Coursebar-total p{
+	 width: 50%;
+    
+	}
+/* Course page content Css End */
 

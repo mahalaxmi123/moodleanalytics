@@ -74,12 +74,12 @@ if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names();
 }
 
-
 $formcontent = html_writer::start_tag('div');
 if (!empty($errors)) {
     $error = implode(", ", $errors);
     $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
 }
+
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
@@ -99,8 +99,22 @@ echo $formcontent;
         }]
 }"></script>
 
-<div id="course-page">
+<div id="Coursedasboard-Page">
      <div class="row">
+		 <div class="coursebar row-fluid">
+             <div class="left-Coursebar-total span8"> 
+                    <p>138<br/><span style="font-size:16px; font-weight: normal;">Total</span></p>
+                    <p>130<br/><span style="font-size:16px; font-weight: normal;">Visible</span></p>
+                    <p>8<br/><span style="font-size:16px; font-weight: normal;">Hidden</span></p>
+                    <p>1553<br/><span style="font-size:16px; font-weight: normal;">Module</span></p>
+              </div>
+              
+              <div class="Right-Coursebar-total span4"> 
+                    <p>23<br/><span style="font-size:16px; font-weight: normal;">Trainers</span></p>
+                    <p>610<br/><span style="font-size:16px; font-weight: normal;">Learners</span></p>
+              </div>		
+        </div>	
+
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
         <?php
         if ($reportid == 19) {

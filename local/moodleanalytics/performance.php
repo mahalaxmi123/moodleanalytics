@@ -65,17 +65,13 @@ $reportobj3->process_reportdata($reportobj3, $params);
 }"></script>
 <div id="Load-page">
      <div class="row">
-     
-   
-     <div class="performance row-fluid">
-     	<div class="Performance-total ">
+		 <div class="performance row-fluid">
+     		<div class="Performance-total ">
             	<h3>Size On Disk</h3>
-                
-                   <p>931.8<sub>MB</sub> <br/><span style="font-size:18px; font-weight: normal;">Total</span></p>
-                   <p>619.5<sub>MB</sub><br/><span style="font-size:18px; font-weight: normal;">Courses</span></p>
-                   <p>109.5<sub>MB</sub> <br/><span style="font-size:18px; font-weight: normal;">Users</span></p>
-           
-	  	</div>	
+                <p>931.8<span style="font-size:14px; font-weight: normal">MB</span><br/><span style="font-size:18px; font-weight: normal;">Total</span></p>
+                <p>619.5<span style="font-size:14px; font-weight: normal">MB</span><br/><span style="font-size:18px; font-weight: normal;">Courses</span></p>
+                <p>109.5<span style="font-size:14px; font-weight: normal">MB</span><br/><span style="font-size:18px; font-weight: normal;">Users</span></p>
+	  		</div>	
       </div>
       
        

@@ -157,7 +157,7 @@ $reportobj2->process_reportdata($reportobj2, $params2);
             </div>
      </div>
      
-     <div class="count"><p>931.8<sub>MB</sub></p>
+     <div class="count"><p>931.8<span style="font-size:14px";>MB</span></p>
      	<div class="icons">
         	<i class="fa fa-simplybuilt"></i><span class="items">Space</span>
         </div>
