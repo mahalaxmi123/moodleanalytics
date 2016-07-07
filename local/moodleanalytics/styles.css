@@ -143,9 +143,16 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /*Section-Second Css Start */
 
+#Section-Second .span5 {
+	color: #6b6b6b;
+    font-family: sans-serif;
+    border-bottom: 2px solid #a69797;
+	}
+
 #Section-Second { margin-top: 40px; background-color:#fff;}
 #Section-Second .span6 { float: right; margin-bottom: 10px;}
-#Section-Second .enroll { padding: 20px 40px; }
+#Section-Second .enroll {padding: 0px 30px 10px;
+    background-color: #fff;}
 
 /*Section-Second Css Endt */ 
 
