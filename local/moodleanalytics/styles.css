@@ -1,9 +1,12 @@
-body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
+body{
+   background: rgba(255,255,255,1);
+   background-color:rgba(255,255,255,1);
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	color: #6e8090;
 	}
-
-#page { background-color: #fff;}
-
+        
 #page-local-moodleanalytics-dashboard #main-page .row {
     margin-left: 30px !important;
 }
@@ -77,25 +80,38 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 /*Groupbutton Css Start */
 	
 	#main-page .btn-group {
+        width: 50%;
 	float:right;
 	background-image :none;
 	margin-top:10px;
 	
 	}
+        
+        #main-page .btn-group .singlebutton {
+            float:right;
+        }
 	
-	#main-page .btn-group .btn-primary {
-	background-image :none;
-	background-color:#666;
-	text-shadow: none;
-	border-color: #d8d6d3;
-	
-	}
+        #main-page .btn-group input[type="submit"] {
+           background-color:#8e8989;
+           background-image: none;
+           box-shadow:none;
+           text-shadow: none;
+           color: #fefefe;
+           border-radius: 0px;
+        }
+        
+        #main-page .btn-group input[type="submit"]:hover{
+            background-color: #a6adb2;
+        }
 /*Groupbutton Css End */
 
 
 
 /*Section-First Css Start */
- #Section-First {background-color:#ecf0f5; height:350px; margin-top:30px;}
+#Section-First .span3 {float:left; margin-left: 0px;}
+ #Section-First .span9{ float:right;}
+ #Section-First { margin-top:30px;}
+
 
 /*Section-First Css End*/
 
@@ -144,15 +160,43 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /*Section-Second Css Start */
-#Section-Second .Enrollments-block {
-    float: left;
+#Section-Second .Enrollments-block { width:40%; float:left;}
+#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First{
+  border: 1px solid #e6e9ed;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
 }
+#Section-Second .Enrollments-block h3, #Section-Second .participation h3, #Section-third .register h3, #Section-First h3{
+    box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #fdfdfd;
+    border-bottom: 1px solid #E6E9ED;
+    font-weight: normal;
+    padding-left: 30px;
+    font-size: 20px;
+    color: #fefefe;
+    background-color: #928c8c;
+    margin: -1px -1px;
+}
+
 
 #Section-Second .participation{
-    flaot:right;
+    float:left;
+    width:59%;
+    margin-left: 6px;
 }
 
-/*Section-Second Css Endt */ 
+/*Section-Second Css Endt */
+
+
+/*Section-third Css Start */
+
+#Section-third {
+    margin-top: 30px;
+}
+ #Section-third .register #countries { margin: auto; }
+
+/*Section-third Css End */
+
+
 
 
 	

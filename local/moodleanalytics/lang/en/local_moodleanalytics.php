@@ -26,3 +26,6 @@ $string['totalenrolments'] = 'Total Enrolments At Present:';
 $string['donutchartlanguageused'] = 'Language Used:';
 $string['toptenactiveuser'] = 'Top 10 Active Users:';
 $string['tabularreports'] = 'Tabular reports';
+$string['monthly'] = 'Monthly';
+$string['weekly'] = 'Weekly';
+$string['daily'] = 'Daily';
