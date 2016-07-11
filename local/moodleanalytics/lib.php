@@ -91,7 +91,8 @@ function get_report_class($reportid) {
         29 => new quiz_grades(),
         30 => new quizstats(),
         31 => new quiz_attempts(),
-        32 => new dashboardchart()
+        32 => new dashboardchart(),
+        33 => new enrolments_analytics()
     );
     return $classes_array[$reportid];
 }
@@ -1257,7 +1258,7 @@ class enrollmentspercourse {
 class coursesize {
 
     function get_chart_types() {
-        $chartoptions = 'BarChart';
+        $chartoptions = 'Table';
         return $chartoptions;
     }
 
@@ -1265,7 +1266,7 @@ class coursesize {
         global $DB, $USER, $CFG;
         $json_coursesizes = array();
         $coursesizes = array();
-        $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size "
+        $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size, DATE_FORMAT( FROM_UNIXTIME( c.timecreated ) ,  '%m/%d/%Y' ) as timecreated "
                 . "FROM {course} c "
                 . "LEFT JOIN (SELECT c.instanceid AS course, sum( f.filesize ) as coursesize "
                 . "FROM {files} f, {context} c "
@@ -1274,7 +1275,7 @@ class coursesize {
 
         foreach ($coursesizes as $csize) {
             $csize->size = ($csize->size / (1024 * 1024));
-            $json_coursesizes[] = '[' . '"' . $csize->coursename . '"' . ',' . $csize->size . ']';
+            $json_coursesizes[] = '[' . '"' . $csize->coursename . '"' . ',' . $csize->size . ',' . '"' . $csize->timecreated . '"' . ']';
         }
 
         $headers = $this->get_headers();
@@ -1296,12 +1297,16 @@ class coursesize {
         $headers = array();
         $header1 = new stdclass();
         $header1->type = "'string'";
-        $header1->name = "'Course Name'";
+        $header1->name = "'Course'";
         $headers[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
         $header2->name = "'Size in MB'";
         $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Created'";
+        $headers[] = $header3;
         return $headers;
     }
 
@@ -3361,6 +3366,62 @@ class dashboardchart {
         $header3->type = "'number'";
         $header3->name = "'Course Completion'";
         $gradeheaders[] = $header3;
+        return $gradeheaders;
+    }
+
+}
+
+class enrolments_analytics {
+
+    function get_chart_types() {
+        $chartoptions = 'ColumnChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param) {
+        global $DB, $USER, $CFG;
+        $registrantssql = "SELECT auth, COUNT(auth) AS Count FROM  `mdl_user` GROUP BY auth";
+        $enrolments = array('corplms_program'=>0, 'guest' => 0, 'manual' => 0, 'self' => 0);
+        $colour = array('lightblue', 'cyan', 'pink', 'blue');
+        $registrants = $DB->get_records_sql($registrantssql);
+        $json_registrants = array();
+        $typeenrol = array();
+        $count = array();
+        $registrant = array();
+
+        foreach ($registrants as $list) {
+            foreach ($enrolments as $key => $enrolment) {
+                if ($key == $list->auth) {
+                    $enrolments[$key] = $list->count;
+                }
+            }
+            // $typeenrol[] = $list->auth;
+            //$language[] = $language_codes[$var];
+            //$count[] = ($list->count);
+        }
+        //$registrant = array_combine($enrolments, $count);
+        $axis = $this->get_axis_names('ColumnChart');
+        $charttype = $this->get_chart_types();
+        $i = 0;
+        foreach ($registrant as $key => $value) {
+            
+        }
+        foreach ($enrolments as $key => $value) {
+            $json_registrants[] = "['" . ucfirst($key) . "'" . ',' . $value . ",'" . $colour[$i++] . "'],";
+        }
+
+        $reportobj->data = $json_registrants;
+        $reportobj->axis = $axis;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
         return $gradeheaders;
     }
 

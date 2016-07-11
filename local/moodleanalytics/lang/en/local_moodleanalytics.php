@@ -14,6 +14,7 @@ $string['moodleanalytics:view'] = 'View moodle analytics';
 $string['moodleanalytics:manage'] = 'Manage moodle analytics';
 $string['analytics'] = 'Analytics';
 $string['course'] = 'Course';
+$string['learner'] = 'Learner';
 $string['coursereport'] = 'Course report';
 $string['dashboard'] = 'Dashboard';
 $string['load'] = 'Load';

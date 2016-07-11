@@ -109,15 +109,7 @@ $reportobj3->process_reportdata($reportobj3, $params);
                 data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
 <?php } ?>
             var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('coursesize'));
-                    var options = {
-                    hAxis: {
-                    title: '<?php echo isset($axis1->xaxis) ? $axis1->xaxis : ''; ?>',
-                    },
-                            vAxis: {
-                            title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
-                            },
-                    };
-                    chart.draw(data, options);
+                    chart.draw(data, {showRowNumber: true, width: '100%', height: '100%', pageSize :10});
             }
 
 </script>
@@ -156,7 +148,6 @@ $reportobj3->process_reportdata($reportobj3, $params);
     ?>
                 ]);
                         var options = {
-                        title: <?php echo "'" . $reportobj3->charttitle . "'"; ?>,
                                 pieHole: 0.4,
                         };
 <?php } ?>
