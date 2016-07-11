@@ -91,6 +91,22 @@ if (empty($to_date_5)) {
     $to_date_5 = new DateTime($to_date_5);
 }
 
+//$formcontent = html_writer::start_tag('div');
+//if (!empty($errors)) {
+//    $error = implode(", ", $errors);
+//    $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
+//}
+//
+//$formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
+////$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
+//$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+//$formcontent .= html_writer::tag('p', 'From Date (DD-MM-YYYY) : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+//$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
+//$formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
+//$formcontent .= html_writer::end_tag('form');
+//$formcontent .= html_writer::end_tag('div');
+//echo $formcontent;
+
 $params2 = array();
 $params2['timestart'] = $from_date_5;
 $params2['timefinish'] = $to_date_5;
@@ -111,6 +127,24 @@ $formcontent2 = "";
         'packages':['corechart','geochart','line','table']
         }]
 }"></script>
+
+<div id="Coursedasboard-Page">
+     <div class="row">
+		 <div class="coursebar row-fluid">
+             <div class="left-Coursebar-total span8"> 
+                    <p>138<br/><span style="font-size:16px; font-weight: normal;">Total</span></p>
+                    <p>130<br/><span style="font-size:16px; font-weight: normal;">Visible</span></p>
+                    <p>8<br/><span style="font-size:16px; font-weight: normal;">Hidden</span></p>
+                    <p>1553<br/><span style="font-size:16px; font-weight: normal;">Module</span></p>
+              </div>
+              
+              <div class="Right-Coursebar-total span4"> 
+                    <p>23<br/><span style="font-size:16px; font-weight: normal;">Trainers</span></p>
+                    <p>610<br/><span style="font-size:16px; font-weight: normal;">Learners</span></p>
+              </div>		
+        </div>	
+
+        <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
 <div>
     <div class = "box45">
         <h3>New Courses</h3>
