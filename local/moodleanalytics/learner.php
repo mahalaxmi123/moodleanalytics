@@ -94,7 +94,7 @@ if (!empty($month) && empty($year)) {
 }
 
 
-$link = $CFG->wwwroot . '/local/moodleanalytics/coursereport.php?month=' . $month . 'year=' . $year;
+$link = $CFG->wwwroot . '/local/moodleanalytics/learner.php?month=' . $month . 'year=' . $year;
 $month_names = array('01' => "January", '02' => "February", '03' => "March", '04' => "April", '05' => "May", '06' => "June", '07' => "July", '08' => "August", '09' => "September", '10' => "October", '11' => "November", '12' => "December");
 $yeararray = array();
 $month = optional_param('month', '', PARAM_TEXT);
@@ -201,9 +201,9 @@ $reportobj4->process_reportdata($reportobj4, $params4);
     <div>
         <h3>New Registrants</h3>
         <?php
-        echo '<a class="arrow_link previous" href="coursereport.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
-        echo '<a class="arrow_link previous" href="coursereport.php?view=current" title="previous"><span class="arrow_text">Current Month </span></a>';
-        echo '<a class="arrow_link next" href="coursereport.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
+        echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
+        echo '<a class="arrow_link previous" href="learner.php?view=current" title="previous"><span class="arrow_text">Current Month </span></a>';
+        echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
 
 //        echo $OUTPUT->heading(get_string('annotationchartnewregistrants', 'local_moodleanalytics'));
         $monthwithyear = monthname($_SESSION['current_month']);
