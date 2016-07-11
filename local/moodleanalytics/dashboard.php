@@ -123,7 +123,7 @@ echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php
 //            echo '<h4>Sorry! no record found</h4>';
 //        }
 //        
-?>
+    ?>
             <div id="enrollmentpercourse" style="width: 400px; height:400px;"></div>
         </div>-->
 
@@ -184,7 +184,7 @@ echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php
     <?php echo implode(',', $reportobj2->data); ?>
                 ]);
                         var options = {
-                        width: 600,
+                        width: 900,
                                 height: 400,
                                 legend: { position: 'top', maxLines: 3 },
                                 bar: { groupWidth: '75%' },
@@ -194,36 +194,29 @@ echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php
             var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('top_x_div'));
                     // Convert the Classic options to Material options.
                     chart.draw(data, options);
-            };
-</script>
+            };</script>
 <script type="text/javascript">
 //  google.charts.load('current', {'packages':['line']});
-      google.setOnLoadCallback(drawChart);
+            google.setOnLoadCallback(drawChart);
+            function drawChart() {
 
-    function drawChart() {
-
-      var data = new google.visualization.DataTable();
-        <?php foreach ($reportobj3->headers as $header) { ?>
-        <?php if (!empty($header)) { ?>
-                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
-        <?php } ?>
+            var data = new google.visualization.DataTable();
+<?php foreach ($reportobj3->headers as $header) { ?>
+    <?php if (!empty($header)) { ?>
+                    data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
     <?php } ?>
+<?php } ?>
 
-data.addRows([<?php echo implode(',', $reportobj3->data); ?>]);
-
-
-      var options = {
-       chart: {
-        },
-        width: 900,
-        height: 500
-      };
-
-      var chart = new google.charts.Line(document.getElementById('linechart_material'));
-
-      chart.draw(data, options);
-    }
-    </script>
+            data.addRows([<?php echo implode(',', $reportobj3->data); ?>]);
+                    var options = {
+                    width: 900,
+                    height: 400,
+                    legend: { position: 'top', maxLines: 3 },
+                    };
+                    var chart = new google.charts.Line(document.getElementById('linechart_material'));
+                    chart.draw(data, options);
+            }
+</script>
 
 <?php
 echo $OUTPUT->footer();

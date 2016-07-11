@@ -19,11 +19,16 @@ $reset = optional_param('reset', '', PARAM_ALPHANUM);
 $reportid = optional_param('reportid', '', PARAM_INT);
 $quizid = optional_param('quizid', '', PARAM_INT);
 $users = optional_param_array('username', '', PARAM_TEXT);
-$context = context_system::instance();
 $timelink = optional_param('time', 0, PARAM_INT);
 $linktime = date('d-m-Y H:i:s', $timelink);
 $view = optional_param('view', 'now', PARAM_ALPHA);
 $print = optional_param('print', 0, PARAM_ALPHA);
+$id = optional_param('courseid', 1, PARAM_ALPHA);
+$month = optional_param('month', '', PARAM_TEXT);
+$year = optional_param('year', '', PARAM_TEXT);
+//$context = context_system::instance();
+$context = context_course::instance($id, MUST_EXIST);
+
 
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
@@ -64,33 +69,27 @@ $axis2 = new stdClass();
 $axis2 = $reportobj2->get_axis_names('courseenrollments');
 
 //echo "$linktime";
-$time = time();
-echo '<a class="arrow_link previous" href="' . $CFG->wwwroot . '/local/moodleanalytics/coursereport.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
-echo '<a class="arrow_link previous" href="' . $CFG->wwwroot . '/local/moodleanalytics/coursereport.php??view=current" title="previous"><span class="arrow_text">Current Month </span></a>';
-echo '<a class="arrow_link next" href="' . $CFG->wwwroot . '/local/moodleanalytics/coursereport.php??view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
-
-if (empty($_SESSION['current_date_time'])) {
-    $_SESSION['current_date_time'] = 0;
-}
-//echo $_SESSION['current_date_time'];
-if (!isset($_SESSION['current_month']) || ($view == 'current')) {
-    $_SESSION['current_month'] = date('Y-m');
-} else if (($view == 'next') && ($_SESSION['current_date_time'] != $linktime)) {
-    $_SESSION['current_month'] = date('Y-m', strtotime('+1 month', strtotime($_SESSION['current_month'])));
-    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
-} else if (($view == 'previous') && ($_SESSION['current_date_time'] != $linktime)) {
-    $_SESSION['current_month'] = date('Y-m', strtotime('-1 month', strtotime($_SESSION['current_month'])));
-    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
-}
-
-$monthwithyear = monthname($_SESSION['current_month']);
+//$time = time();
+//echo '<a class="arrow_link previous" href="' . $CFG->wwwroot . '/local/moodleanalytics/coursereport.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
+//echo '<a class="arrow_link previous" href="' . $CFG->wwwroot . '/local/moodleanalytics/coursereport.php??view=current" title="previous"><span class="arrow_text">Current Month </span></a>';
+//echo '<a class="arrow_link next" href="' . $CFG->wwwroot . '/local/moodleanalytics/coursereport.php??view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
+//if (empty($_SESSION['current_date_time'])) {
+//    $_SESSION['current_date_time'] = 0;
+//}
+////echo $_SESSION['current_date_time'];
+//if (!isset($_SESSION['current_month']) || ($view == 'current')) {
+//    $_SESSION['current_month'] = date('Y-m');
+//} else if (($view == 'next') && ($_SESSION['current_date_time'] != $linktime)) {
+//    $_SESSION['current_month'] = date('Y-m', strtotime('+1 month', strtotime($_SESSION['current_month'])));
+//    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
+//} else if (($view == 'previous') && ($_SESSION['current_date_time'] != $linktime)) {
+//    $_SESSION['current_month'] = date('Y-m', strtotime('-1 month', strtotime($_SESSION['current_month'])));
+//    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
+//}
+//
+//$monthwithyear = monthname($_SESSION['current_month']);
 //$firstdate = $date("Y,m",)    
 
-$reportobj3 = new stdClass();
-$reportobj3 = get_report_class(12);
-$params = array();
-$params[] = $_SESSION['current_month'];
-$reportobj3->process_reportdata($reportobj3, $params);
 
 $reportobj5 = new stdClass();
 $reportobj5 = get_report_class(13);
@@ -117,11 +116,75 @@ $reportobj5->process_reportdata($reportobj5, $params);
 //    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
 //}
 
+$time = time();
+$presentmonth = date('m', $time);
+$presentyear = date('Y', $time);
+if (!empty($month) && empty($year)) {
+    $year = $presentyear;
+} else if (empty($month) && !empty($year)) {
+    $month = $presentmonth;
+}
+echo '<a class="arrow_link previous" href="coursereport.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
+echo '<a class="arrow_link previous" href="coursereport.php?view=current" title="previous"><span class="arrow_text">Current Month </span></a>';
+echo '<a class="arrow_link next" href="coursereport.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
+
+
+$link = $CFG->wwwroot . '/local/moodleanalytics/coursereport.php?month=' . $month . 'year=' . $year;
+//$renderer = $PAGE->get_renderer('local_charts');
+//echo $renderer->render_monthandyear_filter($link);
+
+$month_names = array('01' => "January", '02' => "February", '03' => "March", '04' => "April", '05' => "May", '06' => "June", '07' => "July", '08' => "August", '09' => "September", '10' => "October", '11' => "November", '12' => "December");
+$yeararray = array();
+$month = optional_param('month', '', PARAM_TEXT);
+$year = optional_param('year', '', PARAM_TEXT);
+$presentyear = date('Y', time());
+for ($i = $presentyear - 20; $i <= $presentyear + 2; $i++) {
+    $yeararray[] = $i;
+}
+$yeararray = array_combine($yeararray, $yeararray);
+$content = '';
+$content .= html_writer::start_tag('form', array('action' => new moodle_url($link), 'method' => 'post'));
+$content .= html_writer::start_tag('div', array('class' => 'monthandyear'));
+$content .= get_string('selectyourmonth', 'local_moodleanalytics');
+$content .= html_writer::select($month_names, 'month', $month);
+$content .= get_string('selectyouryear', 'local_moodleanalytics');
+$content .= html_writer::select($yeararray, 'year', $year);
+$content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('filter')));
+$content .= html_writer::end_tag('div');
+$content .= html_writer::end_tag('form');
+echo $content;
+
+if (empty($_SESSION['current_date_time'])) {
+    $_SESSION['current_date_time'] = 0;
+}
+//echo $_SESSION['current_date_time'];
+if (!isset($_SESSION['current_month']) || ($view == 'current')) {
+    $_SESSION['current_month'] = date('Y-m');
+} else if (($view == 'next') && ($_SESSION['current_date_time'] != $linktime)) {
+    $_SESSION['current_month'] = date('Y-m', strtotime('+1 month', strtotime($_SESSION['current_month'])));
+    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
+} else if (($view == 'previous') && ($_SESSION['current_date_time'] != $linktime)) {
+    $_SESSION['current_month'] = date('Y-m', strtotime('-1 month', strtotime($_SESSION['current_month'])));
+    $_SESSION['current_date_time'] = date('d-m-Y H:i:s', $timelink);
+}
+if (!empty($month) && !empty($year)) {
+    $_SESSION['current_month'] = "$year-$month";
+}
+echo $OUTPUT->heading(get_string('annotationchartnewregistrants', 'local_moodleanalytics'));
+$monthwithyear = monthname($_SESSION['current_month']);
+echo $OUTPUT->heading($monthwithyear);
+
 $reportobj4 = new stdClass();
 $reportobj4 = get_report_class(11);
 $params = array();
 $params[] = $_SESSION['current_month'];
 $reportobj4->process_reportdata($reportobj4, $params);
+
+$reportobj3 = new stdClass();
+$reportobj3 = get_report_class(12);
+$params = array();
+$params[] = $_SESSION['current_month'];
+$reportobj3->process_reportdata($reportobj3, $params);
 
 $reportobj6 = new stdClass();
 $reportobj6 = get_report_class(20);
@@ -196,8 +259,9 @@ $reportobj6->process_reportdata($reportobj6, $params6);
             }
 
 </script>
-<script type = "text/javascript">
-    google.setOnLoadCallback(drawChart);
+<script type="text/javascript">
+//    google.charts.load('current', {'packages': ['annotationchart']});
+            google.setOnLoadCallback(drawChart);
             function drawChart() {
             var data = new google.visualization.DataTable();
 <?php foreach ($reportobj3->headers as $header) { ?>
@@ -206,19 +270,8 @@ $reportobj6->process_reportdata($reportobj6, $params6);
     <?php } ?>
 <?php } ?>
             var strength = function (number) {
-            if (number <= 20) {
-            return "Poor";
-            } else if (number > 20 && number <= 40) {
-            return "Below Average";
-            } else if (number > 40 && number <= 60) {
-            return "Above Average";
-            } else if (number > 60 && number <= 80) {
-            return "Good";
-            } else if (number >= 80) {
-            return "Excellent";
-            } else {
-            return "not a number";
-            }
+            var str = number.toString();
+                    return str;
             };
                     var addNode = function (date, title1, noofstudent) {
                     data.addRows([
@@ -229,20 +282,23 @@ $reportobj6->process_reportdata($reportobj6, $params6);
                     var activityDate = date;
                             addNode(new Date(activityDate), title1, noofstudent);
                     };
-                    add(<?php echo $reportobj3->firstdatestring; ?>, 'Strength of Enroll Students',<?php echo $reportobj3->nfirst; ?>);
-                    add(<?php echo $reportobj3->middatestring; ?>, 'Strength of Enroll Students', <?php echo $reportobj3->nmid; ?>);
-                    add(<?php echo $reportobj3->lastdatestring; ?>, 'Strength of Enroll Students', <?php echo $reportobj3->nlast; ?>);
-                    var chart = new google.visualization.<?php echo $reportobj3->charttype; ?>(document.getElementById('chart_div'));
+<?php for ($i = 0; $i < count($reportobj3->data); $i++) { ?>
+                add(<?php echo $reportobj3->data[$i]; ?>);
+<?php } ?>
+
+            var chart = new google.visualization.<?php echo $reportobj3->charttype; ?>(document.getElementById('chart_div'));
                     var options = {
-                    displayAnnotations: true
+                    displayAnnotations: true,
+                            displayZoomButtons: true
                     };
                     chart.draw(data, options);
             }
 
 </script>
 <script type="text/javascript">
-    google.setOnLoadCallback(drawChart1);
-            function drawChart1() {
+//    google.charts.load('current', {'packages': ['annotationchart']});
+    google.setOnLoadCallback(drawChart);
+            function drawChart() {
             var data = new google.visualization.DataTable();
 <?php foreach ($reportobj4->headers as $header) { ?>
     <?php if (!empty($header)) { ?>
@@ -250,19 +306,8 @@ $reportobj6->process_reportdata($reportobj6, $params6);
     <?php } ?>
 <?php } ?>
             var strength = function (number) {
-            if (number <= 20) {
-            return "Poor";
-            } else if (number > 20 && number <= 40) {
-            return "Below Average";
-            } else if (number > 40 && number <= 60) {
-            return "Above Average";
-            } else if (number > 60 && number <= 80) {
-            return "Good";
-            } else if (number >= 80) {
-            return "Excellent";
-            } else {
-            return "not a number";
-            }
+            var str = number.toString();
+                    return str;
             };
                     var addNode = function (date, title1, noofstudent) {
                     data.addRows([
@@ -273,12 +318,14 @@ $reportobj6->process_reportdata($reportobj6, $params6);
                     var activityDate = date;
                             addNode(new Date(activityDate), title1, noofstudent);
                     };
-                    add(<?php echo $reportobj4->firstdatestring; ?>, 'Strength of Enroll Students',<?php echo $reportobj4->nfirst; ?>);
-                    add(<?php echo $reportobj4->middatestring; ?>, 'Strength of Enroll Students', <?php echo $reportobj4->nmid; ?>);
-                    add(<?php echo $reportobj4->lastdatestring; ?>, 'Strength of Enroll Students', <?php echo $reportobj4->nlast; ?>);
-                    var chart = new google.visualization.<?php echo $reportobj4->charttype; ?>(document.getElementById('chart_div_new'));
+<?php for ($i = 0; $i < count($reportobj4->data); $i++) { ?>
+                add(<?php echo $reportobj4->data[$i]; ?>);
+<?php } ?>
+
+            var chart = new google.visualization.<?php echo $reportobj4->charttype; ?>(document.getElementById('chart_div_new'));
                     var options = {
-                    displayAnnotations: true
+                    displayAnnotations: true,
+                            displayZoomButtons: true
                     };
                     chart.draw(data, options);
             }

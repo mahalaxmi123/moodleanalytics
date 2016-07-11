@@ -29,3 +29,5 @@ $string['tabularreports'] = 'Tabular reports';
 $string['monthly'] = 'Monthly';
 $string['weekly'] = 'Weekly';
 $string['daily'] = 'Daily';
+$string['selectyourmonth'] = 'Select Month Here:';
+$string['selectyouryear'] = '  Select Year Here:';

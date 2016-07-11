@@ -1688,7 +1688,7 @@ class languageused {
 }
 
 class newregistrants {
-
+    
     function get_chart_types() {
         $chartoptions = 'AnnotationChart';
         return $chartoptions;
@@ -1696,54 +1696,43 @@ class newregistrants {
 
     function process_reportdata($reportobj, $param = array()) {
         global $DB, $USER, $CFG;
+         $json_data = array();
+         $datearray = array();
         $_SESSION['current_month'] = $param[0];
         $newusersql = "SELECT * FROM mdl_user WHERE timecreated>0";
         $lists = $DB->get_records_sql($newusersql);
         $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
-//$eventsbyday = get_records_between('mdl_event', $_SESSION['current_month'], $lastdate);
-
+    for($i=1;$i<=$lastdate;$i++){
+      $datearray[$i] = 0;  
+    }
         $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
-        $presentmonth = date('m', strtotime($_SESSION['current_month']));
-        $presentyear = date('Y', strtotime($_SESSION['current_month']));
-        $nfirst = 0;
-        $nmid = 0;
-        $nlast = 0;
+        $presentmonthyear = date('m-Y', strtotime($_SESSION['current_month']));
         $numberofuser = 0;
-        foreach ($lists as $list) {
+              foreach ($lists as $list) {
             $numberofuser++;
-            if (($presentmonth != date('m', $list->timecreated)) || ($presentmonth != date('m', $list->timecreated))) {
+            if ($presentmonthyear != date('m-Y', $list->timecreated)) {
                 continue;
             }
-            if (date('d', $list->timecreated) == 1) {
-                $nfirst++;
+            for($j=1;$j<=count($datearray);$j++){
+            if (date('d', $list->timecreated) == $j) {
+                $datearray[$j]++;
                 continue;
-            }
-            if (date('d', $list->timecreated) <= 15) {
-                $nmid++;
-            } else {
-                $nlast++;
-            }
         }
-//$firstdate = $date("Y,m",)    
+            }
+            
+              }   
         $monthyear = date("Y,m,", strtotime($presentdate));
-        $lastdate = date("Y,m,t", strtotime($presentdate));
-        $firstdatestring = '"' . $monthyear . ',15"';
-        $middatestring = '"' . $monthyear . ',1"';
-        $lastdatestring = '"' . $lastdate . '"';
-
-
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
         $reportobj->totalusers = $numberofuser;
-        $reportobj->nfirst = $nfirst;
-        $reportobj->nmid = $nmid;
-        $reportobj->nlast = $nlast;
-        $reportobj->firstdatestring = $firstdatestring;
-        $reportobj->middatestring = $middatestring;
-        $reportobj->lastdatestring = $lastdatestring;
+        $reportobj->messagestring = "Number of Students Enrol On ";
+        for($j=1;$j<=count($datearray);$j++){
+        $json_data[] = '"'. $monthyear  . $j . '"' .",'".$reportobj->messagestring.$j.":',". $datearray[$j];
+         }
+        $reportobj->data = $json_data;
     }
 
     function get_axis_names($reportname) {
@@ -1761,7 +1750,7 @@ class newregistrants {
         $gradeheaders[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
-        $header2->name = "'Number Of Courses'";
+        $header2->name = "'Number Of Users'";
         $gradeheaders[] = $header2;
         $header3 = new stdclass();
         $header3->type = "'string'";
@@ -1789,52 +1778,36 @@ class newcourses {
         $newcoursesql = "SELECT * FROM mdl_course WHERE startdate>0";
         $lists = $DB->get_records_sql($newcoursesql);
         $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
-//$eventsbyday = get_records_between('mdl_event', $_SESSION['current_month'], $lastdate);
-
+        for ($i = 1; $i <= $lastdate; $i++) {
+            $datearray[$i] = 0;
+        }
         $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
-        $presentmonth = date('m', strtotime($_SESSION['current_month']));
-        $presentyear = date('Y', strtotime($_SESSION['current_month']));
-        $nfirst = 0;
-        $nmid = 0;
-        $nlast = 0;
+        $presentmonthyear = date('m-Y', strtotime($_SESSION['current_month']));
         $course = 0;
         foreach ($lists as $list) {
             $course++;
-            if (($presentmonth != date('m', $list->timecreated)) || ($presentmonth != date('m', $list->timecreated))) {
+            if ($presentmonthyear != date('m-Y', $list->timecreated)) {
                 continue;
             }
-            if (date('d', $list->timecreated) == 1) {
-                $nfirst++;
-                continue;
-            }
-            if (date('d', $list->timecreated) <= 15) {
-                $nmid++;
-            } else {
-                $nlast++;
+            for ($j = 1; $j <= count($datearray); $j++) {
+                if (date('d', $list->timecreated) == $j) {
+                    $datearray[$j] ++;
+                    continue;
+                }
             }
         }
         $monthyear = date("Y,m,", strtotime($presentdate));
-        $lastdate = date("Y,m,t", strtotime($presentdate));
-        $firstdatestring = '"' . $monthyear . ',15"';
-        $middatestring = '"' . $monthyear . ',1"';
-        $lastdatestring = '"' . $lastdate . '"';
-
-
-
-
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
-// $reportobj->data = $json_languageused;
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
         $reportobj->totalcourses = $course;
-        $reportobj->nfirst = $nfirst;
-        $reportobj->nmid = $nmid;
-        $reportobj->nlast = $nlast;
-        $reportobj->firstdatestring = $firstdatestring;
-        $reportobj->middatestring = $middatestring;
-        $reportobj->lastdatestring = $lastdatestring;
+        $reportobj->messagestring = "Number of Courses Form On ";
+        for ($j = 1; $j <= count($datearray); $j++) {
+            $json_data[] = '"' . $monthyear . $j . '"' . ",'" . $reportobj->messagestring . $j . ":'," . $datearray[$j];
+        }
+        $reportobj->data = $json_data;
     }
 
     function get_axis_names($reportname) {
@@ -1850,7 +1823,7 @@ class newcourses {
         $gradeheaders[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
-        $header2->name = "'Number Of Users'";
+        $header2->name = "'Number Of Courses'";
         $gradeheaders[] = $header2;
         $header3 = new stdclass();
         $header3->type = "'string'";
