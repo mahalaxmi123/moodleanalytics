@@ -54,19 +54,19 @@ if (!empty($reportid) & $reportid >= 1) {
     $axis = $reportobj->get_axis_names('Registrations');
 }
 
-$reportobj1 = new stdClass();
-$reportobj1 = get_report_class(8);
-$params1 = array();
-$reportobj1->process_reportdata($reportobj1, $params1);
-$axis1 = new stdClass();
-$axis1 = $reportobj1->get_axis_names('teachingactivity');
-
-$reportobj2 = new stdClass();
-$reportobj2 = get_report_class(7);
-$params2 = array();
-$reportobj2->process_reportdata($reportobj2, $params2);
-$axis2 = new stdClass();
-$axis2 = $reportobj2->get_axis_names('courseenrollments');
+//$reportobj1 = new stdClass();
+//$reportobj1 = get_report_class(8);
+//$params1 = array();
+//$reportobj1->process_reportdata($reportobj1, $params1);
+//$axis1 = new stdClass();
+//$axis1 = $reportobj1->get_axis_names('teachingactivity');
+//
+//$reportobj2 = new stdClass();
+//$reportobj2 = get_report_class(7);
+//$params2 = array();
+//$reportobj2->process_reportdata($reportobj2, $params2);
+//$axis2 = new stdClass();
+//$axis2 = $reportobj2->get_axis_names('courseenrollments');
 
 //echo "$linktime";
 //$time = time();
@@ -208,14 +208,14 @@ $reportobj6->process_reportdata($reportobj6, $params6);
     <div id='chart_div_new' style='width: 900px; height: 500px;'></div>
 </div>
 <div>
-    <div class="box45 pull-right">
+<!--    <div class="box45 pull-right">
         <h3>Teaching activity</h3>
         <div id="teachinactivity" style="width: 400px; height:400px;"></div>
     </div>
     <div class="box45 pull-left">
         <h3>Course enrollments</h3>
         <div id="course-enrollments" style="width:500px; height:500px;"></div>
-    </div>
+    </div>-->
     <div>
         <h3>Registrants</h3>
         <div id="registrants" style="width: 500px; height: 500px;"></div>
