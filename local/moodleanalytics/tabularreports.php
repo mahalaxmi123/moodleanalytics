@@ -59,20 +59,20 @@ $params['fromdate'] = $from_date;
 $params['todate'] = $to_date;
 
 $reportobj = new stdClass();
-//if (!empty($reportname)) {
-//    $reportobj = get_tabular_reports_class($reportname);
-//
-//    $reportobj->process_reportdata($reportobj, $params);
-//    $axis = new stdClass();
-//    $axis = $reportobj->get_axis_names($reportname);
-//}
-if (!empty($reportid)) {
-    $reportobj = get_report_class($reportid);
+if (!empty($reportname)) {
+    $reportobj = get_report_class($reportname);
 
     $reportobj->process_reportdata($reportobj, $params);
     $axis = new stdClass();
-    $axis = $reportobj->get_axis_names($report_array[$reportid]);
+    $axis = $reportobj->get_axis_names($reportname);
 }
+//if (!empty($reportid)) {
+//    $reportobj = get_report_class($reportid);
+//
+//    $reportobj->process_reportdata($reportobj, $params);
+//    $axis = new stdClass();
+//    $axis = $reportobj->get_axis_names($report_array[$reportid]);
+//}
 
 $formcontent = html_writer::start_tag('div');
 if (!empty($errors)) {
@@ -80,8 +80,8 @@ if (!empty($errors)) {
     $formcontent .= html_writer::div("Please select $error", 'alert alert-danger');
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/tabularreports.php'), 'method' => 'post'));
-//$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportname', $reportname, array('' => 'Select report'), array('id' => 'reportdropdown'));
-$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
+$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportname', $reportname, array('' => 'Select report'), array('id' => 'reportdropdown'));
+//$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= html_writer::tag('p', 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
 $formcontent .= html_writer::tag('p', 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
@@ -100,8 +100,8 @@ echo $formcontent;
 }"></script>
 <div>
     <div class="box45">
-        <!--<h3><?php // echo!empty($reportname) ? $reportname : ''; ?></h3>-->
-        <h3><?php echo!empty($reportid) ? $report_array[$reportid] : ''; ?></h3>
+        <h3><?php echo!empty($reportname) ? $report_array[$reportname] : ''; ?></h3>
+        <!--<h3><?php // echo!empty($reportid) ? $report_array[$reportid] : ''; ?></h3>-->
         <div id="Learningprogress"></div>
     </div>
 </div>

@@ -45,7 +45,7 @@ echo $OUTPUT->header();
 $errors = array();
 
 $reportobj = new stdClass();
-$reportobj = get_report_class(4);
+$reportobj = get_report_class('registrations');
 $params = new stdClass();
 
 $reportobj->process_reportdata($reportobj, $params);
@@ -92,7 +92,7 @@ if (!empty($reportid) & $reportid >= 1) {
 
 
 $reportobj5 = new stdClass();
-$reportobj5 = get_report_class(13);
+$reportobj5 = get_report_class('enrolments');
 $params = new stdClass();
 $reportobj5->process_reportdata($reportobj5, $params);
 
@@ -175,19 +175,19 @@ $monthwithyear = monthname($_SESSION['current_month']);
 echo $OUTPUT->heading($monthwithyear);
 
 $reportobj4 = new stdClass();
-$reportobj4 = get_report_class(11);
+$reportobj4 = get_report_class('newregistrants');
 $params = array();
 $params[] = $_SESSION['current_month'];
 $reportobj4->process_reportdata($reportobj4, $params);
 
 $reportobj3 = new stdClass();
-$reportobj3 = get_report_class(12);
+$reportobj3 = get_report_class('newcourses');
 $params = array();
 $params[] = $_SESSION['current_month'];
 $reportobj3->process_reportdata($reportobj3, $params);
 
 $reportobj6 = new stdClass();
-$reportobj6 = get_report_class(20);
+$reportobj6 = get_report_class('registrants');
 $params6 = new stdClass();
 $reportobj6->process_reportdata($reportobj6, $params6);
 ?>

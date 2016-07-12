@@ -38,7 +38,7 @@ echo $OUTPUT->header();
 $errors = array();
 
 $reportobj = new stdClass();
-$reportobj = get_report_class(4);
+$reportobj = get_report_class('registrations');
 $params = array();
 $reportobj->process_reportdata($reportobj, $params);
 
@@ -65,18 +65,18 @@ if (!empty($reportid) & $reportid >= 1) {
 
 $params1 = new stdClass();
 $reportobj1 = new stdClass();
-$reportobj1 = get_report_class(13);
+$reportobj1 = get_report_class('enrolments');
 $reportobj1->process_reportdata($reportobj1, $params1);
 
 $reportobj2 = new stdClass();
-$reportobj2 = get_report_class(21);
+$reportobj2 = get_report_class('participations');
 $params2 = new stdClass();
 $reportobj2->process_reportdata($reportobj2, $params2);
 
 $params3 = array();
 $params3['endtime'] = time();
 $reportobj3 = new stdClass();
-$reportobj3 = get_report_class(32);
+$reportobj3 = get_report_class('dashboardchart');
 if ($view == 'monthly' || $view == 'first') {
     $reportobj3->process_reportdata_month($reportobj3, $params3);
 }

@@ -66,7 +66,7 @@ $params1['fromdate'] = $from_date_14;
 $params1['todate'] = $to_date_14;
 
 $reportobj1 = new stdClass();
-$reportobj1 = get_report_class(14);
+$reportobj1 = get_report_class('new_courses');
 $reportobj1->process_reportdata($reportobj1, $params1);
 $axis1 = new stdClass();
 $axis1 = $reportobj1->get_axis_names();
@@ -112,7 +112,7 @@ $params2['timestart'] = $from_date_5;
 $params2['timefinish'] = $to_date_5;
 
 $reportobj2 = new stdClass();
-$reportobj2 = get_report_class(5);
+$reportobj2 = get_report_class('enrollmentspercourse');
 $reportobj2->process_reportdata($reportobj2, $params2);
 $axis2 = new stdClass();
 $axis2 = $reportobj2->get_axis_names('enrollmentspercourse');

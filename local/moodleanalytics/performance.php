@@ -37,7 +37,7 @@ if ($reset) {
 echo $OUTPUT->header();
 $errors = array();
 $reportobj1 = new stdClass();
-$reportobj1 = get_report_class(6);
+$reportobj1 = get_report_class('coursesize');
 $params = new stdClass();
 $reportobj1->process_reportdata($reportobj1, $params);
 
@@ -45,12 +45,12 @@ $axis2 = new stdClass();
 $axis2 = $reportobj1->get_axis_names('coursesize');
 
 $reportobj2 = new stdClass();
-$reportobj2 = get_report_class(9);
+$reportobj2 = get_report_class('activeip');
 $params = new stdClass();
 $reportobj2->process_reportdata($reportobj2, $params);
 
 $reportobj3 = new stdClass();
-$reportobj3 = get_report_class(10);
+$reportobj3 = get_report_class('languageused');
 $params = new stdClass();
 $reportobj3->process_reportdata($reportobj3, $params);
 

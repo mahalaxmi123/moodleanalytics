@@ -70,7 +70,7 @@ $params1['fromdate'] = $from_date_16;
 $params1['todate'] = $to_date_16;
 
 $reportobj1 = new stdClass();
-$reportobj1 = get_report_class(16);
+$reportobj1 = get_report_class('unique_sessions');
 $reportobj1->process_reportdata($reportobj1, $params1);
 $axis1 = new stdClass();
 $axis1 = $reportobj1->get_axis_names();
@@ -78,7 +78,7 @@ $formcontent1 = "";
 
 $params2 = array();
 $reportobj2 = new stdClass();
-$reportobj2 = get_report_class(20);
+$reportobj2 = get_report_class('registrants');
 $reportobj2->process_reportdata($reportobj2, $params2);
 //$axis2 = new stdClass();
 //$axis2 = $reportobj2->get_axis_names();
@@ -123,14 +123,14 @@ if (!empty($month) && !empty($year)) {
 }
 
 $reportobj3 = new stdClass();
-$reportobj3 = get_report_class(11);
+$reportobj3 = get_report_class('newregistrants');
 $params3 = array();
 $params3[] = $_SESSION['current_month'];
 $reportobj3->process_reportdata($reportobj3, $params3);
 
 
 $reportobj4 = new stdClass();
-$reportobj4 = get_report_class(33);
+$reportobj4 = get_report_class('enrolments_analytics');
 $params4 = array();
 $reportobj4->process_reportdata($reportobj4, $params4);
 

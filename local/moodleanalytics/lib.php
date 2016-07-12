@@ -54,7 +54,32 @@ function get_enrollments_per_course($params) {
 
 function get_coursereports() {
 //    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance', 26 => 'Activity Stats', 27 => 'Course Progress', 28 => 'Learner Progress By Course', 29 => 'Quiz Grades', 31 => 'Quiz Attempts', 34 => 'Learner progress', 35 => 'Student performance', 36 => 'Activity progress', 37 => 'Overdue users');
-    $report_array = array(7 => 'Course Enrollments', 8 => 'Teaching Activity', 15 => 'Courses with zero activity', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance', 26 => 'Activity Stats', 27 => 'Course Progress', 28 => 'Learner Progress By Course', 29 => 'Quiz Grades', 30 => 'Quiz Stats', 31 => 'Quiz Attempts', 34 => 'Learner progress', 35 => 'Student performance', 36 => 'Activity progress', 37 => 'Overdue users', 38 => 'Forum stats', 39 => 'Activity in forums', 40 => 'Forum Discussions', 41 => 'Enrollment Methods');
+    $report_array = array(
+        'courseenrollments' => 'Course Enrollments',
+        'teachingactivity' => 'Teaching Activity',
+        'course_with_zero_activity' => 'Courses with zero activity',
+        'scorm_stats' => 'Scorm Stats',
+        'file_stats' => 'File Stats',
+        'uploads' => 'Uploads',
+        'scorm_attempts' => 'Scorm Attempts',
+        'course_stats' => 'Course Stats',
+        'progress_by_learner' => 'Progress By Learner',
+        'teaching_performance' => 'Teaching Performance',
+        'activity_stats' => 'Activity Stats',
+        'course_progress' => 'Course Progress',
+        'learner_progress_by_course' => 'Learner Progress By Course',
+        'quiz_grades' => 'Quiz Grades',
+        'quizstats' => 'Quiz Stats',
+        'quiz_attempts' => 'Quiz Attempts',
+        'learner_progress' => 'Learner progress',
+        'student_performance' => 'Student performance',
+        'activity_progress' => 'Activity progress',
+        'overdue_users' => 'Overdue users',
+        'forum_stats' => 'Forum stats',
+        'activity_forum' => 'Activity in forums',
+        'forum_discussions' => 'Forum Discussions',
+        'enrolment_method' => 'Enrollment Methods'
+    );
     return $report_array;
 }
 
@@ -62,48 +87,48 @@ function get_coursereports() {
  *  @param reportid int
  */
 
-function get_report_class($reportid) {
+function get_report_class($reportname = '') {
     $classes_array = array(
-        4 => new registrations(),
-        5 => new enrollmentspercourse(),
-        6 => new coursesize(),
-        7 => new courseenrollments(),
-        8 => new teachingactivity(),
-        9 => new activeip(),
-        10 => new languageused(),
-        11 => new newregistrants(),
-        12 => new newcourses(),
-        13 => new enrolments(),
-        14 => new new_courses(),
-        15 => new course_with_zero_activity(),
-        16 => new unique_sessions(),
-        17 => new scorm_stats(),
-        18 => new file_stats(),
-        19 => new uploads(),
-        20 => new registrants(),
-        21 => new participations(),
-        22 => new scorm_attempts(),
-        23 => new course_stats(),
-        24 => new progress_by_learner(),
-        25 => new teaching_performance(),
-        26 => new activity_stats(),
-        27 => new course_progress(),
-        28 => new learner_progress_by_course(),
-        29 => new quiz_grades(),
-        30 => new quizstats(),
-        31 => new quiz_attempts(),
-        32 => new dashboardchart(),
-        33 => new enrolments_analytics(),
-        34 => new learner_progress(),
-        35 => new student_performance(),
-        36 => new activity_progress(),
-        37 => new overdue_users(),
-        38 => new forum_stats(),
-        39 => new activity_forum(),
-        40 => new forum_discussions(),
-        41 => new enrolment_method()
+        'registrations' => new registrations(),
+        'enrollmentspercourse' => new enrollmentspercourse(),
+        'coursesize' => new coursesize(),
+        'courseenrollments' => new courseenrollments(),
+        'teachingactivity' => new teachingactivity(),
+        'activeip' => new activeip(),
+        'languageused' => new languageused(),
+        'newregistrants' => new newregistrants(),
+        'newcourses' => new newcourses(),
+        'enrolments' => new enrolments(),
+        'new_courses' => new new_courses(),
+        'course_with_zero_activity' => new course_with_zero_activity(),
+        'unique_sessions' => new unique_sessions(),
+        'scorm_stats' => new scorm_stats(),
+        'file_stats' => new file_stats(),
+        'uploads' => new uploads(),
+        'registrants' => new registrants(),
+        'participations' => new participations(),
+        'scorm_attempts' => new scorm_attempts(),
+        'course_stats' => new course_stats(),
+        'progress_by_learner' => new progress_by_learner(),
+        'teaching_performance' => new teaching_performance(),
+        'activity_stats' => new activity_stats(),
+        'course_progress' => new course_progress(),
+        'learner_progress_by_course' => new learner_progress_by_course(),
+        'quiz_grades' => new quiz_grades(),
+        'quizstats' => new quizstats(),
+        'quiz_attempts' => new quiz_attempts(),
+        'dashboardchart' => new dashboardchart(),
+        'enrolments_analytics' => new enrolments_analytics(),
+        'learner_progress' => new learner_progress(),
+        'student_performance' => new student_performance(),
+        'activity_progress' => new activity_progress(),
+        'overdue_users' => new overdue_users(),
+        'forum_stats' => new forum_stats(),
+        'activity_forum' => new activity_forum(),
+        'forum_discussions' => new forum_discussions(),
+        'enrolment_method' => new enrolment_method()
     );
-    return $classes_array[$reportid];
+    return $classes_array[$reportname];
 }
 
 /* Return course users
@@ -1702,7 +1727,7 @@ class languageused {
 }
 
 class newregistrants {
-    
+
     function get_chart_types() {
         $chartoptions = 'AnnotationChart';
         return $chartoptions;
@@ -1710,31 +1735,30 @@ class newregistrants {
 
     function process_reportdata($reportobj, $param = array()) {
         global $DB, $USER, $CFG;
-         $json_data = array();
-         $datearray = array();
+        $json_data = array();
+        $datearray = array();
         $_SESSION['current_month'] = $param[0];
         $newusersql = "SELECT * FROM mdl_user WHERE timecreated>0";
         $lists = $DB->get_records_sql($newusersql);
         $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
-    for($i=1;$i<=$lastdate;$i++){
-      $datearray[$i] = 0;  
-    }
+        for ($i = 1; $i <= $lastdate; $i++) {
+            $datearray[$i] = 0;
+        }
         $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
         $presentmonthyear = date('m-Y', strtotime($_SESSION['current_month']));
         $numberofuser = 0;
-              foreach ($lists as $list) {
+        foreach ($lists as $list) {
             $numberofuser++;
             if ($presentmonthyear != date('m-Y', $list->timecreated)) {
                 continue;
             }
-            for($j=1;$j<=count($datearray);$j++){
-            if (date('d', $list->timecreated) == $j) {
-                $datearray[$j]++;
-                continue;
-        }
+            for ($j = 1; $j <= count($datearray); $j++) {
+                if (date('d', $list->timecreated) == $j) {
+                    $datearray[$j] ++;
+                    continue;
+                }
             }
-            
-              }   
+        }
         $monthyear = date("Y,m,", strtotime($presentdate));
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
@@ -1743,9 +1767,9 @@ class newregistrants {
         $reportobj->charttype = $charttype;
         $reportobj->totalusers = $numberofuser;
         $reportobj->messagestring = "Number of Students Enrol On ";
-        for($j=1;$j<=count($datearray);$j++){
-        $json_data[] = '"'. $monthyear  . $j . '"' .",'".$reportobj->messagestring.$j.":',". $datearray[$j];
-         }
+        for ($j = 1; $j <= count($datearray); $j++) {
+            $json_data[] = '"' . $monthyear . $j . '"' . ",'" . $reportobj->messagestring . $j . ":'," . $datearray[$j];
+        }
         $reportobj->data = $json_data;
     }
 
@@ -3110,8 +3134,6 @@ class quiz_attempts {
 
 }
 
-
-
 class dashboardchart {
 
     function get_chart_types() {
@@ -3390,7 +3412,7 @@ class enrolments_analytics {
     function process_reportdata($reportobj, $param) {
         global $DB, $USER, $CFG;
         $registrantssql = "SELECT auth, COUNT(auth) AS Count FROM  `mdl_user` GROUP BY auth";
-        $enrolments = array('corplms_program'=>0, 'guest' => 0, 'manual' => 0, 'self' => 0);
+        $enrolments = array('corplms_program' => 0, 'guest' => 0, 'manual' => 0, 'self' => 0);
         $colour = array('lightblue', 'cyan', 'pink', 'blue');
         $registrants = $DB->get_records_sql($registrantssql);
         $json_registrants = array();
@@ -3891,7 +3913,7 @@ class overdue_users {
             $email = !empty($value->email) ? "'$value->email'" : "'-'";
             if (!empty($value->enablecompletion)) {
                 $completedon = !empty($value->complete) ? "'" . userdate($value->complete, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
-            }else{
+            } else {
                 $completedon = "'-'";
             }
             $score = !empty($value->grade) ? "$value->grade" : 0;
@@ -3959,7 +3981,6 @@ class overdue_users {
 
 }
 
-
 class forum_stats {
 
     var $teacher_roles = 3;
@@ -3993,8 +4014,9 @@ class forum_stats {
         $forumstats = $DB->get_records_sql($forumstatssql);
         $headers = $this->get_headers();
         foreach ($forumstats as $forumstat) {
-              if($forumstat->id == SITEID) continue;
-            $json_forumstats[] = '[' . '"' . CLEAN_PARAM($forumstat->fullname, PARAM_ALPHANUMEXT) . '"' . ',' . '"' . $this->check_value_teacher($forumstat->teacher). '"' . ',' . $this->check_value($forumstat->total) . ',' . $this->check_value($forumstat->posts) . ',' . $this->check_value($forumstat->discussions) . ']';
+            if ($forumstat->id == SITEID)
+                continue;
+            $json_forumstats[] = '[' . '"' . CLEAN_PARAM($forumstat->fullname, PARAM_ALPHANUMEXT) . '"' . ',' . '"' . $this->check_value_teacher($forumstat->teacher) . '"' . ',' . $this->check_value($forumstat->total) . ',' . $this->check_value($forumstat->posts) . ',' . $this->check_value($forumstat->discussions) . ']';
         }
 
         $reportobj->data = $json_forumstats;
@@ -4032,17 +4054,18 @@ class forum_stats {
         $gradeheaders[] = $header5;
         return $gradeheaders;
     }
-       function check_value($string){
-       return CLEAN_PARAM(is_null($string)?'0':$string , PARAM_ALPHANUMEXT);
+
+    function check_value($string) {
+        return CLEAN_PARAM(is_null($string) ? '0' : $string, PARAM_ALPHANUMEXT);
     }
-    
-    function check_value_teacher($string){
-       return str_replace( "'","", is_null($string)?'NOT ASSIGNED':$string);
+
+    function check_value_teacher($string) {
+        return str_replace("'", "", is_null($string) ? 'NOT ASSIGNED' : $string);
     }
 
 }
 
-class activity_forum{
+class activity_forum {
 
     var $teacher_roles = 3;
 
@@ -4057,7 +4080,7 @@ class activity_forum{
         $todate = $params['todate']->format('U') + DAYSECS;
         $json_forumactivity = array();
         // $activeips = array();
-       $forumactivitysql = "SELECT SQL_CALC_FOUND_ROWS f.id as forum, c.id, c.fullname,f.name, f.type
+        $forumactivitysql = "SELECT SQL_CALC_FOUND_ROWS f.id as forum, c.id, c.fullname,f.name, f.type
 						,(SELECT COUNT(id) FROM mdl_forum_discussions AS fd WHERE f.id = fd.forum) AS Discussions
 						,(SELECT COUNT(DISTINCT fd.userid) FROM mdl_forum_discussions AS fd WHERE fd.forum = f.id) AS UniqueUsersDiscussions
 						,(SELECT COUNT(fp.id) FROM mdl_forum_discussions fd JOIN mdl_forum_posts AS fp ON fd.id = fp.discussion WHERE f.id = fd.forum) AS Posts
@@ -4085,20 +4108,21 @@ class activity_forum{
 						JOIN mdl_course AS c ON f.course = c.id
 						WHERE c.id > 0";
         $forumactivitys = $DB->get_records_sql($forumactivitysql);
-      // print_object($forumactivitys);
+        // print_object($forumactivitys);
         foreach ($forumactivitys as $forumactivity) {
-              if($forumactivity->id == SITEID) continue;
-            $json_forumactivity[] = '[' . '"' . str_replace("'","",$forumactivity->fullname) . '"' . ',' . '"' . str_replace("'","",$forumactivity->name). '"' . ',' . '"' . str_replace("'","",$forumactivity->type) . '"' 
+            if ($forumactivity->id == SITEID)
+                continue;
+            $json_forumactivity[] = '[' . '"' . str_replace("'", "", $forumactivity->fullname) . '"' . ',' . '"' . str_replace("'", "", $forumactivity->name) . '"' . ',' . '"' . str_replace("'", "", $forumactivity->type) . '"'
                     . ',' . $this->check_value($forumactivity->discussions) . ',' . $this->check_value($forumactivity->uniqueusersdiscussions)
-                    . ',' . $this->check_value($forumactivity->posts) . ',' . $this->check_value($forumactivity->uniqueusersposts) 
-                    . ',' . $this->check_value($forumactivity->studentscount) .',' . $this->check_value($forumactivity->teacherscount) 
-                   . ',' . $this->check_value($forumactivity->usercount) . ']';
+                    . ',' . $this->check_value($forumactivity->posts) . ',' . $this->check_value($forumactivity->uniqueusersposts)
+                    . ',' . $this->check_value($forumactivity->studentscount) . ',' . $this->check_value($forumactivity->teacherscount)
+                    . ',' . $this->check_value($forumactivity->usercount) . ']';
         }
-        
+
         $charttype = $this->get_chart_types();
 
         $reportobj->data = $json_forumactivity;
-         $headers = $this->get_headers();
+        $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
@@ -4153,9 +4177,11 @@ class activity_forum{
         $gradeheaders[] = $header10;
         return $gradeheaders;
     }
-       function check_value($string){
-       return CLEAN_PARAM(is_null($string)?'0':$string , PARAM_ALPHANUMEXT);
+
+    function check_value($string) {
+        return CLEAN_PARAM(is_null($string) ? '0' : $string, PARAM_ALPHANUMEXT);
     }
+
 }
 
 class forum_discussions {
@@ -4197,7 +4223,7 @@ WHERE f.id >0 AND fd.timemodified BETWEEN " . $fromdate . " AND " . $todate . " 
             }
             $json_forumdiscussion[] = '[' . '"' . $forumdiscussion->name . '"' . ',' . '"' . $forumdiscussion->user . '"' . ',' . '"' . $forumdiscussion->course . '"' . ',' . $totaldiscussion . ',' . $forumdiscussion->posts . ']';
         }
-        
+
         $reportobj->data = $json_forumdiscussion;
         $charttype = $this->get_chart_types();
         $reportobj->headers = $headers;
@@ -4248,7 +4274,7 @@ class enrolment_method {
         $fromdate = $params['fromdate']->format('U');
         $todate = $params['todate']->format('U') + DAYSECS;
         $json_enrolusers = array();
-        
+
         // $activeips = array();
         $activeipsql = "SELECT  en.enrol , count(en.enrol) as number_of_user, count(distinct en.courseid) as number_of_courses FROM  mdl_enrol as en , mdl_user_enrolments as uen WHERE en.id = uen.enrolid AND uen.timestart BETWEEN " . $fromdate . " AND  " . $todate . " group by en.enrol";
         $activeips = $DB->get_records_sql($activeipsql);
