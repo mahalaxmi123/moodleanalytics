@@ -19,14 +19,8 @@ $charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit = optional_param('submit', '', PARAM_ALPHANUM);
 $reset = optional_param('reset', '', PARAM_ALPHANUM);
 $reportid = optional_param('reportid', '', PARAM_INT);
-$quizid = optional_param('quizid', '', PARAM_INT);
-$users = optional_param_array('username', '', PARAM_TEXT);
 $reportname = optional_param('reportname', '', PARAM_TEXT);
 $context = context_system::instance();
-$timelink = optional_param('time', 0, PARAM_INT);
-$linktime = date('d-m-Y H:i:s', $timelink);
-$view = optional_param('view', 'now', PARAM_ALPHA);
-$print = optional_param('print', 0, PARAM_ALPHA);
 $from_date = optional_param('from_date', '', PARAM_TEXT);
 $to_date = optional_param('to_date', '', PARAM_TEXT);
 
@@ -44,12 +38,10 @@ if ($reset) {
 echo $OUTPUT->header();
 $errors = array();
 
-//$report_array = get_tabular_reports();
 $report_array = get_coursereports();
 $fromdate = $from_date;
 $todate = $to_date;
 $from_date = new DateTime($from_date);
-//$from_date = $fromdate->format('U');
 $to_date = new DateTime($to_date);
 
 $params = array();
@@ -66,13 +58,6 @@ if (!empty($reportname)) {
     $axis = new stdClass();
     $axis = $reportobj->get_axis_names($reportname);
 }
-//if (!empty($reportid)) {
-//    $reportobj = get_report_class($reportid);
-//
-//    $reportobj->process_reportdata($reportobj, $params);
-//    $axis = new stdClass();
-//    $axis = $reportobj->get_axis_names($report_array[$reportid]);
-//}
 
 $formcontent = html_writer::start_tag('div');
 if (!empty($errors)) {
@@ -81,7 +66,6 @@ if (!empty($errors)) {
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/tabularreports.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportname', $reportname, array('' => 'Select report'), array('id' => 'reportdropdown'));
-//$formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportid', $reportid, array('' => 'Select report'), array('id' => 'reportdropdown'));
 $formcontent .= html_writer::tag('p', 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
 $formcontent .= html_writer::tag('p', 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
@@ -101,8 +85,7 @@ echo $formcontent;
 <div>
     <div class="box45">
         <h3><?php echo!empty($reportname) ? $report_array[$reportname] : ''; ?></h3>
-        <!--<h3><?php // echo!empty($reportid) ? $report_array[$reportid] : ''; ?></h3>-->
-        <div id="Learningprogress"></div>
+        <div id="Tabularreports"></div>
     </div>
 </div>
 <script type="text/javascript">
@@ -116,7 +99,7 @@ echo $formcontent;
     <?php } ?>
 <?php } ?>
             data.addRows([<?php echo implode(',', $reportobj->data); ?>]);
-                    var table = new google.visualization.<?php echo $reportobj->charttype; ?>(document.getElementById('Learningprogress'));
+                    var table = new google.visualization.<?php echo $reportobj->charttype; ?>(document.getElementById('Tabularreports'));
                     table.draw(data, {showRowNumber: true, width: '100%', height: '100%', pageSize :10});
             }
 

@@ -12,19 +12,19 @@ require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_login();
 $courseid = optional_param('id', '', PARAM_INT);        // course id
-$charttype = optional_param('type', '', PARAM_ALPHANUM);
+//$charttype = optional_param('type', '', PARAM_ALPHANUM);
 $submit14 = optional_param('submit14', '', PARAM_ALPHANUM);
 $submit5 = optional_param('submit5', '', PARAM_ALPHANUM);
 $reset14 = optional_param('reset14', '', PARAM_ALPHANUM);
 $reset5 = optional_param('reset5', '', PARAM_ALPHANUM);
-$reportid = optional_param('reportid', '', PARAM_INT);
-$quizid = optional_param('quizid', '', PARAM_INT);
-$days = optional_param('days_filter', '', PARAM_TEXT);
+//$reportid = optional_param('reportid', '', PARAM_INT);
+//$quizid = optional_param('quizid', '', PARAM_INT);
+//$days = optional_param('days_filter', '', PARAM_TEXT);
 $from_date_14 = optional_param('from_date_14', '', PARAM_TEXT);
 $from_date_5 = optional_param('from_date_5', '', PARAM_TEXT);
 $to_date_14 = optional_param('to_date_14', '', PARAM_TEXT);
 $to_date_5 = optional_param('to_date_5', '', PARAM_TEXT);
-$users = optional_param_array('username', '', PARAM_TEXT);
+//$users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
 if (!empty($courseid)) {
     $context = context_course::instance($courseid);

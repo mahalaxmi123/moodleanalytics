@@ -12,14 +12,14 @@ require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_login();
 $courseid = optional_param('id', '', PARAM_INT);        // course id
-$charttype = optional_param('type', '', PARAM_ALPHANUM);
-$submit = optional_param('submit', '', PARAM_ALPHANUM);
-$reset = optional_param('reset', '', PARAM_ALPHANUM);
+//$charttype = optional_param('type', '', PARAM_ALPHANUM);
+//$submit = optional_param('submit', '', PARAM_ALPHANUM);
+//$reset = optional_param('reset', '', PARAM_ALPHANUM);
 $reportid = optional_param('reportid', '', PARAM_INT);
-$quizid = optional_param('quizid', '', PARAM_INT);
-$users = optional_param_array('username', '', PARAM_TEXT);
-$from_date = optional_param('from_date', '', PARAM_TEXT);
-$to_date = optional_param('to_date', '', PARAM_TEXT);
+//$quizid = optional_param('quizid', '', PARAM_INT);
+//$users = optional_param_array('username', '', PARAM_TEXT);
+//$from_date = optional_param('from_date', '', PARAM_TEXT);
+//$to_date = optional_param('to_date', '', PARAM_TEXT);
 $view = optional_param('view', 'first', PARAM_ALPHA);
 $context = context_system::instance();
 
