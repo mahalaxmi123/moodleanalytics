@@ -101,9 +101,7 @@ if ($view == 'daily') {
 
 
 <!-- bootstrap theme -->
-<link href="css/style.css" rel="stylesheet">
-<link href="css/font-awesome.css" rel="stylesheet">
-<link href="css/font-awesome.min.css" rel="stylesheet"/>    
+ 
 
 <div id="main-page">
     <div class="row-fluid">
@@ -131,21 +129,18 @@ if ($view == 'daily') {
         </div>	
     </div><!--/.row-->
 
-<div class="row">
+<div class="row-fluid">
     <div class="btn-group">
-<!--            <button type="button" class="btn btn-primary">Daily</button>
-            <button type="button" class="btn btn-primary">Weekly</button>
-            <button type="button" class="btn btn-primary">Monthly</button>-->
-<?php
-//$formcontent = "";
-//$formcontent .= html_writer::tag('button', 'Monthly', array('class' => 'btn btn-primary', 'value' => 'monthly'));
-//$formcontent .= html_writer::tag('button', 'Weekly', array('class' => 'btn btn-primary', 'value' => 'weekly'));
-//$formcontent .= html_writer::tag('button', 'Daily', array('class' => 'btn btn-primary', 'value' => 'daily'));
-//echo $formcontent;
-echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=monthly', array()), get_string('monthly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
-echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=weekly', array()), get_string('weekly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
-echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=daily', array()), get_string('daily', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
-?>
+        <?php
+        //$formcontent = "";
+        //$formcontent .= html_writer::tag('button', 'Monthly', array('class' => 'btn btn-primary', 'value' => 'monthly'));
+        //$formcontent .= html_writer::tag('button', 'Weekly', array('class' => 'btn btn-primary', 'value' => 'weekly'));
+        //$formcontent .= html_writer::tag('button', 'Daily', array('class' => 'btn btn-primary', 'value' => 'daily'));
+        //echo $formcontent;
+        echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=monthly', array()), get_string('monthly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
+        echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=weekly', array()), get_string('weekly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
+        echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=daily', array()), get_string('daily', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
+        ?>
     </div>
 </div>
 
@@ -154,26 +149,18 @@ echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php
             <h3>Users Activity</h3>
             <div class="users span3">
                 <table style="width:100%">
-                    <caption>Course Completion</caption>
+                    <i class="fa fa-graduation-cap"></i><caption>Course Completion</caption>
                     <tr>
-                    <th>0</th>
-                    <td>Today</td>
-                    </tr>
-                    <tr>
-                      <th>0</th>
-                      <td>This Week </td>
-                    </tr>
+                    <th>0</th> <td>Today</td>
+                    <th>0</th> <td>This Week </td>
+                    </tr>  
                 </table>
 
                 <table style="width:100%">
-                    <caption>User Enrolments</caption>
+                 <i class="fa fa-user-plus" aria-hidden="true"></i><caption>User Enrolments</caption>
                     <tr>
-                    <th>0</th>
-                    <td>Today</td>
-                    </tr>
-                    <tr>
-                      <th>0</th>
-                      <td>This year </td>
+                    <th>0</th> <td>Today</td>
+                    <th>0</th> <td>This Week </td>
                     </tr>
                 </table>
             </div>

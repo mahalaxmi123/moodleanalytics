@@ -145,8 +145,9 @@ $formcontent2 = "";
         </div>	
 
         <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
-<div>
-    <div class = "box45">
+        
+ <div id="course-mainpage">
+    <div class = "course-header">
         <h3>New Courses</h3>
         <?php
         if (empty($reportobj1->data)) {
@@ -163,7 +164,8 @@ $formcontent2 = "";
         ?>
         <div id="new_courses" style="width: 900px; height:400px;"></div>
     </div>
-    <div class = "box45">
+    
+   <div id = "enrolement-per">
         <h3>Enrollments Per Course</h3>
         <?php
         if (empty($reportobj2->data)) {
@@ -179,7 +181,7 @@ $formcontent2 = "";
         echo $formcontent2;
         ?>
         <div id="enrollmentpercourse" style="width: 900px; height:400px;"></div>
-    </div>
+   </div>
 </div>
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
