@@ -144,7 +144,7 @@ $formcontent2 = "";
               </div>		
         </div>	
 
-        <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
+        <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>-->
 <div>
     <div class = "box45">
         <h3>New Courses</h3>

@@ -25,12 +25,12 @@ $print = optional_param('print', 0, PARAM_ALPHA);
 $id = optional_param('courseid', 1, PARAM_ALPHA);
 $month = optional_param('month', '', PARAM_TEXT);
 $year = optional_param('year', '', PARAM_TEXT);
-//$context = context_system::instance();
-$context = context_course::instance($id, MUST_EXIST);
-//$context = context_system::instance();
-//if (!empty($courseid)) {
-//    $context = context_course::instance($courseid);
-//}
+$context = context_system::instance();
+//$context = context_course::instance($id, MUST_EXIST);
+$context = context_system::instance();
+if (!empty($courseid)) {
+    $context = context_course::instance($courseid);
+}
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $pageparams = array();
@@ -154,7 +154,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             </div>		
         </div>	
     </div>
-    <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
+    <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>-->
     <div>
         <div class = "box45">
             <h3>Unique Sessions</h3>
