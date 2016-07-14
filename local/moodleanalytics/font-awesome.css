@@ -16,6 +16,7 @@
   font-family: FontAwesome;
   font-style: normal;
   font-weight: normal;
+  color: #224761;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -209,7 +210,7 @@
 .fa-simplybuilt{
 	content: "\f215";
 	font-size: 19px;
-    margin: 10px;
+   margin: 0px !important;
 	}
 	
 	

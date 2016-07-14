@@ -104,30 +104,31 @@ if ($view == 'daily') {
  
 
 <div id="main-page">
-    <div class="row-fluid">
-        <div class="Information-block">
-            <div class="col-md-3 col-sm-12 col-xs-12">
-                <div class="info-box blue-bg">
-                    <p>10</p>
-                    <div class="title">Admins</div>						
-                </div><!--/.info-box-->			
-            </div><!--/.col-->
-
-            <div class="col-md-3 col-sm-12 col-xs-12">
-                <div class="info-box brown-bg">
-                    <p>23</p>
-                    <div class="title">Trainers</div>						
-                </div><!--/.info-box-->			
-            </div><!--/.col-->	
-
-            <div class="col-md-3 col-sm-12 col-xs-12">
-                <div class="info-box green-bg">
-                    <p>610</p>
-                    <div class="title">Learners</div>						
-                </div><!--/.info-box-->			
-            </div><!--/.col-->
-        </div>	
-    </div><!--/.row-->
+	<div class="row">	
+        <div class="row-fluid">
+            <div class="Information-block">
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <div class="info-box blue-bg">
+                        <p>10</p>
+                        <div class="title">Admins</div>						
+                    </div><!--/.info-box-->			
+                </div><!--/.col-->
+    
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <div class="info-box brown-bg">
+                        <p>23</p>
+                        <div class="title">Trainers</div>						
+                    </div><!--/.info-box-->			
+                </div><!--/.col-->	
+    
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <div class="info-box green-bg">
+                        <p>610</p>
+                        <div class="title">Learners</div>						
+                    </div><!--/.info-box-->			
+                </div><!--/.col-->
+            </div>	
+        </div><!--/.row-->
 
 <div class="row-fluid">
     <div class="btn-group">
@@ -174,6 +175,7 @@ if ($view == 'daily') {
     
 
     <div class="mdlanalytics-total clearfix">
+      <div class=" row-fluid">
         <h3><span style="background-color: #5aa0a2; padding: 25px 37px; color: #fff;">TOTAL</span></h3>
 
         <div class="count"><p>643</p> 
@@ -202,38 +204,42 @@ if ($view == 'daily') {
 
         <div class="count"><p>931.8<span style="font-size:16px";>MB</span></p>
             <div class="icons">
-                <i class="fa fa-simplybuilt"></i><span class="items">SPACE</span>
+               <i class="fa fa-file-text-o"></i><span class="items">SPACE</span>
             </div>
         </div>
-    </div> 
+     </div>
+   </div> 
 
-    <div id="Section-Second">
-        <div class="row-fluid"> 
-            <div class = "Enrollments-block">
-                <h3>Enrollments</h3>
-                <div id="user-enrol" style="width: 400px; height: 400px;"></div>
+       
+
+        <div id="Section-Second">
+            <div class="row-fluid"> 
+                <div class = "Enrollments-block span5">
+                    <h3>Enrollments</h3>
+                    <div id="user-enrol" style="width: 410px; height: 400px;"></div>
+                </div>
+    
+                <div class="participation span7">
+                    <h3>Participation</h3>
+                    <div id="participation-block" style="width: 400px; height: auto;"></div>
+                </div>
+    
+    
             </div>
-
-            <div class="participation">
-                <h3>Participation</h3>
-                <div id="participation-block" style="width: 400px; height: auto;"></div>
-            </div>
-
-
         </div>
-    </div>
 
 
-
-    <div id="Section-third">
-        <div class="row-fluid">
-            <div class="register">
-                <h3>Registrations</h3>
-                <div id="countries" style="width:700px; height:500px;"></div>
+        <div id="Section-third">
+            <div class="row-fluid">
+                <div class="register">
+                    <h3>Registrations</h3>
+                    <div id="countries" style="width:720px; height:500px;"></div>
+                </div>
+    
             </div>
-
         </div>
-    </div>        
+	</div>
+</div>        
     <!--    	<div class="enroll span5">
                     <h3>Enrollment per-course</h3>
 //  			$formcontent = "";

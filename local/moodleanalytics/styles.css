@@ -8,9 +8,9 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	}
         
 #page-local-moodleanalytics-dashboard #main-page .row {
-    margin-left: 30px !important;
+    margin-left: 0px !important;
 }
-.row { margin-left: 0px !important;}
+.row { margin-left: 0px !important;} 
 
 /* Header Css Start */
 
@@ -144,11 +144,16 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 .mdlanalytics-total .count .items {
     font-size: 16px;
     font-weight: 600;
+	color: #224761;
 	}
 	
-.mdlanalytics-total .count p{ padding-top: 18px;
+.mdlanalytics-total .count p{ 
+	padding-top: 18px;
+	margin-bottom:10px;
     font-size: 30px;
-    font-weight: bold;}
+    font-weight: bold;
+	color:#224761;
+	}
 	
 
 /*Mdlanalytics-total Css End */
@@ -156,8 +161,8 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /*Section-Second Css Start */
-#Section-Second .Enrollments-block { width:40%; float:left;}
-#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage,{
+#Section-Second .Enrollments-block {; float:left;}
+#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per{
   border: 1px solid #e6e9ed;
   box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
 }
@@ -169,13 +174,13 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     font-size: 20px;
     color: #fefefe;
     background-color: #224761;
-    margin: 0px -1px;
+    margin: -1px -1px;
 }
 
 
 #Section-Second .participation{
     float:left;
-    width:59%;
+    ;
     margin-left: 6px;
 }
 
@@ -240,6 +245,10 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     line-height: 32px;
 }
 
+#Section-Second .Enrollments-block, #Section-Second .participation {
+	display:inline-block;
+	}
+
 /*Performance-total Css End */
 
 
@@ -258,26 +267,33 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /* Course page content Css Start */
-.left-Coursebar-total {
+.left-Coursebar-total, .learner-total {
 	border: 1px solid  #E3E3E3;
 	}
 
 	
-.left-Coursebar-total p {
+.left-Coursebar-total p, .learner-total p {
     width: 25%;
     
 }
 
-.left-Coursebar-total p, .Right-Coursebar-total p  {
+
+.left-Coursebar-total p,.learner-total p, .Right-Coursebar-total p{
 	font-size: 30px;
     padding: 10px 0px;
     font-weight: normal;
+	color: #283131;
     margin: 0;
     text-align: center;
     float: left;
     border-left: 1px solid #E3E3E3;
     box-sizing: border-box;
 	line-height: 32px;
+	font-weight: bold;
+	}
+	
+.left-Coursebar-total .coursebar-box, .Right-Coursebar-total .coursebar-box{
+	font-size:20px; font-weight: normal; font-weight:bold;
 	}
 
 
@@ -288,28 +304,36 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	
 .Right-Coursebar-total p{
 	 width: 50%;
-    
-	}
+}
 	
-#course-mainpage {
+#course-mainpage, #enrolement-per{
 	background-color: rgba(255, 255, 255, 0.81);
     box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
 	border: 2px solid #e6e9ed;
     padding-bottom: 10px;
 }	
 
-#course-mainpage form{
+#course-mainpage form, #enrolement-per form{
 	margin-top: 30px;
     text-align: center;
 	}
 	
-#course-mainpage #new_courses {     margin: auto;
+#course-mainpage #new_courses, #enrolement-per #enrollmentpercourse {
+	margin: auto;
     margin-top: 30px;
     border: 2px solid #eee8e8;
     border-top: 3px solid #5aa0a2;
 	}
 
-#enrolement-per {margin-top:30px;}
+#enrolement-per, .alert {margin-top:30px;}
 #enrolement-per h3 { margin: 0px auto;}
+.alert-error { text-align: center; font-weight: bold;}
+.alert {margin-bottom: 0px !important;}
 /* Course page content Css End */
 
+
+/* Learners page content Css Start */
+.left-learnerbar-total  {
+	float: right;
+	}
+/* Learners page content Css End */

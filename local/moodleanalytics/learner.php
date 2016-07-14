@@ -145,10 +145,10 @@ $reportobj4->process_reportdata($reportobj4, $params4);
         }]
 }"></script>
 
-<div id="Coursedasboard-Page">
+<div id="Learners-Page">
     <div class="row">
-        <div class="coursebar row-fluid">
-            <div class="left-Coursebar-total span8"> 
+        <div class="learnerbar row-fluid">
+            <div class="learner-total span8"> 
                 <p>643<br/><span style="font-size:16px; font-weight: normal;">Total</span></p>
                 <p>605<br/><span style="font-size:16px; font-weight: normal;">Registered</span></p>
                 <p>5<br/><span style="font-size:16px; font-weight: normal;">Suspended</span></p>
@@ -173,7 +173,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             $formcontent1 .= html_writer::end_tag('div');
             echo $formcontent1;
             ?>
-            <div id="unique_sessions" style="width: 900px; height:400px;"></div>
+            <div id="unique_sessions" style="width: 600px; height:400px;"></div>
         </div>
 
     </div>
