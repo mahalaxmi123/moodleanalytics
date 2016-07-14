@@ -14,12 +14,12 @@ require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 require_login();
 $courseid = optional_param('id', '', PARAM_INT);        // course id
-$charttype = optional_param('type', '', PARAM_ALPHANUM);
-$submit = optional_param('submit', '', PARAM_ALPHANUM);
-$reset = optional_param('reset', '', PARAM_ALPHANUM);
-$reportid = optional_param('reportid', '', PARAM_INT);
-$quizid = optional_param('quizid', '', PARAM_INT);
-$users = optional_param_array('username', '', PARAM_TEXT);
+//$charttype = optional_param('type', '', PARAM_ALPHANUM);
+//$submit = optional_param('submit', '', PARAM_ALPHANUM);
+//$reset = optional_param('reset', '', PARAM_ALPHANUM);
+//$reportid = optional_param('reportid', '', PARAM_INT);
+//$quizid = optional_param('quizid', '', PARAM_INT);
+//$users = optional_param_array('username', '', PARAM_TEXT);
 $context = context_system::instance();
 if (!empty($courseid)) {
     $context = context_course::instance($courseid);
@@ -40,7 +40,6 @@ $reportobj1 = new stdClass();
 $reportobj1 = get_report_class('coursesize');
 $params = new stdClass();
 $reportobj1->process_reportdata($reportobj1, $params);
-
 $axis2 = new stdClass();
 $axis2 = $reportobj1->get_axis_names('coursesize');
 

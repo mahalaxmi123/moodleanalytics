@@ -14,12 +14,10 @@ require_login();
 $courseid = optional_param('id', '', PARAM_INT);        // course id
 $submit16 = optional_param('submit16', '', PARAM_ALPHANUM);
 $reset16 = optional_param('reset16', '', PARAM_ALPHANUM);
-$reportid = optional_param('reportid', '', PARAM_INT);
+//$reportid = optional_param('reportid', '', PARAM_INT);
 $from_date_16 = optional_param('from_date_16', '', PARAM_TEXT);
 $to_date_16 = optional_param('to_date_16', '', PARAM_TEXT);
 $users = optional_param_array('username', '', PARAM_TEXT);
-$submit = optional_param('submit', '', PARAM_ALPHANUM);
-$reset = optional_param('reset', '', PARAM_ALPHANUM);
 $timelink = optional_param('time', 0, PARAM_INT);
 $linktime = date('d-m-Y H:i:s', $timelink);
 $view = optional_param('view', 'now', PARAM_ALPHA);
@@ -27,12 +25,12 @@ $print = optional_param('print', 0, PARAM_ALPHA);
 $id = optional_param('courseid', 1, PARAM_ALPHA);
 $month = optional_param('month', '', PARAM_TEXT);
 $year = optional_param('year', '', PARAM_TEXT);
-//$context = context_system::instance();
-$context = context_course::instance($id, MUST_EXIST);
-//$context = context_system::instance();
-//if (!empty($courseid)) {
-//    $context = context_course::instance($courseid);
-//}
+$context = context_system::instance();
+//$context = context_course::instance($id, MUST_EXIST);
+$context = context_system::instance();
+if (!empty($courseid)) {
+    $context = context_course::instance($courseid);
+}
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $pageparams = array();
@@ -156,7 +154,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             </div>		
         </div>	
     </div>
-    <h3><?php echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>
+    <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>-->
     <div>
         <div class = "box45">
             <h3>Unique Sessions</h3>
