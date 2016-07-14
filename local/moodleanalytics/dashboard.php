@@ -30,9 +30,9 @@ $PAGE->set_url('/local/moodleanalytics/dashboard.php');
 $PAGE->requires->js('/local/moodleanalytics/module.js', true);
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/dashboard.php');
 
-if ($reset) {
-    redirect($returnurl);
-}
+//if ($reset) {
+//    redirect($returnurl);
+//}
 
 echo $OUTPUT->header();
 $errors = array();
