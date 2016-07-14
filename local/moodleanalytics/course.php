@@ -37,20 +37,9 @@ $PAGE->requires->js('/local/moodleanalytics/module.js', true);
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php');
 
 $reportname = get_string('course');
-echo $OUTPUT->header();
-$errors = array();
 
 $fromdate14 = $from_date_14;
 $todate14 = $to_date_14;
-
-//$reportobj2new = new stdClass();
-//if ($submit14) {
-//    if (!empty($_SESSION['reportobj2data']) && !empty($_SESSION['reportobj2header']) && !empty($_SESSION['reportobj2charttype'])) {
-//        $reportobj2new->data = $_SESSION['reportobj2data'];
-//        $reportobj2new->headers = $_SESSION['reportobj2header'];
-//        $reportobj2new->charttype = $_SESSION['reportobj2charttype'];
-//    }
-//}
 
 if (empty($from_date_14)) {
     $from_date_default_14 = userdate((time() - (DAYSECS * 7)), '%Y-%m-%d');
@@ -72,25 +61,8 @@ if (empty($to_date_14)) {
 if ($reset14) {
     unset($_SESSION['fromdate']);
     unset($_SESSION['todate']);
-//    redirect($returnurl);
+    redirect($returnurl);
 }
-
-$params1 = array();
-if (empty($_SESSION['from_date']) && empty($_SESSION['todate'])) {
-    $params1['fromdate'] = $from_date_14;
-    $params1['todate'] = $to_date_14;
-} else {
-    $params1['fromdate'] = $_SESSION['fromdate'];
-    $params1['todate'] = $_SESSION['todate'];
-}
-
-$reportobj1 = new stdClass();
-$reportobj1 = get_report_class('new_courses');
-$reportobj1->process_reportdata($reportobj1, $params1);
-$axis1 = new stdClass();
-$axis1 = $reportobj1->get_axis_names();
-$formcontent1 = "";
-
 
 $fromdate5 = $from_date_5;
 $todate5 = $to_date_5;
@@ -115,8 +87,27 @@ if (empty($to_date_5)) {
 if ($reset5) {
     unset($_SESSION['timestart']);
     unset($_SESSION['timefinish']);
-//    redirect($returnurl);
+    redirect($returnurl);
 }
+
+echo $OUTPUT->header();
+$errors = array();
+
+$params1 = array();
+if (empty($_SESSION['from_date']) && empty($_SESSION['todate'])) {
+    $params1['fromdate'] = $from_date_14;
+    $params1['todate'] = $to_date_14;
+} else {
+    $params1['fromdate'] = $_SESSION['fromdate'];
+    $params1['todate'] = $_SESSION['todate'];
+}
+
+$reportobj1 = new stdClass();
+$reportobj1 = get_report_class('new_courses');
+$reportobj1->process_reportdata($reportobj1, $params1);
+$axis1 = new stdClass();
+$axis1 = $reportobj1->get_axis_names();
+$formcontent1 = "";
 
 $params2 = array();
 if (empty($_SESSION['timestart']) && empty($_SESSION['timefinish'])) {
