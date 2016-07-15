@@ -31,9 +31,9 @@ $PAGE->set_url('/local/moodleanalytics/performance.php');
 $PAGE->requires->js('/local/moodleanalytics/module.js', true);
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/performance.php');
 
-if ($reset) {
-    redirect($returnurl);
-}
+//if ($reset) {
+    //redirect($returnurl);
+//}
 echo $OUTPUT->header();
 $errors = array();
 $reportobj1 = new stdClass();
@@ -67,9 +67,9 @@ $reportobj3->process_reportdata($reportobj3, $params);
 		 <div class="performance row-fluid">
      		<div class="Performance-total ">
             	<h3>Size On Disk</h3>
-                <p>931.8<span style="font-size:14px; font-weight: normal">MB</span><br/><span style="font-size:18px; font-weight: normal;">Total</span></p>
-                <p>619.5<span style="font-size:14px; font-weight: normal">MB</span><br/><span style="font-size:18px; font-weight: normal;">Courses</span></p>
-                <p>109.5<span style="font-size:14px; font-weight: normal">MB</span><br/><span style="font-size:18px; font-weight: normal;">Users</span></p>
+                <p>931.8<span style="font-size:16px; font-weight: bold">MB</span><br/><span style="font-size:22px; font-weight: bold;">Total</span></p>
+                <p>619.5<span style="font-size:16px; font-weight: bold">MB</span><br/><span style="font-size:22px; font-weight: bold;">Courses</span></p>
+                <p>109.5<span style="font-size:16px; font-weight: bold">MB</span><br/><span style="font-size:22px; font-weight: bold;">Users</span></p>
 	  		</div>	
       </div>
       
@@ -83,15 +83,18 @@ $reportobj3->process_reportdata($reportobj3, $params);
     
             <div class="Course-block span6">
           		<h3>Course Size</h3>
-           		<div id="coursesize" style="width: 400px; height:400px;"></div>
+           		<div id="coursesize" style="width: 500px; height:400px;"></div>
             </div>
   		</div>
     </div>
   
   
-   		<div class="IP-address">
+   <div id="IP-address">
+        <div class="row-fluid" >
+        	<div class="IP-block span6">
                 <h3>Active IP Address</h3>
                 <div id="activeip" style="width: 400px; height:400px;"></div>
+            </div>
         </div>
    </div>
 

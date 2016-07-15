@@ -153,14 +153,14 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 <p>13<br/><span style="font-size:16px; font-weight: normal;">Deleted</span></p>
             </div>		
         </div>	
-    </div>
+ 
     <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>-->
     <div>
         <div class = "box45">
             <h3>Unique Sessions</h3>
             <?php
             if (empty($reportobj1->data)) {
-                echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
+                echo html_writer::tag('p','Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
             }
             $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/learner.php'), 'method' => 'post'));
             $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_16', 'value' => $fromdate16, 'id' => 'from_date_16'));
@@ -168,7 +168,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit16', 'value' => 'submit'));
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset16', 'value' => 'reset'));
             $formcontent1 .= html_writer::end_tag('form');
-            $formcontent1 .= html_writer::end_tag('div');
+            //$formcontent1 .= html_writer::end_tag('div');
             echo $formcontent1;
             ?>
             <div id="unique_sessions" style="width: 600px; height:400px;"></div>
@@ -227,6 +227,8 @@ $reportobj4->process_reportdata($reportobj4, $params4);
         <div id="enrollment_analytics" style="width: 500px; height: 500px;"></div>
     </div>
 
+	</div>
+</div>
 
     <script type="text/javascript">
                 google.setOnLoadCallback(drawChart);

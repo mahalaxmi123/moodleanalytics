@@ -82,12 +82,16 @@ echo $formcontent;
         'packages':['corechart','geochart', 'table','annotationchart']
         }]
 }"></script>
-<div>
-    <div class="box45">
-        <h3><?php echo!empty($reportname) ? $report_array[$reportname] : ''; ?></h3>
-        <div id="Tabularreports"></div>
+
+<div id="Tabular-Page">
+    <div class="row">
+        <div class="Tabular-box">
+            <h3><?php echo!empty($reportname) ? $report_array[$reportname] : ''; ?></h3>
+            <div id="Tabularreports"></div>
+        </div> 
     </div>
 </div>
+
 <script type="text/javascript">
             google.setOnLoadCallback(drawLearningprogress);
             function drawLearningprogress() {

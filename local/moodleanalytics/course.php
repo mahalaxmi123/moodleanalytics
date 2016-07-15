@@ -155,7 +155,7 @@ $formcontent2 = "";
             <h3>New Courses</h3>
             <?php
             if (empty($reportobj1->data)) {
-                echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
+               echo html_writer::tag('p','Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
             }
             $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
             $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_14', 'value' => $fromdate14,'id' => 'from_date_14'));
@@ -163,11 +163,13 @@ $formcontent2 = "";
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit14', 'value' => 'submit'));
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset14', 'value' => 'reset'));
             $formcontent1 .= html_writer::end_tag('form');
-            $formcontent1 .= html_writer::end_tag('div');
+          //  $formcontent1 .= html_writer::end_tag('div');
             echo $formcontent1;
             ?>
             <div id="new_courses" class="row-fluid" style="width: 900px; height:400px;"></div>
     	</div>
+      </div>
+    
 
     
   <div id = "enrolement-per">
@@ -180,18 +182,19 @@ $formcontent2 = "";
             $formcontent2 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit5', 'value' => 'submit'));
             $formcontent2 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset5', 'value' => 'reset'));
             $formcontent2 .= html_writer::end_tag('form');
-            $formcontent2 .= html_writer::end_tag('div');
+            //$formcontent2 .= html_writer::end_tag('div');
             echo $formcontent2;
 			if (empty($reportobj2->data)) {
-                echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
+               echo html_writer::tag('p','Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
             } else {
             ?>
              <div id="enrollmentpercourse" class="row-fluid" style="width: 900px; height:400px;"></div>
              <?php }?>
 		</div>
+        
     </div>
  </div>
-</di>
+
 <script type="text/javascript">
             google.setOnLoadCallback(drawChart);
             function drawChart() {
