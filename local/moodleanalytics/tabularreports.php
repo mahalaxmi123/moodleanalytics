@@ -29,6 +29,8 @@ $PAGE->set_pagelayout('admin');
 $pageparams = array();
 $PAGE->set_url('/local/moodleanalytics/tabularreports.php');
 $PAGE->requires->js('/local/moodleanalytics/module.js', true);
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/tabularreports.php');
 
 if ($reset) {
@@ -41,9 +43,24 @@ $errors = array();
 $report_array = get_coursereports();
 $fromdate = $from_date;
 $todate = $to_date;
+//
+//if (empty($from_date)) {
+//    $from_date_default = userdate((time() - (DAYSECS * 7)), '%Y-%m-%d');
+//    $fromdate = $from_date_default;
+//    $from_date = new DateTime($from_date_default);
+//} else {
+//    $from_date = new DateTime($from_date);
+//}
+//if (empty($to_date)) {
+//    $to_date_default = userdate(time(), '%Y-%m-%d');
+//    $todate = $to_date_default;
+//    $to_date = new DateTime($to_date_default);
+//} else {
+//    $to_date = new DateTime($to_date);
+//}
+
 $from_date = new DateTime($from_date);
 $to_date = new DateTime($to_date);
-
 $params = array();
 //$params['from_date'] = $from_date;
 //$params['to_date'] = $to_date;
@@ -66,8 +83,10 @@ if (!empty($errors)) {
 }
 $formcontent .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/tabularreports.php'), 'method' => 'post'));
 $formcontent .= 'Report Name : ' . html_writer::select($report_array, 'reportname', $reportname, array('' => 'Select report'), array('id' => 'reportdropdown'));
-$formcontent .= html_writer::tag('p', 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
-$formcontent .= html_writer::tag('p', 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+//$formcontent .= html_writer::tag('p', 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date', 'value' => $fromdate)), array('id' => 'from_date'));
+//$formcontent .= html_writer::tag('p', 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date', 'value' => $todate)), array('id' => 'to_date'));
+$formcontent .= html_writer::tag('p', 'From Date' . html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'from_date', 'class' => 'program-management-datepicker', 'value' => $fromdate)) , array( 'id' => 'from_date'));
+$formcontent .= html_writer::tag('p', 'To Date' . html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'to_date', 'class' => 'program-management-datepicker', 'value' => $todate)) , array( 'id' => 'to_date'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit', 'value' => 'submit'));
 $formcontent .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset', 'value' => 'reset'));
 $formcontent .= html_writer::end_tag('form');
@@ -85,9 +104,11 @@ echo $formcontent;
 <div>
     <div class="box45">
         <h3><?php echo!empty($reportname) ? $report_array[$reportname] : ''; ?></h3>
-        <p><?php if($reportname == 'uploads'){
-            echo html_writer::tag('h4', get_string('uploadmessage', 'local_moodleanalytics'));
-        }?></p>
+        <p><?php
+            if ($reportname == 'uploads') {
+                echo html_writer::tag('h4', get_string('uploadmessage', 'local_moodleanalytics'));
+            }
+            ?></p>
         <div id="Tabularreports"></div>
     </div>
 </div>

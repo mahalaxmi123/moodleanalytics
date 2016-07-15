@@ -31,9 +31,9 @@ $PAGE->set_url('/local/moodleanalytics/performance.php');
 $PAGE->requires->js('/local/moodleanalytics/module.js', true);
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/performance.php');
 
-if ($reset) {
-    redirect($returnurl);
-}
+//if ($reset) {
+//    redirect($returnurl);
+//}
 echo $OUTPUT->header();
 $errors = array();
 $reportobj1 = new stdClass();

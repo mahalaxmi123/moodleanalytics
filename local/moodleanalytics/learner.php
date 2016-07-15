@@ -36,6 +36,8 @@ $PAGE->set_pagelayout('admin');
 $pageparams = array();
 $PAGE->set_url('/local/moodleanalytics/learner.php');
 $PAGE->requires->js('/local/moodleanalytics/module.js', true);
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/learner.php');
 
 if ($reset16) {
@@ -131,7 +133,6 @@ $reportobj4 = new stdClass();
 $reportobj4 = get_report_class('enrolments_analytics');
 $params4 = array();
 $reportobj4->process_reportdata($reportobj4, $params4);
-
 ?>
 
 <script type = "text/javascript"
@@ -154,7 +155,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             </div>		
         </div>	
     </div>
-    <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>-->
+    <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : '';  ?></h3>-->
     <div>
         <div class = "box45">
             <h3>Unique Sessions</h3>
@@ -163,8 +164,10 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
             }
             $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/learner.php'), 'method' => 'post'));
-            $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_16', 'value' => $fromdate16, 'id' => 'from_date_16'));
-            $formcontent1 .= 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date_16', 'value' => $todate16, 'id' => 'to_date_16'));
+//            $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_16', 'value' => $fromdate16, 'id' => 'from_date_16'));
+//            $formcontent1 .= 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date_16', 'value' => $todate16, 'id' => 'to_date_16'));
+            $formcontent1 .= html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'from_date_16', 'id' => 'from_date_16', 'class' => 'program-management-datepicker', 'value' => $fromdate16));
+            $formcontent1 .= html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'to_date_16', 'id' => 'to_date_16', 'class' => 'program-management-datepicker', 'value' => $todate16));
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit16', 'value' => 'submit'));
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset16', 'value' => 'reset'));
             $formcontent1 .= html_writer::end_tag('form');
@@ -221,7 +224,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
         ?>
         <div id='chart_div_new' style='width: 900px; height: 500px;'></div>
     </div>
-    
+
     <div>
         <h3>Enrollment Analytics</h3>
         <div id="enrollment_analytics" style="width: 500px; height: 500px;"></div>
@@ -248,9 +251,9 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                                 vAxis: {
                                 title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
                                 },
-<?php // if($reportobj->charttype == 'Table'){          ?>
+<?php // if($reportobj->charttype == 'Table'){           ?>
                         //                                pageSize : 10,
-<?php // }         ?>
+<?php // }          ?>
                         }
 <?php if (empty($errors)) { ?>
                     chart.draw(data, options);
@@ -315,39 +318,37 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 }
 
     </script>
-    
+
     <script type="text/javascript">
 //    google.charts.load("current", {packages:['corechart','geochart']});
-    google.setOnLoadCallback(drawChart);
-    function drawChart() {
-      var data = google.visualization.arrayToDataTable([
-        ['Enrolments', 'NumOfEnrolments', { role: "style" } ],
+        google.setOnLoadCallback(drawChart);
+                function drawChart() {
+                var data = google.visualization.arrayToDataTable([
+                        ['Enrolments', 'NumOfEnrolments', { role: "style" } ],
 <?php
 for ($i = 0; $i < count($reportobj4->data); $i++) {
     echo $reportobj4->data[$i];
 }
 ?>
-      ]);
-
-      var view = new google.visualization.DataView(data);
-      view.setColumns([0, 1,
-                       { calc: "stringify",
-                         sourceColumn: 1,
-                         type: "string",
-                         role: "annotation" },
-                       2]);
-
-      var options = {
-      //  title: "Density of Precious Metals, in g/cm^3",
-        width: 600,
-        height: 400,
-        bar: {groupWidth: "95%"},
-        legend: { position: "none" },
-      };
-      var chart = new google.visualization.ColumnChart(document.getElementById("enrollment_analytics"));
-      chart.draw(view, options);
-  }
-  </script>
+                ]);
+                        var view = new google.visualization.DataView(data);
+                        view.setColumns([0, 1,
+                        { calc: "stringify",
+                                sourceColumn: 1,
+                                type: "string",
+                                role: "annotation" },
+                                2]);
+                        var options = {
+                        //  title: "Density of Precious Metals, in g/cm^3",
+                        width: 600,
+                                height: 400,
+                                bar: {groupWidth: "95%"},
+                                legend: { position: "none" },
+                        };
+                        var chart = new google.visualization.ColumnChart(document.getElementById("enrollment_analytics"));
+                        chart.draw(view, options);
+                }
+    </script>
 
     <?php
     echo $OUTPUT->footer();
