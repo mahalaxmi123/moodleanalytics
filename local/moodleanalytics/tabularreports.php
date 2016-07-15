@@ -85,6 +85,9 @@ echo $formcontent;
 <div>
     <div class="box45">
         <h3><?php echo!empty($reportname) ? $report_array[$reportname] : ''; ?></h3>
+        <p><?php if($reportname == 'uploads'){
+            echo html_writer::tag('h4', get_string('uploadmessage', 'local_moodleanalytics'));
+        }?></p>
         <div id="Tabularreports"></div>
     </div>
 </div>

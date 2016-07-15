@@ -44,7 +44,7 @@ $(document).ready(function () {
         }
     });
 
-    if ($('#reportdropdown').val() && $('#reportdropdown').val() == 15) {
+    if ($('#reportdropdown').val() && $('#reportdropdown').val() == 'course_with_zero_activity') {
         $('#from_date').hide();
         $('#to_date').hide();
     } else {
@@ -53,7 +53,7 @@ $(document).ready(function () {
     }
 
     $('#reportdropdown').change(function () {
-        if ($('#reportdropdown').val() == 15) {
+        if ($('#reportdropdown').val() == 'course_with_zero_activity') {
 //            $('#from_date').prop('disabled', true);
 //            $('#to_date').prop('disabled', true);
             $('#from_date').hide();
