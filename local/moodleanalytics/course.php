@@ -157,7 +157,7 @@ $formcontent2 = "";
                 <h3>New Courses</h3>
                 <?php
                 if (empty($reportobj1->data)) {
-                    echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
+                    echo html_writer::tag('p', 'Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
                 }
                 $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 //            $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_14', 'value' => $fromdate14,'id' => 'from_date_14'));
@@ -167,34 +167,33 @@ $formcontent2 = "";
                 $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit14', 'value' => 'submit'));
                 $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset14', 'value' => 'reset'));
                 $formcontent1 .= html_writer::end_tag('form');
-                $formcontent1 .= html_writer::end_tag('div');
+//                $formcontent1 .= html_writer::end_tag('div');
                 echo $formcontent1;
                 ?>
                 <div id="new_courses" class="row-fluid" style="width: 900px; height:400px;"></div>
             </div>
+        </div>
 
-
-            <div id = "enrolement-per">
-                <div class = "enrolement-headerpart">
-                    <h3>Enrollments Per Course</h3>
-                    <?php
-                    $formcontent2 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
+        <div id = "enrolement-per">
+            <div class = "enrolement-headerpart">
+                <h3>Enrollments Per Course</h3>
+                <?php
+                $formcontent2 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/course.php'), 'method' => 'post'));
 //                    $formcontent2 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_5', 'value' => $fromdate5, 'id' => 'from_date_5'));
 //                    $formcontent2 .= 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date_5', 'value' => $todate5, 'id' => 'to_date_5'));
-                    $formcontent2 .= html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'from_date_5', 'id' => 'from_date_5', 'class' => 'program-management-datepicker', 'value' => $fromdate5));
-                    $formcontent2 .= html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'to_date_5', 'id' => 'to_date_5', 'class' => 'program-management-datepicker', 'value' => $todate5));
-                    $formcontent2 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit5', 'value' => 'submit'));
-                    $formcontent2 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset5', 'value' => 'reset'));
-                    $formcontent2 .= html_writer::end_tag('form');
-                    $formcontent2 .= html_writer::end_tag('div');
-                    echo $formcontent2;
-                    if (empty($reportobj2->data)) {
-                        echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
-                    } else {
-                        ?>
-                        <div id="enrollmentpercourse" class="row-fluid" style="width: 900px; height:400px;"></div>
-                    <?php } ?>
-                </div>
+                $formcontent2 .= html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'from_date_5', 'id' => 'from_date_5', 'class' => 'program-management-datepicker', 'value' => $fromdate5));
+                $formcontent2 .= html_writer::empty_tag('input', array('size' => '10', 'type' => 'text', 'name' => 'to_date_5', 'id' => 'to_date_5', 'class' => 'program-management-datepicker', 'value' => $todate5));
+                $formcontent2 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit5', 'value' => 'submit'));
+                $formcontent2 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset5', 'value' => 'reset'));
+                $formcontent2 .= html_writer::end_tag('form');
+//                    $formcontent2 .= html_writer::end_tag('div');
+                echo $formcontent2;
+                if (empty($reportobj2->data)) {
+                    echo html_writer::tag('p', 'Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
+                } else {
+                    ?>
+                    <div id="enrollmentpercourse" class="row-fluid" style="width: 900px; height:400px;"></div>
+                <?php } ?>
             </div>
         </div>
     </div>
@@ -219,9 +218,9 @@ $formcontent2 = "";
                             vAxis: {
                             title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
                             },
-<?php // if($reportobj->charttype == 'Table'){            ?>
+<?php // if($reportobj->charttype == 'Table'){             ?>
                     //                                pageSize : 10,
-<?php // }           ?>
+<?php // }            ?>
                     }
 <?php if (empty($errors)) { ?>
                 chart.draw(data, options);

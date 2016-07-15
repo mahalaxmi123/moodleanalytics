@@ -155,13 +155,13 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             </div>		
         </div>	
     </div>
-    <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : '';  ?></h3>-->
+    <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : '';   ?></h3>-->
     <div>
         <div class = "box45">
             <h3>Unique Sessions</h3>
             <?php
             if (empty($reportobj1->data)) {
-                echo html_writer::div('Sorry! No data exist for given period.', 'alert alert-error');
+                echo html_writer::tag('p', 'Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
             }
             $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/learner.php'), 'method' => 'post'));
 //            $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_16', 'value' => $fromdate16, 'id' => 'from_date_16'));
@@ -171,12 +171,11 @@ $reportobj4->process_reportdata($reportobj4, $params4);
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit16', 'value' => 'submit'));
             $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset16', 'value' => 'reset'));
             $formcontent1 .= html_writer::end_tag('form');
-            $formcontent1 .= html_writer::end_tag('div');
+            //$formcontent1 .= html_writer::end_tag('div');
             echo $formcontent1;
             ?>
             <div id="unique_sessions" style="width: 600px; height:400px;"></div>
         </div>
-
     </div>
 
     <div>
@@ -229,128 +228,127 @@ $reportobj4->process_reportdata($reportobj4, $params4);
         <h3>Enrollment Analytics</h3>
         <div id="enrollment_analytics" style="width: 500px; height: 500px;"></div>
     </div>
+</div>
 
-
-    <script type="text/javascript">
-                google.setOnLoadCallback(drawChart);
-                function drawChart() {
+<script type="text/javascript">
+            google.setOnLoadCallback(drawChart);
+            function drawChart() {
 <?php if (!empty($reportobj1->data)) { ?>
-                    var data = new google.visualization.DataTable();
+                var data = new google.visualization.DataTable();
     <?php foreach ($reportobj1->headers as $header) { ?>
         <?php if (!empty($header)) { ?>
-                            data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
+                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
         <?php } ?>
     <?php } ?>
-                    data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
+                data.addRows([<?php echo implode(',', $reportobj1->data); ?>]);
 <?php } ?>
-                var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('unique_sessions'));
-                        var options = {
-                        hAxis: {
-                        title: '<?php echo isset($axis1->xaxis) ? $axis1->xaxis : ''; ?>',
-                        },
-                                vAxis: {
-                                title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
-                                },
-<?php // if($reportobj->charttype == 'Table'){           ?>
-                        //                                pageSize : 10,
-<?php // }          ?>
-                        }
+            var chart = new google.visualization.<?php echo $reportobj1->charttype; ?>(document.getElementById('unique_sessions'));
+                    var options = {
+                    hAxis: {
+                    title: '<?php echo isset($axis1->xaxis) ? $axis1->xaxis : ''; ?>',
+                    },
+                            vAxis: {
+                            title: '<?php echo isset($axis1->yaxis) ? $axis1->yaxis : ''; ?>',
+                            },
+<?php // if($reportobj->charttype == 'Table'){            ?>
+                    //                                pageSize : 10,
+<?php // }           ?>
+                    }
 <?php if (empty($errors)) { ?>
-                    chart.draw(data, options);
+                chart.draw(data, options);
 <?php } ?>
-                };</script>
+            };</script>
 
-    <script type="text/javascript">
-                google.setOnLoadCallback(drawChart3);
-                function drawChart3() {
+<script type="text/javascript">
+            google.setOnLoadCallback(drawChart3);
+            function drawChart3() {
 <?php if (!empty($reportobj2->data)) { ?>
-                    var data = google.visualization.arrayToDataTable([
-                            [<?php echo $reportobj2->axis->xaxis . ',' . $reportobj2->axis->yaxis; ?>],
+                var data = google.visualization.arrayToDataTable([
+                        [<?php echo $reportobj2->axis->xaxis . ',' . $reportobj2->axis->yaxis; ?>],
     <?php
     for ($i = 0; $i < count($reportobj2->data); $i++) {
         echo $reportobj2->data[$i];
     }
     ?>
-                    ]);
-                            var options = {
-                            pieHole: 0.4,
-                            };
+                ]);
+                        var options = {
+                        pieHole: 0.4,
+                        };
 <?php } ?>
 
-                var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('registrants'));
-                        chart.draw(data, options);
-                }
-    </script>
+            var chart = new google.visualization.<?php echo $reportobj2->charttype; ?>(document.getElementById('registrants'));
+                    chart.draw(data, options);
+            }
+</script>
 
-    <script type="text/javascript">
-        //    google.charts.load('current', {'packages': ['annotationchart']});
-        google.setOnLoadCallback(drawChart);
-                function drawChart() {
-                var data = new google.visualization.DataTable();
+<script type="text/javascript">
+    //    google.charts.load('current', {'packages': ['annotationchart']});
+    google.setOnLoadCallback(drawChart);
+            function drawChart() {
+            var data = new google.visualization.DataTable();
 <?php foreach ($reportobj3->headers as $header) { ?>
     <?php if (!empty($header)) { ?>
-                        data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
+                    data.addColumn(<?php echo $header->type; ?>,<?php echo $header->name; ?>);
     <?php } ?>
 <?php } ?>
-                var strength = function (number) {
-                var str = number.toString();
-                        return str;
-                };
-                        var addNode = function (date, title1, noofstudent) {
-                        data.addRows([
-                                [new Date(date), noofstudent, title1, strength(noofstudent)]
-                        ]);
-                        };
-                        var add = function (date, title1, noofstudent) {
-                        var activityDate = date;
-                                addNode(new Date(activityDate), title1, noofstudent);
-                        };
+            var strength = function (number) {
+            var str = number.toString();
+                    return str;
+            };
+                    var addNode = function (date, title1, noofstudent) {
+                    data.addRows([
+                            [new Date(date), noofstudent, title1, strength(noofstudent)]
+                    ]);
+                    };
+                    var add = function (date, title1, noofstudent) {
+                    var activityDate = date;
+                            addNode(new Date(activityDate), title1, noofstudent);
+                    };
 <?php for ($i = 0; $i < count($reportobj3->data); $i++) { ?>
-                    add(<?php echo $reportobj3->data[$i]; ?>);
+                add(<?php echo $reportobj3->data[$i]; ?>);
 <?php } ?>
 
-                var chart = new google.visualization.<?php echo $reportobj3->charttype; ?>(document.getElementById('chart_div_new'));
-                        var options = {
-                        displayAnnotations: true,
-                                displayZoomButtons: true
-                        };
-                        chart.draw(data, options);
-                }
+            var chart = new google.visualization.<?php echo $reportobj3->charttype; ?>(document.getElementById('chart_div_new'));
+                    var options = {
+                    displayAnnotations: true,
+                            displayZoomButtons: true
+                    };
+                    chart.draw(data, options);
+            }
 
-    </script>
+</script>
 
-    <script type="text/javascript">
+<script type="text/javascript">
 //    google.charts.load("current", {packages:['corechart','geochart']});
-        google.setOnLoadCallback(drawChart);
-                function drawChart() {
-                var data = google.visualization.arrayToDataTable([
-                        ['Enrolments', 'NumOfEnrolments', { role: "style" } ],
+    google.setOnLoadCallback(drawChart);
+            function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                    ['Enrolments', 'NumOfEnrolments', { role: "style" } ],
 <?php
 for ($i = 0; $i < count($reportobj4->data); $i++) {
     echo $reportobj4->data[$i];
 }
 ?>
-                ]);
-                        var view = new google.visualization.DataView(data);
-                        view.setColumns([0, 1,
-                        { calc: "stringify",
-                                sourceColumn: 1,
-                                type: "string",
-                                role: "annotation" },
-                                2]);
-                        var options = {
-                        //  title: "Density of Precious Metals, in g/cm^3",
-                        width: 600,
-                                height: 400,
-                                bar: {groupWidth: "95%"},
-                                legend: { position: "none" },
-                        };
-                        var chart = new google.visualization.ColumnChart(document.getElementById("enrollment_analytics"));
-                        chart.draw(view, options);
-                }
-    </script>
+            ]);
+                    var view = new google.visualization.DataView(data);
+                    view.setColumns([0, 1,
+                    { calc: "stringify",
+                            sourceColumn: 1,
+                            type: "string",
+                            role: "annotation" },
+                            2]);
+                    var options = {
+                    //  title: "Density of Precious Metals, in g/cm^3",
+                    width: 600,
+                            height: 400,
+                            bar: {groupWidth: "95%"},
+                            legend: { position: "none" },
+                    };
+                    var chart = new google.visualization.ColumnChart(document.getElementById("enrollment_analytics"));
+                    chart.draw(view, options);
+            }
+</script>
 
-    <?php
-    echo $OUTPUT->footer();
+<?php
+echo $OUTPUT->footer();
 
-    

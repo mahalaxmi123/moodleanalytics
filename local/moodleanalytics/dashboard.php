@@ -176,8 +176,10 @@ if ($view == 'daily') {
 
     <div class="mdlanalytics-total clearfix">
       <div class=" row-fluid">
-        <h3><span style="background-color: #5aa0a2; padding: 25px 37px; color: #fff;">TOTAL</span></h3>
-
+        <h3>TOTAL</h3>
+		
+        <div class="countitems span9">
+        
         <div class="count"><p>643</p> 
             <div class="icons">
                 <i class="fa fa-users"></i></i><span class="items">USER</span>
@@ -207,8 +209,9 @@ if ($view == 'daily') {
                <i class="fa fa-file-text-o"></i><span class="items">SPACE</span>
             </div>
         </div>
-     </div>
-   </div> 
+      </div>
+    </div>
+  </div> 
 
        
 
