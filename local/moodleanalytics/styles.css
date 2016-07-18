@@ -170,11 +170,12 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /*Section-Second Css Start */
 #Section-Second .Enrollments-block {float:left;}
-#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per, #first-block .languge-block,#first-block .Course-block, #IP-address .IP-block{
+#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per, #first-block .languge-block,#first-block .Course-block, #IP-address .IP-block, #Learner-maincontent .unique_sessionsblock, #Learner-maincontent #registred-block, #register-content .registred-block {
   border: 1px solid #e6e9ed;
   box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
 }
-#Section-Second .Enrollments-block h3, #Section-Second .participation h3, #Section-third .register h3, #Section-First h3 , #course-mainpage h3, #enrolement-per h3, #first-block .languge-block h3, #first-block .Course-block h3, #IP-address .IP-block h3{
+
+#Section-Second .Enrollments-block h3, #Section-Second .participation h3, #Section-third .register h3, #Section-First h3 , #course-mainpage h3, #enrolement-per h3, #first-block .languge-block h3, #first-block .Course-block h3, #IP-address .IP-block h3, .unique_sessionsblock h3 ,#registred-block  h3, #register-content .registred-block h3{
     font-weight: normal;
     padding-left: 30px;
     font-size: 20px;
@@ -250,7 +251,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     line-height: 32px;
 }
 
-#Section-Second .Enrollments-block, #Section-Second .participation {
+#Section-Second .Enrollments-block, #Section-Second .participation. {
 	display:inline-block;
 	}
 
@@ -308,29 +309,30 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	} 
 	
 .Right-Coursebar-total p{
-	 width: 50%;
+	 width:32%;
 }
 	
-#course-mainpage, #enrolement-per{
+#course-mainpage, #enrolement-per, #Learner-maincontent .unique_sessionsblock{
 	background-color: rgba(255, 255, 255, 0.81);
     box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
 	border: 2px solid #e6e9ed;
     padding-bottom: 10px;
 }	
 
-#course-mainpage form, #enrolement-per form{
+#course-mainpage form, #enrolement-per form, #Learner-maincontent form{
 	margin-top: 30px;
     text-align: center;
 	}
 	
-#course-mainpage #new_courses, #enrolement-per #enrollmentpercourse {
+#course-mainpage #new_courses, #enrolement-per #enrollmentpercourse, #Learner-maincontent #unique_sessions{
 	margin: auto;
     margin-top: 30px;
     border: 2px solid #eee8e8;
     border-top: 3px solid #5aa0a2;
 	}
 	
-#Coursedasboard-Page .coursebar { margin-bottom: 30px;}
+#Coursedasboard-Page .coursebar, #Learners-Page .learnerbar .learner-total { margin-bottom: 30px;}
+
 
 #enrolement-per, .alert {margin-top:30px;}
 #enrolement-per h3 { margin: 0px auto;}
@@ -341,4 +343,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
  
 /* Learners page content Css Start */
 
+#Learners-Page .learnerbar .learner-total{float:right;}
+#register-content { margin-top:30px;}
+.coursebar { margin-top:30px;}
 /* Learners page content Css End */
