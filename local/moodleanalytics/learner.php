@@ -155,85 +155,97 @@ $reportobj4->process_reportdata($reportobj4, $params4);
         </div>	
  
     <!--<h3><?php // echo isset($report_array[$reportid]) ? $report_array[$reportid] : ''; ?></h3>-->
-    <div id="Learner-maincontent">
-    	 <div class="row-fluid">
-        	<div class = "unique_sessionsblock">
-                <h3>Unique Sessions</h3>
-                <?php
-                if (empty($reportobj1->data)) {
-                    echo html_writer::tag('p','Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
-                }
-                $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/learner.php'), 'method' => 'post'));
-                $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_16', 'value' => $fromdate16, 'id' => 'from_date_16'));
-                $formcontent1 .= 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date_16', 'value' => $todate16, 'id' => 'to_date_16'));
-                $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit16', 'value' => 'submit'));
-                $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset16', 'value' => 'reset'));
-                $formcontent1 .= html_writer::end_tag('form');
-                //$formcontent1 .= html_writer::end_tag('div');
-                echo $formcontent1;
-                ?>
-                <div id="unique_sessions" style="width: 800px; height:400px;"></div>
-        	</div>
-           </div>
+    	<div id="Learner-maincontent" >
+                 <div class="row-fluid">
+                       <div class = "unique_sessionsblock">
+                            <h3>Unique Sessions</h3>
+                            <?php
+                            if (empty($reportobj1->data)) {
+                                echo html_writer::tag('p','Sorry! No data exist for given period.', array('class' => 'alert alert-error'));
+                            }
+                            $formcontent1 .= html_writer::start_tag('form', array('action' => new moodle_url($CFG->wwwroot . '/local/moodleanalytics/learner.php'), 'method' => 'post'));
+                            $formcontent1 .= 'From Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'from_date_16', 'value' => $fromdate16, 'id' => 'from_date_16'));
+                            $formcontent1 .= 'To Date : ' . html_writer::empty_tag('input', array('type' => 'date', 'name' => 'to_date_16', 'value' => $todate16, 'id' => 'to_date_16'));
+                            $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'submit16', 'value' => 'submit'));
+                            $formcontent1 .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'reset16', 'value' => 'reset'));
+                            $formcontent1 .= html_writer::end_tag('form');
+                            //$formcontent1 .= html_writer::end_tag('div');
+                            echo $formcontent1;
+                            ?>
+                            <div id="unique_sessions" style="width: 800px; height:400px;"></div>
+                        </div>
+                   </div>
        
 
-		<div id="register-content" class="row-fluid">
-        	
+                 <div id="register-content" class="row-fluid">
+                    <div class="registred-block span7">
+                        <h3>Registrants</h3>
+                        <div id="registrants" style="width: 500px; height: 500px;"></div>
+                    </div>
+                </div>
+		</div>
         
-            <div class="registred-block span6">
-                <h3>Registrants</h3>
-                <div id="registrants" style="width: 500px; height: 500px;"></div>
+
+        <div class="coursebar row-fluid">
+            <div class="left-Coursebar-total span7"> 
+               	<p><span style="font-size:16px; font-weight: normal;">Enrolled Learners</span></p>
+                <p>640<br/><span style="font-size:16px; font-weight: normal;">Manual</span></p>
+                <p>3<br/><span style="font-size:16px; font-weight: normal;">Self</span></p>
+                <p>0<br/><span style="font-size:16px; font-weight: normal;">Cohort</span></p>
             </div>
-   
-	 </div>
-</div>
+        
+           <div class="Right-Coursebar-total span5">
+                <p><span style="font-size:16px; font-weight: normal;">Status</span></p>
+                <p>501<br/><span style="font-size:16px; font-weight: normal;">Active</span></p>
+                <p>142<br/><span style="font-size:16px; font-weight: normal;">Inactive</span></p>
+           </div>      		
+       </div>	
+	
 
-    <div class="coursebar row-fluid">
-        <div class="left-Coursebar-total span7"> 
-            <p><span style="font-size:16px; font-weight: normal;">Enrolled Learners</span></p>
-            <p>640<br/><span style="font-size:16px; font-weight: normal;">Manual</span></p>
-            <p>3<br/><span style="font-size:16px; font-weight: normal;">Self</span></p>
-            <p>0<br/><span style="font-size:16px; font-weight: normal;">Cohort</span></p>
-        </div>
-
-        <div class="Right-Coursebar-total span5">
-            <p><span style="font-size:16px; font-weight: normal;">Status</span></p>
-            <p>501<br/><span style="font-size:16px; font-weight: normal;">Active</span></p>
-            <p>142<br/><span style="font-size:16px; font-weight: normal;">Inactive</span></p>
-        </div>		
-    </div>	
-<div>
-        <h3>New Registrants</h3>
-        <?php
-        echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
-        echo '<a class="arrow_link previous" href="learner.php?view=current" title="previous"><span class="arrow_text">Current Month </span></a>';
-        echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
-
-//        echo $OUTPUT->heading(get_string('annotationchartnewregistrants', 'local_moodleanalytics'));
-        $monthwithyear = monthname($_SESSION['current_month']);
-        echo $OUTPUT->heading($monthwithyear);
-
-        $content = '';
-        $content .= html_writer::start_tag('form', array('action' => new moodle_url($link), 'method' => 'post'));
-        $content .= html_writer::start_tag('div', array('class' => 'monthandyear'));
-        $content .= get_string('selectyourmonth', 'local_moodleanalytics');
-        $content .= html_writer::select($month_names, 'month', $month);
-        $content .= get_string('selectyouryear', 'local_moodleanalytics');
-        $content .= html_writer::select($yeararray, 'year', $year);
-        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('filter')));
-        $content .= html_writer::end_tag('div');
-        $content .= html_writer::end_tag('form');
-        echo $content;
-        ?>
-        <div id='chart_div_new' style='width: 900px; height: 500px;'></div>
-    </div>
     
-    <div>
-        <h3>Enrollment Analytics</h3>
-        <div id="enrollment_analytics" style="width: 500px; height: 500px;"></div>
+	<div id="register-bar" row-fluid>
+     
+       		<div class="registerbar-content">
+                <h3>New Registrants</h3>
+                <?php
+        //  echo $OUTPUT->heading(get_string('annotationchartnewregistrants', 'local_moodleanalytics'));
+         
+                $content = '';
+                $content .= html_writer::start_tag('form', array('action' => new moodle_url($link), 'method' => 'post'));
+                $content .= html_writer::start_tag('div', array('class' => 'monthandyear'));
+                $content .= get_string('selectyourmonth', 'local_moodleanalytics');
+                $content .= html_writer::select($month_names, 'month', $month);
+                $content .= get_string('selectyouryear', 'local_moodleanalytics');
+                $content .= html_writer::select($yeararray, 'year', $year);
+                $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('go')));
+                $content .= html_writer::end_tag('div');
+                $content .= html_writer::end_tag('form');
+                echo $content;
+                
+				echo '<div id="nextbutton">';
+				
+						echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
+						echo '<a class="arrow_link current" href="learner.php?view=current" title="current"><span class="arrow_text">Current Month </span></a>';
+						echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
+				echo '</div>';
+                
+                
+                       $monthwithyear = monthname($_SESSION['current_month']);
+                echo $OUTPUT->heading($monthwithyear);
+                ?>
+            
+                <div id='chart_div_new' style='width: 900px; height: 500px;'></div>
+    		</div>
+    
+            <div id="enrollanalytics_content" class="row-fluid">
+            	<div class="enrollanalytics-block span8">
+                <h3>Enrollment Analytics</h3>
+                <div id="enrollment_analytics" style="width: 500px; height: 500px;"></div>
+            </div>
     </div>
 
-	</div>
+
+</div>
 </div>
 
     <script type="text/javascript">
