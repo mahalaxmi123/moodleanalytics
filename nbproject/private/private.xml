@@ -5,10 +5,10 @@
         <group>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/settings.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/performance.php</file>
-            <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/lang/en/local_moodleanalytics.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/course.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/lib.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/learner.php</file>
+            <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/tabularreports.php</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/module.js</file>
             <file>file:/var/www/sumit.dutta/public_html/moodle-analystics/local/moodleanalytics/dashboard.php</file>
         </group>

@@ -32,7 +32,7 @@ $PAGE->requires->js('/local/moodleanalytics/module.js', true);
 $returnurl = new moodle_url($CFG->wwwroot . '/local/moodleanalytics/performance.php');
 
 //if ($reset) {
-    //redirect($returnurl);
+//    redirect($returnurl);
 //}
 echo $OUTPUT->header();
 $errors = array();

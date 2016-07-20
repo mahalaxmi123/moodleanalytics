@@ -32,3 +32,4 @@ $string['weekly'] = 'Weekly';
 $string['daily'] = 'Daily';
 $string['selectyourmonth'] = 'Select Month Here:';
 $string['selectyouryear'] = '  Select Year Here:';
+$string['uploadmessage'] = 'File <strong>size</strong> is in <strong>Bytes</strong>';
