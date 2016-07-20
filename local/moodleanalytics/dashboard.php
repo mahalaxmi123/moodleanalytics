@@ -150,7 +150,7 @@ if ($view == 'daily') {
             <h3>Users Activity</h3>
             <div class="users span3">
                 <table style="width:100%">
-                    <i class="fa fa-graduation-cap"></i><caption>Course Completion</caption>
+                    <caption><i class="fa fa-graduation-cap"></i>Course Completion</caption>
                     <tr>
                     <th>0</th> <td>Today</td>
                     <th>0</th> <td>This Week </td>
@@ -158,7 +158,7 @@ if ($view == 'daily') {
                 </table>
 
                 <table style="width:100%">
-                 <i class="fa fa-user-plus" aria-hidden="true"></i><caption>User Enrolments</caption>
+       				<caption><i class="fa fa-user-plus""></i>User Enrolments</caption>
                     <tr>
                     <th>0</th> <td>Today</td>
                     <th>0</th> <td>This Week </td>
@@ -167,7 +167,7 @@ if ($view == 'daily') {
             </div>
             
             <div class="linechart span9">
-                <div id="linechart_material" style="width: 700px; height: 300px"></div>
+                <div id="linechart_material" style="width: 100%; height: 300px"></div>
             </div>
         </div>  
     </div>
@@ -219,12 +219,12 @@ if ($view == 'daily') {
             <div class="row-fluid"> 
                 <div class = "Enrollments-block span5">
                     <h3>Enrollments</h3>
-                    <div id="user-enrol" style="width: 410px; height: 400px;"></div>
+                    <div id="user-enrol" style="width: 100%; height: 400px;"></div>
                 </div>
     
                 <div class="participation span7">
                     <h3>Participation</h3>
-                    <div id="participation-block" style="width: 400px; height: auto;"></div>
+                    <div id="participation-block" style="width: 100%; height: auto;"></div>
                 </div>
     
     

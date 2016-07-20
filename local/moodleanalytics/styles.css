@@ -19,6 +19,11 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /* Header Css End */
 
+.breadcrumb-nav li {
+    display: inline;
+    font-weight: bold;
+    font-size: 16px;
+}
 
 /*Information-block Css Start */
 
@@ -298,6 +303,10 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	font-weight: bold;
 	}
 	
+	.Right-Coursebar-total p {
+    width: 50%
+		}
+	
 .left-Coursebar-total .coursebar-box, .Right-Coursebar-total .coursebar-box{
 	font-size:20px; font-weight: normal; font-weight:bold;
 	}
@@ -347,10 +356,29 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 #register-content,.coursebar, #register-bar, #enrollanalytics_content { margin-top:30px;}
 .registerbar-content h2 { margin-top: 20px; text-align: center; color: #687272;}
 #nextbutton {padding: 0px 80px; display: block; margin-top: 30px;}
-#nextbutton  .previous {float:left; background-color: #224761; padding: 10px; display: inline-block; color: #fefefe;}
-#nextbutton  .previous :hover {  background-color: #06F; color: #999; padding: 10px; }
-#nextbutton  .current {margin-left: 32%; background-color: #21a5f3; padding: 10px; display: inline-block; color: #fefefe;}
-#nextbutton .next  {float:right; background-color: #224761; padding: 10px; display: inline-block; color: #fefefe;}
+#nextbutton .previous .arrow_text, #nextbutton .next .arrow_text  {float:left; background: #224761;
+    color: #fff;
+    font-family: Sans-serif;
+    font-size: 14px;
+    height: 46px;
+    width: 120px;
+    line-height: 48px;
+    text-align: center;
+    border: 0;
+    transition: all 0.3s ease 0s;
+}
+#nextbutton .next .arrow_text {float:right;}
+#nextbutton .previous .arrow_text:hover,  #nextbutton .next .arrow_text:hover{ background: #CF4647; 46px; width: 120px;}
+#nextbutton  .current .arrow_text {
+	margin-left: 32%; 
+	background-color:#428BCA;
+	height: 46px;
+    width: 120px;
+    display: inline-block;
+    color: #fefefe;
+    text-align: center;
+    line-height: 48px;}
+#nextbutton  .current .arrow_text:hover{ background: #CF4647;}
 
 
 /* Learners page content Css End */

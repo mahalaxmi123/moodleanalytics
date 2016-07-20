@@ -223,14 +223,12 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 echo $content;
                 
 				echo '<div id="nextbutton">';
-				
-						echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text">Previous Month </span></a>';
+					echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>Previous Month </span></a>';
 						echo '<a class="arrow_link current" href="learner.php?view=current" title="current"><span class="arrow_text">Current Month </span></a>';
 						echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
 				echo '</div>';
-                
-                
-                       $monthwithyear = monthname($_SESSION['current_month']);
+				
+				       $monthwithyear = monthname($_SESSION['current_month']);
                 echo $OUTPUT->heading($monthwithyear);
                 ?>
             
