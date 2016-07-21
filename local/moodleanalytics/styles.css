@@ -8,9 +8,14 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	}
         
 #page-local-moodleanalytics-dashboard #main-page .row {
-    margin-left: 0px !important;
+   margin-left: -23px !important;
 }
-.row { margin-left: 0px !important;} 
+
+
+.row { margin-left: -22px !important;}
+
+
+
 
 /* Header Css Start */
 
@@ -106,9 +111,11 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /*Section-First Css Start */
  #Section-First { margin-top:30px;}
-#Section-First .span3 caption { font-size: 16px; font-weight: bold; margin-bottom:0px; }
+#Section-First .span3 caption { font-size: 14px; font-weight: bold; margin-bottom:0px; background-color: rgba(73, 116, 146, 0.88); color:#fff; padding: 3px;}
+
+ }
 #Section-First .span3 th {padding-left: 30px;}
-#Section-First .span3 { float: left;  margin-left: 0px;  margin-top: 30px;}
+#Section-First .span3 { float: left;  margin-left: 10px;  margin-top: 30px;}
 #Section-First .span3 table { margin-bottom:30px;}
 #Section-First .span9{ float:right; margin: 20px auto;}
 
@@ -133,8 +140,8 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     font-size: 28px;
 	margin-top:1px;
     color: #fff;
-    background-color: #224761;
-	border: 1px solid #224761;
+    background-color: rgba(73, 116, 146, 0.88);
+    border: 1px solid #5581a0;
     float: left; 
     text-align: center;
     line-height: inherit;
@@ -148,6 +155,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 .mdlanalytics-total .count{
     width: 20%; 
     text-align: center;
+	border-right: 1px solid rgba(138, 132, 132, 0.1);
     padding: 2px;
     float: left;    
     box-sizing: border-box;
@@ -175,12 +183,12 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /*Section-Second Css Start */
 #Section-Second .Enrollments-block {float:left;}
-#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per, #first-block .languge-block,#first-block .Course-block, #IP-address .IP-block, #Learner-maincontent .unique_sessionsblock, #Learner-maincontent #registred-block, #register-content .registred-block,#register-bar .registerbar-content, #enrollanalytics_content .enrollanalytics-block {
+#Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per, #first-block .languge-block,#first-block .Course-block, #IP-address .IP-block, #Learner-maincontent .unique_sessionsblock, #Learner-maincontent #registred-block, #register-content .registred-block,#register-bar .registerbar-content, #register-content .enrollanalytics-block {
   border: 1px solid #e6e9ed;
   box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
 }
 
-#Section-Second .Enrollments-block h3, #Section-Second .participation h3, #Section-third .register h3, #Section-First h3 , #course-mainpage h3, #enrolement-per h3, #first-block .languge-block h3, #first-block .Course-block h3, #IP-address .IP-block h3, .unique_sessionsblock h3 ,#registred-block  h3, #register-content .registred-block h3, #register-bar .registerbar-content h3, #enrollanalytics_content .enrollanalytics-block h3{
+#Section-Second .Enrollments-block h3, #Section-Second .participation h3, #Section-third .register h3, #Section-First h3 , #course-mainpage h3, #enrolement-per h3, #first-block .languge-block h3, #first-block .Course-block h3, #IP-address .IP-block h3, .unique_sessionsblock h3 ,#registred-block  h3, #register-content .registred-block h3, #register-bar .registerbar-content h3, #register-content .enrollanalytics-block h3{
     font-weight: normal;
     padding-left: 30px;
     font-size: 20px;
@@ -278,7 +286,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /* Course page content Css Start */
-.left-Coursebar-total, .learner-total {
+.left-Coursebar-total {
 	border: 1px solid  #E3E3E3;
 	}
 
@@ -316,10 +324,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	border: 1px solid  #E3E3E3;
 	float:right;
 	} 
-	
-.Right-Coursebar-total p{
-	 width:32%;
-}
+
 	
 #course-mainpage, #enrolement-per, #Learner-maincontent .unique_sessionsblock, #register-bar .registerbar-content{
 	background-color: rgba(255, 255, 255, 0.81);
@@ -356,8 +361,8 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 #register-content,.coursebar, #register-bar, #enrollanalytics_content { margin-top:30px;}
 .registerbar-content h2 { margin-top: 20px; text-align: center; color: #687272;}
 #nextbutton {padding: 0px 80px; display: block; margin-top: 30px;}
-#nextbutton .previous .arrow_text, #nextbutton .next .arrow_text  {float:left; background: #224761;
-    color: #fff;
+#nextbutton .previous .arrow_text, #nextbutton .next .arrow_text  {float:left;
+    color: #224761;
     font-family: Sans-serif;
     font-size: 14px;
     height: 46px;
@@ -368,7 +373,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     transition: all 0.3s ease 0s;
 }
 #nextbutton .next .arrow_text {float:right;}
-#nextbutton .previous .arrow_text:hover,  #nextbutton .next .arrow_text:hover{ background: #CF4647; 46px; width: 120px;}
+#nextbutton .previous .arrow_text:hover,  #nextbutton .next .arrow_text:hover{width: 120px;}
 #nextbutton  .current .arrow_text {
 	margin-left: 32%; 
 	background-color:#428BCA;
@@ -378,7 +383,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     color: #fefefe;
     text-align: center;
     line-height: 48px;}
-#nextbutton  .current .arrow_text:hover{ background: #CF4647;}
+#nextbutton  .current .arrow_text:hover{ background: #224761;}
 
 
 /* Learners page content Css End */

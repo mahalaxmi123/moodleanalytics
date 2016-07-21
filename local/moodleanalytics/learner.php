@@ -181,10 +181,15 @@ $reportobj4->process_reportdata($reportobj4, $params4);
        
 
                  <div id="register-content" class="row-fluid">
-                    <div class="registred-block span7">
+                    <div class="registred-block span5">
                         <h3>Registrants</h3>
-                        <div id="registrants" style="width: 500px; height: 500px;"></div>
+                        <div id="registrants" style="width: 400px; height: 500px;"></div>
                     </div>
+              
+                    <div class="enrollanalytics-block span7">
+                        <h3>Enrollment Analytics</h3>
+                        <div id="enrollment_analytics" style="width: 550px; height: 500px;"></div>
+                	</div>
                 </div>
 		</div>
         
@@ -209,7 +214,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
 	<div id="register-bar" row-fluid>
      
        		<div class="registerbar-content">
-                <h3>New Registrants</h3>
+                <h3>New Registrant</h3>
                 <?php
         //  echo $OUTPUT->heading(get_string('annotationchartnewregistrants', 'local_moodleanalytics'));
          
@@ -226,9 +231,9 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 echo $content;
                 
 				echo '<div id="nextbutton">';
-					echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>Previous Month </span></a>';
+					echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>Previous Month</span></a>';
 						echo '<a class="arrow_link current" href="learner.php?view=current" title="current"><span class="arrow_text">Current Month </span></a>';
-						echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text">Next Month</span></a>';
+						echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i><span class ="textNext">Next Month</span></span></a>';
 				echo '</div>';
 				
 				       $monthwithyear = monthname($_SESSION['current_month']);
@@ -238,11 +243,7 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 <div id='chart_div_new' style='width: 900px; height: 500px;'></div>
     		</div>
     
-            <div id="enrollanalytics_content" class="row-fluid">
-            	<div class="enrollanalytics-block span8">
-                <h3>Enrollment Analytics</h3>
-                <div id="enrollment_analytics" style="width: 500px; height: 500px;"></div>
-            </div>
+           
     </div>
 
 

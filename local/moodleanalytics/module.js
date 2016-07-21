@@ -83,4 +83,19 @@ $(document).ready(function () {
     $('body').on('keydown',"input.program-management-datepicker[type='text']", function(e){
         return false;
     });
-});
+	
+	$('.textPrevious').hide();
+	$('.arrow_text').hover(function(){
+			$('.fa-chevron-circle-left').hide();
+			$('.textPrevious').show();}, function(){
+        	$('.fa-chevron-circle-left').show();
+	});
+
+
+	$('.textNext').hide();
+		$('.arrow_text').hover(function(){
+				$('.fa-chevron-circle-right').hide();
+				$('.textNext').show();}, function(){
+				$('.fa-chevron-circle-right').show();
+		});
+	});

@@ -206,7 +206,7 @@ if ($view == 'daily') {
 
         <div class="count"><p>931.8<span style="font-size:16px";>MB</span></p>
             <div class="icons">
-               <i class="fa fa-file-text-o"></i><span class="items">SPACE</span>
+               <i class="fa fa-simplybuilt" aria-hidden="true"></i><span class="items">SPACE</span>
             </div>
         </div>
       </div>
