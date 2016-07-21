@@ -207,23 +207,35 @@
  margin: 10px;
 }
 	
-.fa-simplybuilt{
+.fa-simplybuilt:before{
 	content: "\f215";
-	font-size: 19px;
-   margin: 0px !important;
 	}
 	
 	
 .fa-graduation-cap:before{
 	content: "\f19d";
+	margin-right: 10px;
+	color: #fff;
+
 
 	}
 	
 .fa-user-plus:before{
 	content: "\f234";
-
-	}
+	margin-right:10px;
+	color: #fff;
+}
 	
 .fa-chevron-circle-left:before {
 	 content: "\f137";
+	 font-size:36px;
 }
+
+.fa-chevron-circle-right:before {
+	 content: "\f138";
+	 font-size:36px;
+}
+
+
+
+
