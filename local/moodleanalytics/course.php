@@ -140,14 +140,14 @@ $formcontent2 = "";
     <div class="row">
         <div class="coursebar row-fluid">
             <div class="left-Coursebar-total span8"> 
-                <p>138<br/><span class="coursebar-box">Total</span></p>
-                <p>130<br/><span class="coursebar-box">Visible</span></p>
-                <p>8<br/><span class="coursebar-box">Hidden</span></p>
+                <p class="left-Coursebar-total-border">138<br/><span class="coursebar-box">Total</span></p>
+                <p class="left-Coursebar-total-border">130<br/><span class="coursebar-box">Visible</span></p>
+                <p class="left-Coursebar-total-border">8<br/><span class="coursebar-box">Hidden</span></p>
                 <p>1553<br/><span class="coursebar-box">Module</span></p>
             </div>
 
             <div class="Right-Coursebar-total span4"> 
-                <p>23<br/><span class="coursebar-box">Trainers</span></p>
+                <p class="Right-Coursebar-total-border">23<br/><span class="coursebar-box">Trainers</span></p>
                 <p>610<br/><span class="coursebar-box">Learners</span></p>
             </div>		
         </div>	

@@ -286,35 +286,45 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /* Course page content Css Start */
-.left-Coursebar-total {
+.left-Coursebar-total, .left-Learnerbar-total, .Right-Learnerbar-total {
 	border: 1px solid  #E3E3E3;
 	}
 
 	
-.left-Coursebar-total p, .learner-total p {
+.left-Coursebar-total p, .learner-total p, .left-Learnerbar-total p {
     width: 25%;
     
 }
 
 
-.left-Coursebar-total p,.learner-total p, .Right-Coursebar-total p, .Performance-total p {
+.left-Coursebar-total p,.learner-total p, .Right-Coursebar-total p, .Performance-total p, .left-Learnerbar-total p, .Right-Learnerbar-total p {
 	font-size: 30px;
     padding: 10px 0px;
-    font-weight: normal;
 	color: #283131;
     margin: 0;
     text-align: center;
     float: left;
-    border-left: 1px solid #E3E3E3;
-    box-sizing: border-box;
+   	box-sizing: border-box;
 	line-height: 32px;
 	font-weight: bold;
 	}
 	
-	.Right-Coursebar-total p {
-    width: 50%
-		}
+	.learner-total .learnerP-border{
+		border-right: 1px solid #E3E3E3;
+	}
 	
+.left-Coursebar-total .learner-leftcoursebar-border, .learner-rightcoursebar-border{
+		border-left: 1px solid #E3E3E3; 
+		 }
+	 
+	
+	.Right-Coursebar-total p, .Right-Learnerbar-total p {
+    width: 33%
+		}
+	.Right-Coursebar-total p { width: 50%;}
+	
+#Learners-Page .Learner  { margin-top: 30px;}
+
 .left-Coursebar-total .coursebar-box, .Right-Coursebar-total .coursebar-box{
 	font-size:20px; font-weight: normal; font-weight:bold;
 	}
@@ -324,7 +334,10 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	border: 1px solid  #E3E3E3;
 	float:right;
 	} 
+	
+.left-Coursebar-total .left-Coursebar-total-border, .Right-Coursebar-total .Right-Coursebar-total-border, .left-Learnerbar-total .left-Learnerbar-total-border, .Right-Learnerbar-total .Right-Learnerbar-total-border, .learnerbar .learner-total-border{border-right:1px solid #E3E3E3;}
 
+.Right-Learnerbar-total .status{padding: 27px;}
 	
 #course-mainpage, #enrolement-per, #Learner-maincontent .unique_sessionsblock, #register-bar .registerbar-content{
 	background-color: rgba(255, 255, 255, 0.81);
@@ -384,6 +397,9 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     text-align: center;
     line-height: 48px;}
 #nextbutton  .current .arrow_text:hover{ background: #224761;}
+
+.learnerbar .learner-total .number, .left-Coursebar-total .Leftcoursebar-number, .Right-Coursebar-total .Rightcoursebar-number{ font-size:16px; font-weight: normal;}
+.left-Learnerbar-total .left-Learnerbar-total-text, .Right-Learnerbar-total .Right-Learnerbar-total-text{font-size:16px;}
 
 
 /* Learners page content Css End */

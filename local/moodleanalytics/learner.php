@@ -148,10 +148,10 @@ $reportobj4->process_reportdata($reportobj4, $params4);
     <div class="row">
         <div class="learnerbar row-fluid">
             <div class="learner-total span8"> 
-                <p>643<br/><span style="font-size:16px; font-weight: normal;">Total</span></p>
-                <p>605<br/><span style="font-size:16px; font-weight: normal;">Registered</span></p>
-                <p>5<br/><span style="font-size:16px; font-weight: normal;">Suspended</span></p>
-                <p>13<br/><span style="font-size:16px; font-weight: normal;">Deleted</span></p>
+                <p class="learner-total-border">643<br/><span style="font-size:16px; font-weight: bold;">Total</span></p>
+                <p class="learner-total-border">605<br/><span style="font-size:16px; font-weight: bold;">Registered</span></p>
+                <p class="learner-total-border">5<br/><span style="font-size:16px; font-weight: bold;">Suspended</span></p>
+                <p>13<br/><span style="font-size:16px; font-weight: bold;">Deleted</span></p>
             </div>		
         </div>	
  
@@ -194,18 +194,18 @@ $reportobj4->process_reportdata($reportobj4, $params4);
 		</div>
         
 
-        <div class="coursebar row-fluid">
-            <div class="left-Coursebar-total span7"> 
-               	<p><span style="font-size:16px; font-weight: normal;">Enrolled Learners</span></p>
-                <p>640<br/><span style="font-size:16px; font-weight: normal;">Manual</span></p>
-                <p>3<br/><span style="font-size:16px; font-weight: normal;">Self</span></p>
-                <p>0<br/><span style="font-size:16px; font-weight: normal;">Cohort</span></p>
+        <div class="Learner row-fluid">
+            <div class="left-Learnerbar-total span7"> 
+               	<p class="left-Learnerbar-total-border"><span style="font-size:20px; font-weight:bold;">Enrolled Learners</span></p>
+                <p class="left-Learnerbar-total-border">640<br/><span class="left-Learnerbar-total-text">Manual</span></p>
+                <p class="left-Learnerbar-total-border">3<br/><span class="left-Learnerbar-total-text">Self</span></p>
+                <p>0<br/><span class="left-Learnerbar-total-text">Cohort</span></p>
             </div>
         
-           <div class="Right-Coursebar-total span5">
-                <p><span style="font-size:16px; font-weight: normal;">Status</span></p>
-                <p>501<br/><span style="font-size:16px; font-weight: normal;">Active</span></p>
-                <p>142<br/><span style="font-size:16px; font-weight: normal;">Inactive</span></p>
+           <div class="Right-Learnerbar-total span5">
+                <p  class="Right-Learnerbar-total-border status"><span style="font-size:20px; font-weight:bold;">Status</span></p>
+                <p  class="Right-Learnerbar-total-border">501<br/><span class="Right-Learnerbar-total-text">Active</span></p>
+                <p>142<br/><span  class="Right-Learnerbar-total-text">Inactive</span></p>
            </div>      		
        </div>	
 	
