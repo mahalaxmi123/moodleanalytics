@@ -152,15 +152,15 @@ if ($view == 'daily') {
                 <table style="width:100%">
                     <caption><i class="fa fa-graduation-cap"></i>Course Completion</caption>
                     <tr>
-                    <th>0</th> <td>Today</td>
-                    <th>0</th> <td>This Week </td>
+                    <th class="number">0</th> <td>Today</td>
+                    <th class="number">0</th> <td>This Week </td>
                     </tr>  
                 </table>
 
                 <table style="width:100%">
-       				<caption><i class="fa fa-user-plus""></i>User Enrolments</caption>
+       				<caption><i class="fa fa-user-plus"></i>User Enrolments</caption>
                     <tr>
-                    <th>0</th> <td>Today</td>
+                    <th class="number">0</th> <td>Today</td>
                     <th>0</th> <td>This Week </td>
                     </tr>
                 </table>

@@ -11,19 +11,13 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
    margin-left: -23px !important;
 }
 
-
 .row { margin-left: -22px !important;}
 
-
-
-
 /* Header Css Start */
-
-.pagelayout-admin .navbar { margin-bottom: 0px !important;}
-#page-header { margin: 30px;}
+	.pagelayout-admin .navbar { margin-bottom: 0px !important;}
+	#page-header { margin: 30px;}
 
 /* Header Css End */
-
 .breadcrumb-nav li {
     display: inline;
     font-weight: bold;
@@ -32,22 +26,22 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /*Information-block Css Start */
 
-	.Information-block { float: right;}
-	.col-md-3, .col-sm-12, .col-xs-12 {
-	 position: relative;
+.Information-block { float: right;}
+.col-md-3, .col-sm-12, .col-xs-12 {
+	position: relative;
     min-height: 1px;
     padding-left: 10px;
-   float: left;
-	}
+    float: left;
+}
 	
-	.info-box { 
+.info-box { 
 	min-height: 70px;
     padding: 10px;
 	box-shadow: inset 0 0 1px 1px rgba(255, 255, 255, 0.35), 0 3px 1px -1px rgba(0, 0, 0, 0.1);
-	}
+}
 	
-	.info-box .title{
-	 font-size: 20px;
+.info-box .title{
+	font-size: 20px;
     margin: 20px;
     float: right;
 } 
@@ -57,83 +51,66 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     margin-top: 10px;
     font-size: 30px;
     color: #fff;
-	}
+}
 	
 	
-	.blue-bg { color: #fff;
-   
+.blue-bg { 
+	color: #fff;  
     background-color: #5aa0a2;
-	}
+}
 	
 .brown-bg {
     color: #fff;
-  
     background-color: #e0ac61;
 }
 
 .green-bg {
     color: #fff;
- 
-    background-color: #a6adb2;
+	background-color: #a6adb2;
 }
 
 /*Information-block Css End */
 
-
-
 /*Groupbutton Css Start */
-	
-	#main-page .btn-group {
-        width: 50%;
+#main-page .btn-group {
+	width: 50%;
 	float:right;
 	background-image :none;
 	margin-top:10px;
-	
-	}
+}
         
-        #main-page .btn-group .singlebutton {
-            float:right;
-        }
-	
-        #main-page .btn-group input[type="submit"] {
-           background-color:#8e8989;
-           background-image: none;
-           box-shadow:none;
-           text-shadow: none;
-           color: #fefefe;
-           border-radius: 0px;
-        }
-        
-        #main-page .btn-group input[type="submit"]:hover{
-            background-color: #a6adb2;
-        }
+#main-page .btn-group .singlebutton {float:right;}
+#main-page .btn-group input[type="submit"] {
+	background-color:#8e8989;
+	background-image: none;
+	box-shadow:none;
+	text-shadow: none;
+	color: #fefefe;
+	border-radius: 0px;
+}
+
+#main-page .btn-group input[type="submit"]:hover{ background-color: #a6adb2; }
 /*Groupbutton Css End */
 
 /*Section-First Css Start */
- #Section-First { margin-top:30px;}
+#Section-First { margin-top:30px;}
 #Section-First .span3 caption { font-size: 14px; font-weight: bold; margin-bottom:0px; background-color: rgba(73, 116, 146, 0.88); color:#fff; padding: 3px;}
-
- }
+#Section-First .span3 .number {float: right;}
+#Section-First .span3 td {padding:0px;}
 #Section-First .span3 th {padding-left: 30px;}
 #Section-First .span3 { float: left;  margin-left: 10px;  margin-top: 30px;}
 #Section-First .span3 table { margin-bottom:30px;}
 #Section-First .span9{ float:right; margin: 20px auto;}
-
-
-
 /*Section-First Css End*/
 
 
 /*Mdlanalytics-total Css Start */
-
 .mdlanalytics-total {
    margin: 50px auto;
    box-sizing: border-box;
-  
+ 
 }
-	
 
-	
 .mdlanalytics-total h3 {
     width: 12%;
     padding: 29px; 
@@ -147,10 +124,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     line-height: inherit;
 }
 
-.mdlanalytics-total .countitems{
-	margin-left: 0px !important;
-	
-}
+.mdlanalytics-total .countitems{ margin-left: 0px !important;}
 	
 .mdlanalytics-total .count{
     width: 20%; 
@@ -165,21 +139,15 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     font-size: 16px;
     font-weight: 600;
 	color: #224761;
-	}
-	
+}
 
-	
 .mdlanalytics-total .count p{
 	padding: 10px; 
     font-size: 30px;
     font-weight: bold;
 	color:#224761;
-	}
-	
-
+}
 /*Mdlanalytics-total Css End */
-
-
 
 /*Section-Second Css Start */
 #Section-Second .Enrollments-block {float:left;}
@@ -197,28 +165,19 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     margin: 0px -1px;
 }
 
-
 #Section-Second .participation{
     float:left;
     margin-left: 6px;
 }
-
 /*Section-Second Css Endt */
 
 
 /*Section-third Css Start */
 
-#Section-third {
-    margin-top: 30px;
-}
- #Section-third .register #countries { margin: auto; }
+#Section-third { margin-top: 30px;}
+#Section-third .register #countries { margin: auto; }
 
 /*Section-third Css End */
-
-
-
-
-	
 .info-box i {
 	display: block;
     height: 100px;
@@ -227,14 +186,10 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     width: 100px;
     float: left;
     text-align: center;
-    
     color: rgba(255, 255, 255, 0.75);
-	}
-	
-	
+}
+
 /*Performance-total Css Start */
-
-
 .Performance-total, .learner-total{
     float: right;
     width: 60%;
@@ -264,36 +219,27 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     line-height: 32px;
 }
 
-#Section-Second .Enrollments-block, #Section-Second .participation. {
-	display:inline-block;
-	}
-
+#Section-Second .Enrollments-block, #Section-Second .participation. {display:inline-block;}
 /*Performance-total Css End */
 
 
-
 /* Load page content Css Start */
-
 #IP-address { margin: 60px 0px;}
 .IP-address h3, #activeip {margin: 0px 60px;}
 #first-block {margin: 20px 0px; }
-
 .languge-block h3 { margin-left: 60px;}
- #languagesused { margin: 0px auto;}
- 
- 
+#languagesused { margin: 0px auto;} 
 /* Load page content Css End */
 
 
 /* Course page content Css Start */
 .left-Coursebar-total, .left-Learnerbar-total, .Right-Learnerbar-total {
 	border: 1px solid  #E3E3E3;
-	}
+}
 
 	
 .left-Coursebar-total p, .learner-total p, .left-Learnerbar-total p {
     width: 25%;
-    
 }
 
 
@@ -307,35 +253,36 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
    	box-sizing: border-box;
 	line-height: 32px;
 	font-weight: bold;
-	}
+}
 	
-	.learner-total .learnerP-border{
-		border-right: 1px solid #E3E3E3;
-	}
+.learner-total .learnerP-border{
+	border-right: 1px solid #E3E3E3;
+}
 	
 .left-Coursebar-total .learner-leftcoursebar-border, .learner-rightcoursebar-border{
-		border-left: 1px solid #E3E3E3; 
-		 }
-	 
+	border-left: 1px solid #E3E3E3; 
+}
 	
-	.Right-Coursebar-total p, .Right-Learnerbar-total p {
-    width: 33%
-		}
-	.Right-Coursebar-total p { width: 50%;}
+.Right-Coursebar-total p, .Right-Learnerbar-total p {
+	width: 33%
+}
+	
+.Right-Coursebar-total p { width: 50%;}
 	
 #Learners-Page .Learner  { margin-top: 30px;}
 
 .left-Coursebar-total .coursebar-box, .Right-Coursebar-total .coursebar-box{
 	font-size:20px; font-weight: normal; font-weight:bold;
-	}
-
+}
 
 .Right-Coursebar-total{
 	border: 1px solid  #E3E3E3;
 	float:right;
-	} 
+} 
 	
-.left-Coursebar-total .left-Coursebar-total-border, .Right-Coursebar-total .Right-Coursebar-total-border, .left-Learnerbar-total .left-Learnerbar-total-border, .Right-Learnerbar-total .Right-Learnerbar-total-border, .learnerbar .learner-total-border{border-right:1px solid #E3E3E3;}
+.left-Coursebar-total .left-Coursebar-total-border, .Right-Coursebar-total .Right-Coursebar-total-border, .left-Learnerbar-total .left-Learnerbar-total-border, .Right-Learnerbar-total .Right-Learnerbar-total-border, .learnerbar .learner-total-border{
+	border-right:1px solid #E3E3E3;
+}
 
 .Right-Learnerbar-total .status{padding: 27px;}
 	
@@ -349,27 +296,25 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 #course-mainpage form, #enrolement-per form, #Learner-maincontent form, .registerbar-content form{
 	margin-top: 30px;
     text-align: center;
-	}
+}
 	
 #course-mainpage #new_courses, #enrolement-per #enrollmentpercourse, #Learner-maincontent #unique_sessions, #register-bar #chart_div_new{
 	margin: auto;
     margin-top: 30px;
     border: 2px solid #eee8e8;
     border-top: 3px solid #5aa0a2;
-	}
+}
 	
 #Coursedasboard-Page .coursebar, #Learners-Page .learnerbar .learner-total{ margin-bottom: 30px;}
-
-
 #enrolement-per, .alert {margin-top:30px;}
 #enrolement-per h3 { margin: 0px auto;}
 .alert-error { text-align: center; font-weight: bold;}
 .alert {margin-bottom: 0px !important;}
-/* Course page content Css End */
 #first-block #coursesize, #IP-address #activeip { margin: 20px auto;}
- 
-/* Learners page content Css Start */
+/* Course page content Css End */
 
+
+/* Learners page content Css Start */
 #Learners-Page .learnerbar .learner-total{float:right;}
 #register-content,.coursebar, #register-bar, #enrollanalytics_content { margin-top:30px;}
 .registerbar-content h2 { margin-top: 20px; text-align: center; color: #687272;}
