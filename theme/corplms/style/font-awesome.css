@@ -11,6 +11,7 @@
   font-weight: normal;
   font-style: normal;
 }
+
 .fa {
   display: inline-block;
   font-family: FontAwesome;
@@ -33,9 +34,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-
-
 
 /* makes the font 33% larger relative to the icon container */
 .fa-lg {
