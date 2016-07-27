@@ -7,11 +7,11 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	color: #6e8090;
 	}
         
-#page-local-moodleanalytics-dashboard #main-page .row {
-   margin-left: -23px !important;
+#page-local-moodleanalytics-dashboard .row {
+   margin-left: -30px !important; padding: 10px; 
 }
 
-.row { margin-left: -22px !important;}
+
 
 /* Header Css Start */
 	.pagelayout-admin .navbar { margin-bottom: 0px !important;}
@@ -73,35 +73,34 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /*Groupbutton Css Start */
 #main-page .btn-group {
-	width: 50%;
 	float:right;
-	background-image :none;
 	margin-top:10px;
 }
-        
-#main-page .btn-group .singlebutton {float:right;}
-#main-page .btn-group input[type="submit"] {
-	background-color:#8e8989;
-	background-image: none;
-	box-shadow:none;
-	text-shadow: none;
-	color: #fefefe;
-	border-radius: 0px;
-}
 
-#main-page .btn-group input[type="submit"]:hover{ background-color: #a6adb2; }
+.btn-group>.btn+.btn { margin-left:4px !important;} 
+.btn-group .btn-primary { 
+    background-color: #224761; 
+    color:#fff; 
+    background-image: none; 
+    box-shadow: inset 0 1px 0 rgba(46, 83, 109, 0.35),0 1px 2px rgba(0,0,0,0.05);
+}
+.btn-group .btn-primary:hover,.btn-group .btn-primary:active  {background-color: #5e849e;}
+
+
+
 /*Groupbutton Css End */
 
 /*Section-First Css Start */
-#Section-First { margin-top:30px;}
-#Section-First .span3 caption { font-size: 14px; font-weight: bold; margin-bottom:0px; background-color: rgba(73, 116, 146, 0.88); color:#fff; padding: 3px;}
-#Section-First .span3 .number {float: right;}
-#Section-First .span3 td {padding:0px;}
-#Section-First .span3 th {padding-left: 30px;}
-#Section-First .span3 { float: left;  margin-left: 10px;  margin-top: 30px;}
-#Section-First .span3 table { margin-bottom:30px;}
-#Section-First .span9{ float:right; margin: 20px auto;}
-/*Section-First Css End*/
+/*Section-First Css End*/	
+    #Section-First { margin-top:30px;}
+    #Section-First .span3 {margin-left: 10px;  margin-top: 30px;}
+    #Section-First .span3 caption { font-size: 14px; font-weight: bold; margin-bottom:0px; background-color: rgba(73, 116, 146, 0.88); color:#fff; padding: 3px;}
+    #Section-First .span3 .number {float: right;}
+    #Section-First .span3 td {padding:0px;}
+    #Section-First .span3 th {padding-left: 30px;}
+    #Section-First .span3 table { margin-bottom:30px;}
+    #Section-First .span9{ margin: 20px auto; padding-left: 60px;}
+
 
 
 /*Mdlanalytics-total Css Start */
@@ -127,7 +126,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 .mdlanalytics-total .countitems{ margin-left: 0px !important;}
 	
 .mdlanalytics-total .count{
-    width: 20%; 
+    width: 16%; 
     text-align: center;
 	border-right: 1px solid rgba(138, 132, 132, 0.1);
     padding: 2px;

@@ -102,9 +102,9 @@ if ($view == 'daily') {
 
 <!-- bootstrap theme -->
  
-
-<div id="main-page">
-	<div class="row">	
+<div class="row">
+    <div id="main-page">
+		
         <div class="row-fluid">
             <div class="Information-block">
                 <div class="col-md-3 col-sm-12 col-xs-12">
@@ -133,20 +133,29 @@ if ($view == 'daily') {
 <div class="row-fluid">
     <div class="btn-group">
         <?php
-        //$formcontent = "";
-        //$formcontent .= html_writer::tag('button', 'Monthly', array('class' => 'btn btn-primary', 'value' => 'monthly'));
-        //$formcontent .= html_writer::tag('button', 'Weekly', array('class' => 'btn btn-primary', 'value' => 'weekly'));
-        //$formcontent .= html_writer::tag('button', 'Daily', array('class' => 'btn btn-primary', 'value' => 'daily'));
-        //echo $formcontent;
-        echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=monthly', array()), get_string('monthly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
-        echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=weekly', array()), get_string('weekly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
-        echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=daily', array()), get_string('daily', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
+       	$formcontent = "";
+               $formcontent .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'urlparam', 'value' => "$CFG->wwwroot", 'id' => 'cfgurl'));
+               $formcontent .= html_writer::tag('button', 'Daily', array('class' => 'btn btn-primary', 'value' => 'daily', 'id' => 'button-daily', 'onclick' => 'get_url(this.value)'));
+               $formcontent .= html_writer::tag('button', 'Weekly', array('class' => 'btn btn-primary', 'value' => 'weekly', 'id' => 'button-weekly', 'onclick' => 'get_url(this.value)'));
+               $formcontent .= html_writer::tag('button', 'Monthly', array('class' => 'btn btn-primary', 'value' => 'monthly', 'id' => 'button-monthly', 'onclick' => 'get_url(this.value)'));
+           
+          echo $formcontent;
+			   
+       //echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=monthly', array()), get_string('monthly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
+       // echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=weekly', array()), get_string('weekly', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
+       // echo $OUTPUT->single_button(new moodle_url('/local/moodleanalytics/dashboard.php?view=daily', array()), get_string('daily', 'local_moodleanalytics'),array('class' => 'btn btn-primary'));
         ?>
     </div>
+    <script type="text/javascript">
+               function get_url(value){
+                   window.location.href = $('#cfgurl').val() + '/local/moodleanalytics/dashboard.php?view=' + value;
+               }
+    </script>
 </div>
 
     <div id="Section-First">
         <div class="row-fluid">
+           
             <h3>Users Activity</h3>
             <div class="users span3">
                 <table style="width:100%">
@@ -168,8 +177,9 @@ if ($view == 'daily') {
             
             
             <div class="linechart span9">
-                <div id="linechart_material" style="width: 100%; height: 300px"></div>
+                <div id="linechart_material" class="img-responsive" style="width: 100%; height: 300px"></div>
             </div>
+           
         </div>  
     </div>
     
@@ -179,7 +189,7 @@ if ($view == 'daily') {
       <div class=" row-fluid">
         <h3>TOTAL</h3>
 		
-        <div class="countitems span9">
+        <div class="countitems">
         
         <div class="count"><p>643</p> 
             <div class="icons">
@@ -242,7 +252,7 @@ if ($view == 'daily') {
     
             </div>
         </div>
-	</div>
+    </div>
 </div>        
     <!--    	<div class="enroll span5">
                     <h3>Enrollment per-course</h3>
