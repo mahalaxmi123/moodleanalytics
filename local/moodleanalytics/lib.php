@@ -36,7 +36,7 @@ function monthname($date) {
 
 function get_dashboard_countries() {
     global $USER, $CFG, $DB;
-    //$sql = get_teacher_sql($params, "id", "users");
+//$sql = get_teacher_sql($params, "id", "users");
 
     return $DB->get_records_sql("SELECT country, count(*) as users FROM {user} WHERE confirmed = 1 and deleted = 0 and suspended = 0 and country != '' GROUP BY country");
 }
@@ -53,7 +53,33 @@ function get_enrollments_per_course($params) {
  */
 
 function get_coursereports() {
-    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts');
+//    $report_array = array(14 => 'New Courses', 15 => 'Courses with zero activity', 16 => 'Unique Sessions', 17 => 'Scorm Stats', 18 => 'File Stats', 19 => 'Uploads', 22 => 'Scorm Attempts', 23 => 'Course Stats', 24 => 'Progress By Learner', 25 => 'Teaching Performance', 26 => 'Activity Stats', 27 => 'Course Progress', 28 => 'Learner Progress By Course', 29 => 'Quiz Grades', 31 => 'Quiz Attempts', 34 => 'Learner progress', 35 => 'Student performance', 36 => 'Activity progress', 37 => 'Overdue users');
+    $report_array = array(
+        'course_with_zero_activity' => 'Courses with zero activity',
+        'learner_progress' => 'Learning progress',
+        'activity_stats' => 'Activity Stats',
+        'teachingactivity' => 'Teaching Activity',
+        'student_performance' => 'Student performance',
+        'forum_stats' => 'Forum stats',
+        'scorm_stats' => 'Scorm Stats',
+        'quizstats' => 'Quiz Stats',
+        'file_stats' => 'File Stats',
+        'course_stats' => 'Course Stats',
+        'progress_by_learner' => 'Progress By Learner',
+        'teaching_performance' => 'Teaching Performance',
+        'quiz_attempts' => 'Quiz Attempts',
+        'activity_forum' => 'Activity in forums',
+        'course_progress' => 'Course Progress',
+        'quiz_grades' => 'Quiz Grades',
+        'forum_discussions' => 'Forum Discussions',
+        'scorm_attempts' => 'Scorm Attempts',
+        'uploads' => 'Uploads',
+        'activity_progress' => 'Activity progress',
+        'overdue_users' => 'Overdue users',
+        'enrolment_method' => 'Enrollment Methods',
+        'courseenrollments' => 'Course Enrollments',
+        'learner_progress_by_course' => 'Learner Progress By Course',
+    );
     return $report_array;
 }
 
@@ -61,29 +87,48 @@ function get_coursereports() {
  *  @param reportid int
  */
 
-function get_report_class($reportid) {
+function get_report_class($reportname = '') {
     $classes_array = array(
-        4 => new registrations(),
-        5 => new enrollmentspercourse(),
-        6 => new coursesize(),
-        7 => new courseenrollments(),
-        8 => new teachingactivity(),
-        9 => new activeip(),
-        10 => new languageused(),
-        11 => new newregistrants(),
-        12 => new newcourses(),
-        13 => new enrolments(),
-        14 => new new_courses(),
-        15 => new course_with_zero_activity(),
-        16 => new unique_sessions(),
-        17 => new scorm_stats(),
-        18 => new file_stats(),
-        19 => new uploads(),
-        20 => new registrants(),
-        21 => new participations(),
-        22 => new scorm_attempts()
+        'registrations' => new registrations(),
+        'enrollmentspercourse' => new enrollmentspercourse(),
+        'coursesize' => new coursesize(),
+        'courseenrollments' => new courseenrollments(),
+        'teachingactivity' => new teachingactivity(),
+        'activeip' => new activeip(),
+        'languageused' => new languageused(),
+        'newregistrants' => new newregistrants(),
+        'newcourses' => new newcourses(),
+        'enrolments' => new enrolments(),
+        'new_courses' => new new_courses(),
+        'course_with_zero_activity' => new course_with_zero_activity(),
+        'unique_sessions' => new unique_sessions(),
+        'scorm_stats' => new scorm_stats(),
+        'file_stats' => new file_stats(),
+        'uploads' => new uploads(),
+        'registrants' => new registrants(),
+        'participations' => new participations(),
+        'scorm_attempts' => new scorm_attempts(),
+        'course_stats' => new course_stats(),
+        'progress_by_learner' => new progress_by_learner(),
+        'teaching_performance' => new teaching_performance(),
+        'activity_stats' => new activity_stats(),
+        'course_progress' => new course_progress(),
+        'learner_progress_by_course' => new learner_progress_by_course(),
+        'quiz_grades' => new quiz_grades(),
+        'quizstats' => new quizstats(),
+        'quiz_attempts' => new quiz_attempts(),
+        'dashboardchart' => new dashboardchart(),
+        'enrolments_analytics' => new enrolments_analytics(),
+        'learner_progress' => new learner_progress(),
+        'student_performance' => new student_performance(),
+        'activity_progress' => new activity_progress(),
+        'overdue_users' => new overdue_users(),
+        'forum_stats' => new forum_stats(),
+        'activity_forum' => new activity_forum(),
+        'forum_discussions' => new forum_discussions(),
+        'enrolment_method' => new enrolment_method()
     );
-    return $classes_array[$reportid];
+    return $classes_array[$reportname];
 }
 
 /* Return course users
@@ -103,6 +148,521 @@ function get_course_users($courseid) {
     }
     return $users_list;
 }
+
+function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+    global $CFG;
+
+    if (empty($roles)) {
+        $roles = explode(",", 5);
+    }
+
+    $sql_filter = "";
+    if ($roles and $roles[0] != 0) {
+        $sql_roles = array();
+        foreach ($roles as $role) {
+            $sql_roles[] = "ra.roleid = $role";
+        }
+        $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+    }
+    if ($enrols) {
+        $sql_enrols = array();
+        foreach ($enrols as $enrol) {
+            $sql_enrols[] = "e.enrol = '$enrol'";
+        }
+        $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+    }
+
+    return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{$CFG->prefix}user_enrolments ue,
+						{$CFG->prefix}enrol e,
+						{$CFG->prefix}role_assignments ra,
+						{$CFG->prefix}context ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+}
+
+function getCourseGradeSql($grage = 'grade', $round = 0) {
+    global $CFG;
+
+    return "SELECT gi.courseid, round(avg((g.finalgrade/g.rawgrademax)*100), $round) AS $grage
+					FROM
+						{$CFG->prefix}grade_items gi,
+						{$CFG->prefix}grade_grades g
+					WHERE
+						gi.itemtype = 'course' AND
+						g.itemid = gi.id
+					GROUP BY gi.courseid";
+}
+
+function getCourseLearnersSql($learners = 'learners', $timestart = 0, $timefinish = 0) {
+    global $CFG;
+
+    $sql = ($timestart and $timefinish) ? "ue.timecreated BETWEEN $timestart AND $timefinish" : "1";
+
+    return "SELECT ue.courseid, COUNT(DISTINCT(ue.userid)) AS $learners
+					FROM
+						(" . getUsersEnrolsSql() . ") ue
+					WHERE $sql GROUP BY ue.courseid";
+}
+
+function getCourseCompletedSql($completed = 'completed') {
+    global $CFG;
+
+    return "SELECT c.course, count(DISTINCT(c.userid)) AS $completed
+					FROM
+						{$CFG->prefix}course_completions c,
+						(" . getUsersEnrolsSql() . ") ue
+					WHERE
+						c.timecompleted > 0 AND
+						c.course = ue.courseid AND
+						c.userid = ue.userid
+					GROUP BY c.course";
+}
+
+function getCourseUserGradeSql($grage = 'grade', $round = 0) {
+
+    global $CFG;
+
+    return "SELECT gi.courseid, g.userid, round(((g.finalgrade/g.rawgrademax)*100), $round) AS $grage
+				FROM
+					{$CFG->prefix}grade_items gi,
+					{$CFG->prefix}grade_grades g
+				WHERE
+					gi.itemtype = 'course' AND
+					g.itemid = gi.id
+				GROUP BY gi.courseid, g.userid";
+}
+
+function getQuizAttemptsSql($type = "attempts") {
+    global $CFG;
+
+    if ($type == "grade") {
+        $sql = "avg((qa.sumgrades/q.sumgrades)*100) as $type";
+    } elseif ($type == "duration") {
+        $sql = "sum(qa.timefinish - qa.timestart) $type";
+    } else {
+        $sql = "count(distinct(qa.id)) $type";
+    }
+
+    return "SELECT qa.quiz, $sql
+						FROM
+							{$CFG->prefix}quiz q,
+							{$CFG->prefix}quiz_attempts qa,
+							(" . getUsersEnrolsSql() . ") ue
+						WHERE
+							qa.quiz = q.id AND
+							q.course = ue.courseid AND
+							qa.userid = ue.userid AND
+							qa.timefinish > 0 AND
+							qa.timestart > 0
+						GROUP BY qa.quiz";
+}
+
+//class course_progress {
+//
+//    function get_chart_types() {
+//        $chartoptions = 'ComboChart';
+//        return $chartoptions;
+//    }
+//
+//    function process_reportdata($reportobj, $courseid, $users, $charttype) {
+//        global $DB, $USER;
+//        $json_grades = array();
+//        $users_update = array();
+//        $feedback = array();
+//        $context = context_course::instance($courseid);
+//        $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
+//
+////first make sure we have proper final grades - this must be done before constructing of the grade tree
+//        grade_regrade_final_grades($courseid);
+////Initialise the grader report object that produces the table
+////the class grade_report_grader_ajax was removed as part of MDL-21562
+//        $report = new grade_report_grader($courseid, $gpr, $context);
+////        $numusers = $report->get_numusers(true, true);
+//
+//        $activities = array();
+//        if (!empty($report->gtree->top_element['children'])) {
+//            foreach ($report->gtree->top_element['children'] as $children) {
+//                $activities[$children['eid']] = $children['object']->itemname;
+//            }
+//        }
+//// final grades MUST be loaded after the processing
+//        $report->load_users();
+//        $report->load_final_grades();
+//
+//        if (!empty($report) && !empty($report->grades)) {
+//            foreach ($report->grades as $grades => $grade) {
+//                foreach ($users as $key => $username) {
+//                    $user = $DB->get_record('user', array('username' => $username));
+//                    foreach ($grade as $gradeval) {
+//                        if ($gradeval->grade_item->itemtype != 'course') {
+//                            if (!empty($user->id) && ($gradeval->userid == $user->id)) {
+//                                $users_update[$user->username] = $user->username;
+//                                if (!empty($json_grades[$gradeval->grade_item->itemname])) {
+//                                    $json_grades[$gradeval->grade_item->itemname] .= (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
+//                                } else {
+//                                    $json_grades[$gradeval->grade_item->itemname] = "'" . $gradeval->grade_item->itemname . "'" . ',' . (!empty($gradeval->finalgrade) ? $gradeval->finalgrade : 0.0 ) . ',';
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            $USER->gradeediting[$courseid] = '';
+//            $averagegrade = $report->get_right_avg_row();
+//            $actavggrade = array();
+//            foreach ($averagegrade as $avggradvalue) {
+//                foreach ($avggradvalue->cells as $avggrade) {
+//                    $actitemname = '';
+//                    $attrclass = $avggrade->attributes['class'];
+//                    if (isset($attrclass) && isset($activities[$attrclass])) {
+//                        $actitemname = $activities[$attrclass];
+//                    }
+//                    if (!empty($avggrade->text)) {
+//                        $actavggrade[$actitemname] = floatval($avggrade->text);
+//                    }
+//                }
+//            }
+//            foreach ($json_grades as $key => $value) {
+//                $json_grades[$key] .= $actavggrade[$key] . ',';
+//            }
+//        }
+//
+//        $reportobj->data = $this->get_data($json_grades);
+//        $reportobj->headers = $this->get_headers($users, $users_update);
+//        $reportobj->act_avg_position = $this->get_act_avg_position($reportobj->headers);
+//    }
+//
+//    function get_axis_names($reportname) {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Activities';
+//        $axis->yaxis = 'Grades';
+//        return $axis;
+//    }
+//
+//    function get_data($json_grades) {
+//        $json_grades_array = array();
+//        foreach ($json_grades as $key => $grade_info) {
+//            $grade_info = TRIM($grade_info, ',');
+//            $json_grades_array[] = "[" . $grade_info . "]";
+//        }
+//        return $json_grades_array;
+//    }
+//
+//    function get_headers($users, $users_update) {
+//        $headers = array();
+//        if (!empty($users)) {
+//            if (!empty($users_update)) {
+//                foreach ($users_update as $key => $userval) {
+//                    if (!empty($userval)) {
+//                        $header1 = new stdclass();
+//                        $header1->type = "'string'";
+//                        $header1->name = "'" . $userval . " - Grade '";
+//                        $headers[] = $header1;
+//                    }
+//                }
+//            } else {
+//                $errors[] = 'User(s)';
+//            }
+//        }
+//        $position = '';
+//        if (empty($errors)) {
+//            $header2 = new stdclass();
+//            $header2->type = "'string'";
+//            $header2->name = "'" . 'activities average' . "'";
+//            $headers[] = $header2;
+//        }
+//
+//        return $headers;
+//    }
+//
+//    function get_act_avg_position($gradeheaders) {
+//        $position = array_search("'" . 'activities average' . "'", $headers);
+//        return $position;
+//    }
+//
+//}
+//
+//class activity_attempt {
+//
+//    function get_chart_types() {
+//        $chartoptions = 'ComboChart';
+//        return $chartoptions;
+//    }
+//
+//    function process_reportdata($reportobj, $courseid, $users, $charttype) {
+//        $quiz_array = $this->get_course_quiz($courseid);
+//        $reportobj->quiz_array = $quiz_array;
+//        $quizdetails = array();
+//        $reportobj->info = '';
+//        $notattemptedusers = array();
+//        if ($users && !empty($reportobj->quizid)) {
+//            $json_quiz_attempt = $this->get_user_quiz_attempts($reportobj->quizid, $users);
+//            if (array_key_exists('usernotattempted', $json_quiz_attempt)) {
+//                $notattemptedposition = array_search('usernotattempted', array_keys($json_quiz_attempt));
+//                $notattemptedmessage = array_slice($json_quiz_attempt, $notattemptedposition, 1);
+//                foreach ($notattemptedmessage['usernotattempted'] as $key => $message) {
+//                    $reportobj->info .= html_writer::div($message, 'alert alert-info');
+//                    $notattemptedusers[] = $key;
+//                }
+//            }
+//            unset($json_quiz_attempt['usernotattempted']);
+//
+//            $reportobj->data = $this->get_data($json_quiz_attempt);
+//            $reportobj->headers = $this->get_headers($users, $notattemptedusers);
+//        }
+//    }
+//
+//    function get_course_quiz($courseid) {
+//        $quiz_array = array();
+//        if (!empty($courseid)) {
+//            $activities = get_array_of_activities($courseid);
+//            foreach ($activities as $actinfo) {
+//                if ($actinfo->mod == 'quiz') {
+//                    $quiz_array[$actinfo->id] = $actinfo->name;
+//                }
+//            }
+//        }
+//        return $quiz_array;
+//    }
+//
+//    function get_user_quiz_attempts($quizid, $users) {
+//        global $DB;
+//        $attempts = array();
+//        $quizdetails = array();
+//        $maxnumofattempts = '';
+//        if (!empty($users)) {
+//            foreach ($users as $username) {
+//                $count = 1;
+//                $user = $DB->get_record('user', array('username' => $username));
+//                $quizattempts = quiz_get_user_attempts($quizid, $user->id, 'finished');
+//                if ($quizattempts) {
+//                    foreach ($quizattempts as $quizattempt) {
+//                        $attempts[$username]['Attempt ' . $count] = $quizattempt->sumgrades;
+//                        $count++;
+//                    }
+//                } else {
+//                    $quizdetails['usernotattempted'][$username] = "$username has not taken this quiz yet.";
+//                }
+//            }
+//            foreach ($attempts as $attempt) {
+//                $currentnumofattempts[] = count($attempt);
+//                $maxnumofattempts = max($currentnumofattempts);
+//            }
+//            if (!empty($attempts)) {
+//                $attempts = $this->format_quiz_attemptwise_grades($maxnumofattempts, $attempts);
+//            }
+//        }
+//        return array_merge($quizdetails, $attempts);
+//    }
+//
+//    function format_quiz_attemptwise_grades($max, $thisattempts) {
+//        foreach ($thisattempts as $thisattempt) {
+//            $count = count($thisattempt);
+//            if (!empty($max) && $max > $count) {
+//                $less = $max - $count;
+//                for ($i = 1; $i <= $less; $i++) {
+//                    $count += 1;
+//                    $thisattempt['Attempt ' . $count] = 0;
+//                }
+//            }
+//            $modifiedattempts[] = $thisattempt;
+//        }
+//        foreach ($modifiedattempts as $modattempts) {
+//            $numofattempts = count($modattempts);
+//            for ($num = 1; $num <= $numofattempts; $num++) {
+//                if (!empty($newattempts['Attempt ' . $num])) {
+//                    $newattempts['Attempt ' . $num] .= $modattempts['Attempt ' . $num] . ',';
+//                } else {
+//                    $newattempts['Attempt ' . $num] = ',' . $modattempts['Attempt ' . $num] . ',';
+//                }
+//            }
+//        }
+//        return $newattempts;
+//    }
+//
+//    function get_axis_names($reportname) {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Attempts';
+//        $axis->yaxis = 'Grades';
+//        return $axis;
+//    }
+//
+//    function get_headers($users, $notattemptedusers) {
+//        $headers = array();
+//        foreach ($users as $userkey => $uservalue) {
+//            if (!empty($uservalue) && !in_array($uservalue, $notattemptedusers)) {
+//                $header1 = new stdclass();
+//                $header1->type = "'string'";
+//                $header1->name = "'" . $uservalue . " - Grade '";
+//                $headers[] = $header1;
+//            }
+//        }
+//        return $headers;
+//    }
+//
+//    function get_data($json_quiz_attempt) {
+//        $quizdetails = array();
+//        if (!empty($json_quiz_attempt)) {
+//            foreach ($json_quiz_attempt as $quiz => $quizgrades) {
+//                $quizdetails[] = "[" . "'" . $quiz . "'" . "," . trim($quizgrades, ',') . "]";
+//            }
+//        }
+//        return $quizdetails;
+//    }
+//
+//}
+//
+//class activity_status {
+//
+//    function get_chart_types() {
+//        $chartoptions = 'BubbleChart';
+//        return $chartoptions;
+//    }
+//
+//    function process_reportdata($reportobj, $courseid, $users, $charttype) {
+//        global $DB;
+//        $context = context_course::instance($courseid);
+//        $gpr = new grade_plugin_return(array('type' => 'report', 'plugin' => 'grader', 'courseid' => $courseid, 'page' => 1));
+//        $report = new grade_report_grader($courseid, $gpr, $context);
+//        $report->load_users();
+//        $report->load_final_grades();
+//        $resourceactivitycompletion = $this->get_activity_completion($courseid);
+//        $averageusergrades = $this->get_user_avggrades($report->grades);
+//        if (!empty($users)) {
+//            foreach ($users as $key => $username) {
+//                $feedback[$username] = $this->random_value_for_feedback();
+//            }
+//            if (!empty($resourceactivitycompletion) && $averageusergrades) {
+//                foreach ($resourceactivitycompletion as $resuseridkey => $rescompletiongrade) {
+//                    $resusers = $DB->get_record('user', array('id' => $resuseridkey));
+//                    $resactivitycompletion[$resusers->username] = $rescompletiongrade;
+//                }
+//                foreach ($averageusergrades as $avguserid => $avgusergrades) {
+//                    $usersforavggrade = $DB->get_record('user', array('id' => $avguserid));
+//                    $newaveragegrade[$usersforavggrade->username] = $avgusergrades;
+//                }
+//
+//                $reportobj->data = $this->get_data($users, $newaveragegrade, $resactivitycompletion, $feedback);
+//                $reportobj->headers = $this->get_headers();
+//            }
+//        } else {
+//            $errors[] = 'User(s)';
+//        }
+//    }
+//
+//    /* Returns the resource completion percentage of all users in a course
+//     * @param : courseid int
+//     * return resource completion array 
+//     */
+//
+//    function get_activity_completion($courseid) {
+//        global $DB;
+//        $resource_completion_array = array();
+//        $course = $DB->get_record('course', array('id' => $courseid));
+//        if (!$course) {
+//            return;
+//        }
+//        $completion = new completion_info($course);
+//        $activities = $completion->get_activities();
+//        $total_activities = COUNT($activities);
+//        $progress = $completion->get_progress_all();
+//        foreach ($progress as $userid => $userprogess_data) {
+//            $completedact_count = COUNT($userprogess_data->progress);
+//            if ($completedact_count) {
+//                $resource_completion_array[$userid] = ($completedact_count / $total_activities) * 100;
+//            } else {
+//                $resource_completion_array[$userid] = 0;
+//            }
+//        }
+//        return $resource_completion_array;
+//    }
+//
+//    /* Returns users average grade in a course
+//     * @param : grade  array
+//     * Return : usersaveragegrades array
+//     */
+//
+//    function get_user_avggrades($grades) {
+//        $useravggrades = array();
+//        $activities = array();
+//        foreach ($grades as $grade => $gradeinfo) {
+//            foreach ($gradeinfo as $gradeval) {
+//                $activities[$gradeval->grade_item->itemname] = $gradeval->grade_item->itemname;
+//                if (!empty($useravggrades[$gradeval->userid])) {
+//                    $useravggrades[$gradeval->userid] += $gradeval->finalgrade;
+//                } else {
+//                    $useravggrades[$gradeval->userid] = $gradeval->finalgrade;
+//                }
+//            }
+//        }
+//        $total_activities = COUNT($activities);
+//        if ($total_activities) {
+//            foreach ($useravggrades as $userid => $gradetotal) {
+//                $useravggrades[$userid] = ($gradetotal / $total_activities);
+//            }
+//        } else {
+//            return;
+//        }
+//        return $useravggrades;
+//    }
+//
+//    function random_value_for_feedback() {
+//        $feedback = rand(1, 10);
+//        return $feedback;
+//    }
+//
+//    function get_data($users, $newaveragegrade, $resactivitycompletion, $feedback) {
+//        foreach ($users as $thisuserkey => $thisusername) {
+//            $chartdetails[] = "[" . "'" . $thisusername . "'" . "," . $newaveragegrade[$thisusername] . "," . $resactivitycompletion[$thisusername] . "," . $feedback[$thisusername] . "]";
+//        }
+//        return $chartdetails;
+//    }
+//
+////    function get_headers() {
+////        $gradeheaders = array();
+////        //        $gradeheaders[] = "'Test'";
+////        $gradeheaders[] = "'Grade'";
+////        $gradeheaders[] = "'Resource completion'";
+////        $gradeheaders[] = "'Feedback'";
+////        return $gradeheaders;
+////    }
+//
+//    function get_headers() {
+//        $headers = array();
+//        $header1 = new stdclass();
+//        $header1->type = "'string'";
+//        $header1->name = "'Test'";
+//        $headers[] = $header1;
+//        $header2 = new stdclass();
+//        $header2->type = "'number'";
+//        $header2->name = "'Grade'";
+//        $headers[] = $header2;
+//        $header3 = new stdclass();
+//        $header3->type = "'number'";
+//        $header3->name = "'Resource Completion'";
+//        $headers[] = $header3;
+//        $header4 = new stdclass();
+//        $header4->type = "'number'";
+//        $header4->name = "'Feedback'";
+//        $headers[] = $header4;
+//        return $headers;
+//    }
+//
+//    function get_axis_names($reportname) {
+//        $axis = new stdClass();
+//        $axis->xaxis = 'Grades';
+//        $axis->yaxis = 'Resource Completion';
+//        return $axis;
+//    }
+//
+//}
 
 class new_courses {
 
@@ -732,7 +1292,7 @@ class enrollmentspercourse {
 class coursesize {
 
     function get_chart_types() {
-        $chartoptions = 'BarChart';
+        $chartoptions = 'Table';
         return $chartoptions;
     }
 
@@ -740,7 +1300,7 @@ class coursesize {
         global $DB, $USER, $CFG;
         $json_coursesizes = array();
         $coursesizes = array();
-        $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size "
+        $coursesizesql = "SELECT c.fullname as coursename , fs.coursesize as size, DATE_FORMAT( FROM_UNIXTIME( c.timecreated ) ,  '%m/%d/%Y' ) as timecreated "
                 . "FROM {course} c "
                 . "LEFT JOIN (SELECT c.instanceid AS course, sum( f.filesize ) as coursesize "
                 . "FROM {files} f, {context} c "
@@ -749,7 +1309,7 @@ class coursesize {
 
         foreach ($coursesizes as $csize) {
             $csize->size = ($csize->size / (1024 * 1024));
-            $json_coursesizes[] = '[' . '"' . $csize->coursename . '"' . ',' . $csize->size . ']';
+            $json_coursesizes[] = '[' . '"' . $csize->coursename . '"' . ',' . $csize->size . ',' . '"' . $csize->timecreated . '"' . ']';
         }
 
         $headers = $this->get_headers();
@@ -771,12 +1331,16 @@ class coursesize {
         $headers = array();
         $header1 = new stdclass();
         $header1->type = "'string'";
-        $header1->name = "'Course Name'";
+        $header1->name = "'Course'";
         $headers[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
         $header2->name = "'Size in MB'";
         $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Created'";
+        $headers[] = $header3;
         return $headers;
     }
 
@@ -1037,14 +1601,14 @@ class activeip {
         $activeips = array();
         $activeipsql = "SELECT id, username, lastip, currentlogin FROM mdl_user WHERE timecreated >0 and currentlogin>0
             ORDER BY lastlogin DESC";
-        //$lists = $DB->get_records_sql($sql);
+//$lists = $DB->get_records_sql($sql);
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
         $activeips = $DB->get_records_sql($activeipsql);
 
         foreach ($activeips as $activeip) {
-            //$csize->size = ($csize->size/(1024*1024));
-            //$json_coursesizes[] = "['" . $csize->coursename . "', $csize->size]";
+//$csize->size = ($csize->size/(1024*1024));
+//$json_coursesizes[] = "['" . $csize->coursename . "', $csize->size]";
             $json_activeips[] = "['" . $activeip->username . "'," . "'" . $activeip->lastip . "'" . ",'" . date('d-m-y', $activeip->currentlogin) . "'" . '],';
         }
 
@@ -1171,54 +1735,42 @@ class newregistrants {
 
     function process_reportdata($reportobj, $param = array()) {
         global $DB, $USER, $CFG;
+        $json_data = array();
+        $datearray = array();
         $_SESSION['current_month'] = $param[0];
         $newusersql = "SELECT * FROM mdl_user WHERE timecreated>0";
         $lists = $DB->get_records_sql($newusersql);
         $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
-//$eventsbyday = get_records_between('mdl_event', $_SESSION['current_month'], $lastdate);
-
+        for ($i = 1; $i <= $lastdate; $i++) {
+            $datearray[$i] = 0;
+        }
         $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
-        $presentmonth = date('m', strtotime($_SESSION['current_month']));
-        $presentyear = date('Y', strtotime($_SESSION['current_month']));
-        $nfirst = 0;
-        $nmid = 0;
-        $nlast = 0;
+        $presentmonthyear = date('m-Y', strtotime($_SESSION['current_month']));
         $numberofuser = 0;
         foreach ($lists as $list) {
             $numberofuser++;
-            if (($presentmonth != date('m', $list->timecreated)) || ($presentmonth != date('m', $list->timecreated))) {
+            if ($presentmonthyear != date('m-Y', $list->timecreated)) {
                 continue;
             }
-            if (date('d', $list->timecreated) == 1) {
-                $nfirst++;
-                continue;
-            }
-            if (date('d', $list->timecreated) <= 15) {
-                $nmid++;
-            } else {
-                $nlast++;
+            for ($j = 1; $j <= count($datearray); $j++) {
+                if (date('d', $list->timecreated) == $j) {
+                    $datearray[$j] ++;
+                    continue;
+                }
             }
         }
-//$firstdate = $date("Y,m",)    
         $monthyear = date("Y,m,", strtotime($presentdate));
-        $lastdate = date("Y,m,t", strtotime($presentdate));
-        $firstdatestring = '"' . $monthyear . ',15"';
-        $middatestring = '"' . $monthyear . ',1"';
-        $lastdatestring = '"' . $lastdate . '"';
-
-
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
         $reportobj->totalusers = $numberofuser;
-        $reportobj->nfirst = $nfirst;
-        $reportobj->nmid = $nmid;
-        $reportobj->nlast = $nlast;
-        $reportobj->firstdatestring = $firstdatestring;
-        $reportobj->middatestring = $middatestring;
-        $reportobj->lastdatestring = $lastdatestring;
+        $reportobj->messagestring = "Number of Students Enrol On ";
+        for ($j = 1; $j <= count($datearray); $j++) {
+            $json_data[] = '"' . $monthyear . $j . '"' . ",'" . $reportobj->messagestring . $j . ":'," . $datearray[$j];
+        }
+        $reportobj->data = $json_data;
     }
 
     function get_axis_names($reportname) {
@@ -1236,7 +1788,7 @@ class newregistrants {
         $gradeheaders[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
-        $header2->name = "'Number Of Courses'";
+        $header2->name = "'Number Of Users'";
         $gradeheaders[] = $header2;
         $header3 = new stdclass();
         $header3->type = "'string'";
@@ -1264,52 +1816,36 @@ class newcourses {
         $newcoursesql = "SELECT * FROM mdl_course WHERE startdate>0";
         $lists = $DB->get_records_sql($newcoursesql);
         $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($_SESSION['current_month'])), date('Y', strtotime($_SESSION['current_month'])));
-//$eventsbyday = get_records_between('mdl_event', $_SESSION['current_month'], $lastdate);
-
+        for ($i = 1; $i <= $lastdate; $i++) {
+            $datearray[$i] = 0;
+        }
         $presentdate = date('Y-m-d', strtotime($_SESSION['current_month']));
-        $presentmonth = date('m', strtotime($_SESSION['current_month']));
-        $presentyear = date('Y', strtotime($_SESSION['current_month']));
-        $nfirst = 0;
-        $nmid = 0;
-        $nlast = 0;
+        $presentmonthyear = date('m-Y', strtotime($_SESSION['current_month']));
         $course = 0;
         foreach ($lists as $list) {
             $course++;
-            if (($presentmonth != date('m', $list->timecreated)) || ($presentmonth != date('m', $list->timecreated))) {
+            if ($presentmonthyear != date('m-Y', $list->timecreated)) {
                 continue;
             }
-            if (date('d', $list->timecreated) == 1) {
-                $nfirst++;
-                continue;
-            }
-            if (date('d', $list->timecreated) <= 15) {
-                $nmid++;
-            } else {
-                $nlast++;
+            for ($j = 1; $j <= count($datearray); $j++) {
+                if (date('d', $list->timecreated) == $j) {
+                    $datearray[$j] ++;
+                    continue;
+                }
             }
         }
         $monthyear = date("Y,m,", strtotime($presentdate));
-        $lastdate = date("Y,m,t", strtotime($presentdate));
-        $firstdatestring = '"' . $monthyear . ',15"';
-        $middatestring = '"' . $monthyear . ',1"';
-        $lastdatestring = '"' . $lastdate . '"';
-
-
-
-
         $headers = $this->get_headers();
         $charttype = $this->get_chart_types();
 
-        // $reportobj->data = $json_languageused;
         $reportobj->headers = $headers;
         $reportobj->charttype = $charttype;
         $reportobj->totalcourses = $course;
-        $reportobj->nfirst = $nfirst;
-        $reportobj->nmid = $nmid;
-        $reportobj->nlast = $nlast;
-        $reportobj->firstdatestring = $firstdatestring;
-        $reportobj->middatestring = $middatestring;
-        $reportobj->lastdatestring = $lastdatestring;
+        $reportobj->messagestring = "Number of Courses Form On ";
+        for ($j = 1; $j <= count($datearray); $j++) {
+            $json_data[] = '"' . $monthyear . $j . '"' . ",'" . $reportobj->messagestring . $j . ":'," . $datearray[$j];
+        }
+        $reportobj->data = $json_data;
     }
 
     function get_axis_names($reportname) {
@@ -1325,7 +1861,7 @@ class newcourses {
         $gradeheaders[] = $header1;
         $header2 = new stdclass();
         $header2->type = "'number'";
-        $header2->name = "'Number Of Users'";
+        $header2->name = "'Number Of Courses'";
         $gradeheaders[] = $header2;
         $header3 = new stdclass();
         $header3->type = "'string'";
@@ -1433,7 +1969,7 @@ class registrants {
 
         foreach ($registrants as $list) {
             $typeenrol[] = $list->auth;
-            //$language[] = $language_codes[$var];
+//$language[] = $language_codes[$var];
             $count[] = ($list->count);
         }
         $registrant = array_combine($typeenrol, $count);
@@ -1497,7 +2033,7 @@ class participations {
                     $notcomplete++;
                 }
             }
-            $data[] = "['" . $course->fullname . "'," . $complete . ',' . $notcomplete . ",' ']";
+            $data[] = '[' . '"' . $course->fullname . '"' . ',' . $complete . ',' . $notcomplete . ']';
         }
         $charttype = $this->get_chart_types();
         $charttitle = $this->get_chart_title();
@@ -1523,45 +2059,154 @@ class participations {
 
 }
 
-/* function newregistrants_get_chart_types($chartanme) {
-  $chartoptions = $chartname;
-  return $chartoptions;
-  }
+class quizstats {
 
-  function newregistrants_process_reportdata() {
-  global $DB, $USER, $CFG;
-  $sql = "SELECT * FROM mdl_user WHERE timecreated>0";
-  $lists = $DB->get_records_sql($sql);
-  return $lists;
-  }
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
 
-  function newregistrants_get_axis_names($reportname) {
-  $axis = new stdClass();
-  $axis->xaxis = 'Size in MB';
-  $axis->yaxis = 'Course Name';
-  return $axis;
-  }
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_quizstats = array();
+        $json_quizstats = $this->get_quizstats_data($params);
 
-  function newregistrants_get_headers() {
-  $gradeheaders = array();
-  $header1 = new stdclass();
-  $header1->type = "'date'";
-  $header1->name = "'Date'";
-  $gradeheaders[] = $header1;
-  $header2 = new stdclass();
-  $header2->type = "'number'";
-  $header2->name = "'Number Of Courses'";
-  $gradeheaders[] = $header2;
-  $header3 = new stdclass();
-  $header3->type = "'string'";
-  $header3->name = "'Last Acceess'";
-  $gradeheaders[] = $header3;
-  $header4 = new stdclass();
-  $header4->type = "'string'";
-  $header4->name = "'Strength'";
-  $gradeheaders[] = $header4;
-  return $gradeheaders;
-  } */
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_quizstats;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_quizstats_data($params) {
+        global $USER, $CFG, $DB;
+        $this->teacher_roles = '3,4';
+        $data = $DB->get_records_sql("SELECT
+				SQL_CALC_FOUND_ROWS c.id,
+				c.fullname,
+				count(q.id) as quizzes,
+				sum(qs.duration) as duration,
+				sum(qa.attempts) as attempts,
+				avg(qg.grade) as grade,
+				(SELECT DISTINCT CONCAT(u.firstname,' ',u.lastname)
+									  FROM {role_assignments} AS ra
+									  JOIN {user} AS u ON ra.userid = u.id
+									  JOIN {context} AS ctx ON ctx.id = ra.contextid
+									  WHERE ra.roleid IN ($this->teacher_roles)  AND ctx.instanceid = c.id AND ctx.contextlevel = 50 LIMIT 1) AS teacher FROM
+						{quiz} q
+						LEFT JOIN {course} c ON c.id = q.course
+						LEFT JOIN (" . $this->getQuizAttemptsSql("duration") . ") qs ON qs.quiz = q.id
+						LEFT JOIN (" . $this->getQuizAttemptsSql() . ") qa ON qa.quiz = q.id
+						LEFT JOIN (" . $this->getQuizAttemptsSql("grade") . ") qg ON qg.quiz = q.id
+						WHERE  c.visible = 1 AND c.category > 0
+						GROUP BY c.id");
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $coursename = "'$value->fullname'";
+            $teacher = !empty($value->teacher) ? "'$value->teacher'" : "'-'";
+            $quizzes = !empty($value->quizzes) ? "$value->quizzes" : 0;
+            $attempts = !empty($value->attempts) ? "$value->attempts" : 0;
+            $averagegrades = !empty($value->grade) ? "$value->grade" : 0;
+            $totaltimespent = !empty($value->duration) ? "$value->duration" : 0;
+            $json_data[] = "[" . $coursename . ',' . $teacher . ',' . $quizzes . ',' . $attempts . ',' . $totaltimespent . ',' . $averagegrades . "]";
+        }
+        return $json_data;
+    }
+
+    function getQuizAttemptsSql($type = "attempts") {
+        global $CFG;
+
+        if ($type == "grade") {
+            $sql = "avg((qa.sumgrades/q.sumgrades)*100) as $type";
+        } elseif ($type == "duration") {
+            $sql = "sum(qa.timefinish - qa.timestart) $type";
+        } else {
+            $sql = "count(distinct(qa.id)) $type";
+        }
+
+        return "SELECT qa.quiz, $sql FROM {quiz} q,{quiz_attempts} qa,
+							(" . $this->getUsersEnrolsSql() . ") ue
+						WHERE	qa.quiz = q.id AND
+							q.course = ue.courseid AND
+							qa.userid = ue.userid AND
+							qa.timefinish > 0 AND
+							qa.timestart > 0
+						GROUP BY qa.quiz";
+    }
+
+    function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+        global $CFG;
+        $this->learner_roles = '3';
+        if (empty($roles)) {
+            $roles = explode(",", $this->learner_roles);
+        }
+
+        $sql_filter = "";
+        if ($roles and $roles[0] != 0) {
+            $sql_roles = array();
+            foreach ($roles as $role) {
+                $sql_roles[] = "ra.roleid = $role";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+        }
+        if ($enrols) {
+            $sql_enrols = array();
+            foreach ($enrols as $enrol) {
+                $sql_enrols[] = "e.enrol = '$enrol'";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+        }
+
+        return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{user_enrolments} ue,
+						{enrol} e,
+						{role_assignments} ra,
+						{context} ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course Name'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Teacher'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'Quizzes'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Attempts'";
+        $gradeheaders[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Total time spent'";
+        $gradeheaders[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Average grades'";
+        $gradeheaders[] = $header6;
+        return $gradeheaders;
+    }
+
+}
 
 class scorm_attempts {
 
@@ -1629,7 +2274,10 @@ class scorm_attempts {
     function get_data($scormattemptstats) {
         $chartdetails = array();
         foreach ($scormattemptstats as $key => $value) {
-                $chartdetails[] = '[' . '"' . $value->user . '"' . ',' . '"' . $value->name . '"' . ',' . '"' . $value->fullname . '"' . ',' . $value->attempts . ',' . '"' . $value->duration .  '"' . ',' . '"' . date("Y-m-d H:i:s", $value->starttime) . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->completiondate) . '"'. ',' . $value->score .']';
+            if ($value->score == "") {
+                $value->score = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->user . '"' . ',' . '"' . $value->name . '"' . ',' . '"' . $value->fullname . '"' . ',' . $value->attempts . ',' . '"' . $value->duration . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->starttime) . '"' . ',' . '"' . date("Y-m-d H:i:s", $value->completiondate) . '"' . ',' . $value->score . ']';
         }
         return !empty($chartdetails) ? $chartdetails : '';
     }
@@ -1669,6 +2317,1999 @@ class scorm_attempts {
         $header8->name = "'Average Grade'";
         $headers[] = $header8;
         return $headers;
+    }
+
+}
+
+class course_stats {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $coursestats = $this->get_course_stats($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($coursestats);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_course_stats($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+				SQL_CALC_FOUND_ROWS c.id,
+				c.fullname as course,
+				c.timecreated as created,
+				c.enablecompletion,
+				e.learners,
+				cc.completed,
+				gc.grade,
+				cm.modules
+					FROM {$CFG->prefix}course as c
+						LEFT JOIN (SELECT course, count( id ) AS modules FROM {$CFG->prefix}course_modules WHERE visible = 1 GROUP BY course) cm ON cm.course = c.id
+						LEFT JOIN (" . getCourseGradeSql() . ") as gc ON gc.courseid = c.id
+						LEFT JOIN (" . getCourseLearnersSql() . ") e ON e.courseid = c.id
+						LEFT JOIN (" . getCourseCompletedSql() . ") as cc ON cc.course = c.id
+							WHERE c.visible=1 AND c.category > 0 AND c.timecreated BETWEEN $fromdate AND $todate
+                                                        ORDER BY c.timecreated DESC";
+
+        $coursestats = $DB->get_records_sql($sql);
+        return $coursestats;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($coursestats) {
+        $chartdetails = array();
+        foreach ($coursestats as $key => $value) {
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            if ($value->completed == "") {
+                $value->completed = 0;
+            }
+            if ($value->learners == "") {
+                $value->learners = 0;
+            }
+            if ($value->modules == "") {
+                $value->modules = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->course . '"' . ',' . $value->learners . ',' . $value->modules . ',' . $value->completed . ',' . $value->grade . ',' . '"' . date("Y-m-d", $value->created) . '"' . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course name'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'# of Enrolled Learners'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# of Modules'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'# of Learners Completed Course'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Score'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'string'";
+        $header6->name = "'Date Created'";
+        $headers[] = $header6;
+        return $headers;
+    }
+
+}
+
+class progress_by_learner {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $learnerprogress = $this->get_learner_progress($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($learnerprogress);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_learner_progress($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+				SQL_CALC_FOUND_ROWS DISTINCT u.id,
+				CONCAT(u.firstname, ' ', u.lastname) as learner,
+				u.email,
+				u.timecreated as registered,
+				ue.courses,
+				round(gc.grade, 2) as grade,
+				cm.completed_courses,
+				cmc.completed_activities
+				FROM mdl_role_assignments ra, mdl_user as u
+					LEFT JOIN (SELECT ue.userid, count(DISTINCT e.courseid) as courses FROM mdl_user_enrolments ue, mdl_enrol e WHERE e.id = ue.enrolid AND ue.status = 0 and e.status = 0 
+                               GROUP BY ue.userid) as ue ON ue.userid = u.id
+					LEFT JOIN (SELECT userid, count(id) as completed_courses FROM mdl_course_completions cc WHERE timecompleted > 0 GROUP BY userid) as cm ON cm.userid = u.id
+					LEFT JOIN (SELECT g.userid, AVG( (g.finalgrade/g.rawgrademax)*100) AS grade FROM mdl_grade_items gi, mdl_grade_grades g WHERE gi.itemtype = 'course' AND g.itemid = gi.id AND g.finalgrade IS NOT NULL GROUP BY g.userid) as gc ON gc.userid = u.id
+					LEFT JOIN (SELECT cmc.userid, count(cmc.id) as completed_activities FROM mdl_course_modules cm, mdl_course_modules_completion cmc WHERE cmc.coursemoduleid = cm.id AND cm.visible = 1 AND cmc.completionstate = 1 GROUP BY cmc.userid) as cmc ON cmc.userid = u.id
+					WHERE ra.roleid IN (5) AND u.id = ra.userid AND u.deleted = 0 AND u.suspended = 0 AND u.timecreated BETWEEN $fromdate AND $todate
+                                        ORDER BY u.timecreated DESC";
+
+        $learnerprogress = $DB->get_records_sql($sql);
+        return $learnerprogress;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($learnerprogress) {
+        $chartdetails = array();
+        foreach ($learnerprogress as $key => $value) {
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            if ($value->courses == "") {
+                $value->courses = 0;
+            }
+            if ($value->completed_courses == "") {
+                $value->completed_courses = 0;
+            }
+            if ($value->completed_activities == "") {
+                $value->completed_activities = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->learner . '"' . ',' . '"' . $value->email . '"' . ',' . '"' . date("Y-m-d", $value->registered) . '"' . ',' . $value->courses . ',' . $value->completed_activities . ',' . $value->completed_courses . ',' . $value->grade . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Learner'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Email'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Registered'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'# of courses'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Completed Activities'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Completed Courses'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'number'";
+        $header7->name = "'Score'";
+        $headers[] = $header7;
+        return $headers;
+    }
+
+}
+
+class teaching_performance {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $teacherperformance = $this->get_teaching_performance($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($teacherperformance);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_teaching_performance($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+					SQL_CALC_FOUND_ROWS u.id,
+					CONCAT(u.firstname, ' ', u.lastname) teacher,
+					count(ue.courseid) as courses,
+					sum(l.learners) as learners,
+					sum(ls.learners) as activelearners,
+					sum(c.completed) as completedlearners,
+					AVG( g.grade ) AS grade
+				FROM
+					(" . getUsersEnrolsSql(explode(",", 3)) . ") as ue
+					LEFT JOIN {$CFG->prefix}user as u ON u.id = ue.userid
+					LEFT JOIN (" . getCourseLearnersSql() . ") l ON l.courseid = ue.courseid
+					LEFT JOIN (" . getCourseLearnersSql('learners', strtotime('-30 days'), time()) . ") ls ON ls.courseid = ue.courseid
+					LEFT JOIN (" . getCourseCompletedSql() . ") c ON c.course = ue.courseid
+					LEFT JOIN (" . getCourseGradeSql() . ") g ON g.courseid = ue.courseid
+                                        WHERE ue.timecreated BETWEEN $fromdate AND $todate GROUP BY u.id
+                                        ORDER BY ue.timecreated DESC";
+
+        $teacherperformance = $DB->get_records_sql($sql);
+        return $teacherperformance;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($teacherperformance) {
+        $chartdetails = array();
+        foreach ($teacherperformance as $key => $value) {
+            if ($value->courses == "") {
+                $value->courses = 0;
+            }
+            if ($value->learners == "") {
+                $value->learners = 0;
+            }
+            if ($value->activelearners == "") {
+                $value->activelearners = 0;
+            }
+            if ($value->completedlearners == "") {
+                $value->completedlearners = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->teacher . '"' . ',' . $value->courses . ',' . $value->learners . ',' . $value->activelearners . ',' . $value->completedlearners . ',' . $value->grade . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Teacher'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'# of courses'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# of students enrolled'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'# of active students within the last 30 days'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'# of students completed courses'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Average grade for all courses'";
+        $headers[] = $header6;
+        return $headers;
+    }
+
+}
+
+class activity_stats {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $activitystats = $this->get_activity_stats($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($activitystats);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_activity_stats($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+		SQL_CALC_FOUND_ROWS cm.id,
+		m.name AS module,
+		m.name AS moduletype,
+		cm.added,
+		cm.completion,
+		cmc.completed,
+		gc.grade
+		FROM {$CFG->prefix}course_modules cm
+		LEFT JOIN {$CFG->prefix}modules m ON m.id = cm.module
+		LEFT JOIN (SELECT coursemoduleid, COUNT(DISTINCT(id)) AS completed FROM `{$CFG->prefix}course_modules_completion` GROUP BY coursemoduleid) cmc ON cmc.coursemoduleid = cm.id
+                LEFT JOIN (SELECT gi.iteminstance, gi.itemmodule, AVG( (g.finalgrade/g.rawgrademax)*100 ) AS grade FROM {$CFG->prefix}grade_items gi, {$CFG->prefix}grade_grades g WHERE gi.itemtype = 'mod' AND g.itemid = gi.id AND g.finalgrade IS NOT NULL GROUP BY gi.iteminstance, gi.itemmodule) as gc ON gc.itemmodule = m.name AND gc.iteminstance = cm.instance
+		WHERE cm.visible = 1 AND cm.added BETWEEN $fromdate AND $todate GROUP BY cm.id";
+
+        $activitystats = $DB->get_records_sql($sql);
+        return $activitystats;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($activitystats) {
+        $chartdetails = array();
+        foreach ($activitystats as $key => $value) {
+            if ($value->completed == "") {
+                $value->completed = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->module . '"' . ',' . '"' . $value->moduletype . '"' . ',' . $value->completed . ',' . $value->grade . ',' . '"' . date("Y-m-d", $value->added) . '"' . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Activity'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Type'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'# Of Learners Completed This Activity'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Average Score'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'Created'";
+        $headers[] = $header5;
+        return $headers;
+    }
+
+}
+
+class course_progress {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $courseprogress = $this->get_course_progress($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($courseprogress);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_course_progress($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+					SQL_CALC_FOUND_ROWS ue.id, ue.userid,
+					((cmca.cmcnuma / cma.cmnuma)*100 ) as assignments,
+					((cmc.cmcnums / cmx.cmnumx)*100 ) as participations,
+					cma.cmnuma as assigns,
+					gc.grade,
+					c.fullname as course,
+					CONCAT( u.firstname, ' ', u.lastname ) AS learner
+						FROM (" . getUsersEnrolsSql() . ") as ue
+							LEFT JOIN {$CFG->prefix}user u ON u.id = ue.userid
+							LEFT JOIN {$CFG->prefix}course c ON c.id = ue.courseid
+							LEFT JOIN (SELECT cv.course, count(cv.id) as cmnums FROM {$CFG->prefix}course_modules cv WHERE cv.visible = 1 GROUP BY cv.course) as cm ON cm.course = c.id
+							LEFT JOIN (SELECT cv.course, count(cv.id) as cmnumx FROM {$CFG->prefix}course_modules cv WHERE cv.visible = 1 and cv.completion = 1 GROUP BY cv.course) as cmx ON cmx.course = c.id
+							LEFT JOIN (SELECT cv.course, count(cv.id) as cmnuma FROM {$CFG->prefix}course_modules cv WHERE cv.visible = 1 and cv.module = 1 GROUP BY cv.course) as cma ON cma.course = c.id
+							LEFT JOIN (SELECT cm.course, cmc.userid, count(cmc.id) as cmcnums FROM {$CFG->prefix}course_modules cm, {$CFG->prefix}course_modules_completion cmc WHERE cmc.coursemoduleid = cm.id AND cm.visible  =  1 AND cmc.completionstate = 1 GROUP BY cm.course, cmc.userid) as cmc ON cmc.course = c.id AND cmc.userid = u.id
+							LEFT JOIN (SELECT cm.course, cmc.userid, count(cmc.id) as cmcnuma FROM {$CFG->prefix}course_modules cm, {$CFG->prefix}course_modules_completion cmc WHERE cmc.coursemoduleid = cm.id AND cm.module = 1 AND cm.visible  =  1 AND cmc.completionstate = 1 GROUP BY cm.course, cmc.userid) as cmca ON cmca.course = c.id AND cmca.userid = u.id
+							LEFT JOIN (" . getCourseUserGradeSql() . ") as gc ON gc.courseid = c.id AND gc.userid = u.id
+								WHERE u.deleted = 0 AND u.suspended = 0 AND ue.timecreated BETWEEN $fromdate AND $todate GROUP BY ue.userid, ue.courseid";
+
+        $courseprogress = $DB->get_records_sql($sql);
+        return $courseprogress;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($courseprogress) {
+        $chartdetails = array();
+        foreach ($courseprogress as $key => $value) {
+            if ($value->assignments == "") {
+                $value->assignments = 0;
+            }
+            if ($value->participations == "") {
+                $value->participations = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            $chartdetails[] = '[' . '"' . $value->learner . '"' . ',' . '"' . $value->course . '"' . ',' . $value->participations . ',' . $value->assignments . ',' . $value->grade . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Learner'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Course'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'Participations'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Assignments'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Current Score'";
+        $headers[] = $header5;
+        return $headers;
+    }
+
+}
+
+class learner_progress_by_course {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $learnerprogress = $this->get_learner_progress($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($learnerprogress);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_learner_progress($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+			SQL_CALC_FOUND_ROWS ue.id,
+			cri.gradepass,
+			ue.userid,
+			ue.timecreated as started,
+			c.id as cid,
+			c.fullname,
+			git.average,
+			AVG((g.finalgrade/g.rawgrademax)*100) AS `grade`,
+			cmc.completed,
+			CONCAT(u.firstname, ' ', u.lastname) AS student,
+			c.enablecompletion,
+			cc.timecompleted as complete
+						FROM (" . getUsersEnrolsSql() . ") as ue
+							LEFT JOIN {$CFG->prefix}user as u ON u.id = ue.userid
+							LEFT JOIN {$CFG->prefix}course as c ON c.id = ue.courseid
+							LEFT JOIN {$CFG->prefix}course_completions as cc ON cc.course = ue.courseid AND cc.userid = ue.userid
+							LEFT JOIN {$CFG->prefix}course_completion_criteria as cri ON cri.course = ue.courseid AND cri.criteriatype = 6
+							LEFT JOIN {$CFG->prefix}grade_items gi ON gi.courseid = c.id AND gi.itemtype = 'course'
+							LEFT JOIN {$CFG->prefix}grade_grades g ON g.itemid = gi.id AND g.userid =u.id
+							LEFT JOIN (" . getCourseGradeSql('average') . ") git ON git.courseid=c.id
+							LEFT JOIN (SELECT cmc.userid, cm.course, COUNT(cmc.id) as completed FROM {$CFG->prefix}course_modules_completion cmc, {$CFG->prefix}course_modules cm WHERE cm.visible = 1 AND cmc.coursemoduleid = cm.id  AND cmc.completionstate = 1 GROUP BY cm.course, cmc.userid) cmc ON cmc.course = c.id AND cmc.userid = u.id
+								WHERE u.deleted = 0 AND u.suspended = 0 AND ue.timecreated BETWEEN $fromdate AND $todate GROUP BY ue.userid, ue.courseid";
+
+        $learnerprogress = $DB->get_records_sql($sql);
+        return $learnerprogress;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($courseprogress) {
+        $chartdetails = array();
+        foreach ($courseprogress as $key => $value) {
+            if ($value->completed == "") {
+                $value->completed = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            if ($value->enablecompletion == 0 && $value->complete == "") {
+                $value->complete = "Completion not enabled";
+            } elseif ($value->enablecompletion == 1 && $value->complete == "") {
+                $value->complete = 'Incomplete';
+            } else {
+                $value->complete = 'Completed';
+            }
+            $chartdetails[] = '[' . '"' . $value->student . '"' . ',' . '"' . $value->fullname . '"' . ',' . '"' . date("Y-m-d", $value->started) . '"' . ',' . $value->completed . ',' . round($value->grade, 2) . ',' . '"' . $value->complete . '"' . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Learner'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Course Name'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Started'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Completed Activities'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'Score'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'string'";
+        $header6->name = "'Status'";
+        $headers[] = $header6;
+        return $headers;
+    }
+
+}
+
+class quiz_grades {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $quizgrades = $this->get_quiz_grades($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($quizgrades);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_quiz_grades($fromdate, $todate) {
+        global $DB, $CFG;
+        $sql = "SELECT
+				SQL_CALC_FOUND_ROWS qa.id,
+				q.name,
+				q.course,
+				c.fullname,
+				qa.timestart,
+				qa.timefinish,
+				qa.state,
+				(qa.timefinish - qa.timestart) as duration,
+				(qa.sumgrades/q.sumgrades*100) as grade,
+				CONCAT(u.firstname, ' ', u.lastname) learner
+				FROM {$CFG->prefix}quiz_attempts qa
+					LEFT JOIN {$CFG->prefix}quiz q ON q.id = qa.quiz
+					LEFT JOIN {$CFG->prefix}user u ON u.id = qa.userid
+					LEFT JOIN {$CFG->prefix}course c ON c.id = q.course
+					LEFT JOIN {$CFG->prefix}context ctx ON ctx.instanceid = c.id
+					LEFT JOIN {$CFG->prefix}role_assignments ra ON ra.contextid = ctx.id AND ra.userid = u.id
+				WHERE ra.roleid  IN (5) and qa.timestart BETWEEN $fromdate AND $todate";
+
+        $quizgrades = $DB->get_records_sql($sql);
+        return $quizgrades;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($quizgrades) {
+        $chartdetails = array();
+        foreach ($quizgrades as $key => $value) {
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+            if ($value->state == "inprogress") {
+                $value->state = "In Progress";
+                $value->duration = "00:00:00";
+                $value->timefinish = "";
+            } else {
+                $value->duration = gmdate("H:i:s", $value->timefinish - $value->timestart);
+                $value->timefinish = date("Y-m-d", $value->timefinish);
+            }
+            $chartdetails[] = '[' . '"' . $value->name . '"' . ',' . '"' . $value->learner . '"' . ',' . '"' . $value->fullname . '"' . ',' . '"' . $value->state . '"' . ',' . '"' . date("Y-m-d", $value->timestart) . '"' . ',' . '"' . $value->timefinish . '"' . ',' . '"' . $value->duration . '"' . ',' . round($value->grade) . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Quiz name'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Learner'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Course name'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'string'";
+        $header4->name = "'Progress'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'Started on'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'string'";
+        $header6->name = "'Completed'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'string'";
+        $header7->name = "'Time taken'";
+        $headers[] = $header7;
+        $header8 = new stdclass();
+        $header8->type = "'number'";
+        $header8->name = "'Average Grade'";
+        $headers[] = $header8;
+        return $headers;
+    }
+
+}
+
+class quiz_attempts {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $quizattempts = $this->get_quiz_attempts($fromdate, $todate);
+
+        $interval = new DateInterval('P1D'); // 1 Day
+        $dateRange = new DatePeriod($params['fromdate'], $interval, $params['todate']);
+
+        $reportobj->data = $this->get_data($quizattempts);
+        $reportobj->headers = $this->get_headers();
+        $reportobj->charttype = $this->get_chart_types();
+    }
+
+    function get_quiz_attempts($fromdate, $todate) {
+        global $DB, $CFG;
+
+        $sql = "SELECT
+				SQL_CALC_FOUND_ROWS q.id,
+				q.name,
+				q.course,
+				c.fullname,
+				ql.questions,
+				q.timemodified,
+				q.timeopen,
+				q.timeclose,
+				qa.attempts,
+				qs.duration,
+				qg.grade
+			FROM {$CFG->prefix}quiz q
+				LEFT JOIN {$CFG->prefix}course c ON c.id = q.course
+				LEFT JOIN (SELECT quizid, count(*) questions FROM {$CFG->prefix}quiz_slots GROUP BY quizid) ql ON ql.quizid = q.id
+				LEFT JOIN (" . getQuizAttemptsSql() . ") qa ON qa.quiz = q.id
+				LEFT JOIN (" . getQuizAttemptsSql("duration") . ") qs ON qs.quiz = q.id
+				LEFT JOIN (" . getQuizAttemptsSql("grade") . ") qg ON qg.quiz = q.id
+			WHERE q.course > 0 AND q.timemodified BETWEEN $fromdate AND $todate GROUP BY q.id ORDER BY q.timemodified DESC";
+
+        $quizattempts = $DB->get_records_sql($sql);
+        return $quizattempts;
+    }
+
+    function get_axis_names() {
+        return '';
+    }
+
+    function get_data($quizattempts) {
+        $chartdetails = array();
+        foreach ($quizattempts as $key => $value) {
+            if ($value->questions == "") {
+                $value->questions = 0;
+            }
+            if ($value->attempts == "") {
+                $value->attempts = 0;
+            }
+            if ($value->grade == "") {
+                $value->grade = 0;
+            }
+//            if ($value->state == "inprogress") {
+//                $value->state = "In Progress";
+//                $value->duration = "00:00:00";
+//                $value->timefinish = "";
+//            } else {
+            $value->duration = gmdate("H:i:s", $value->duration);
+            $value->timemodified = date("Y-m-d", $value->timemodified);
+//            }
+            $chartdetails[] = '[' . '"' . $value->name . '"' . ',' . '"' . $value->course . '"' . ',' . $value->questions . ',' . $value->attempts . ',' . '"' . $value->duration . '"' . ',' . round($value->grade, 2) . ',' . '"' . $value->timemodified . '"' . ']';
+        }
+        return !empty($chartdetails) ? $chartdetails : '';
+    }
+
+    function get_headers() {
+        $headers = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Quiz name'";
+        $headers[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Course name'";
+        $headers[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'Total questions'";
+        $headers[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'Attempts'";
+        $headers[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'string'";
+        $header5->name = "'Total time spent'";
+        $headers[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'Average grade'";
+        $headers[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'string'";
+        $header7->name = "'Created'";
+        $headers[] = $header7;
+        return $headers;
+    }
+
+}
+
+class dashboardchart {
+
+    function get_chart_types() {
+        $chartoptions = 'LineChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata_month($reportobj, $param = array()) {
+        global $DB, $USER, $CFG;
+        //echo $param['endtime'];
+        $strendtime = $param['endtime'];
+        $endtime = date('d-m-Y', $param['endtime']);
+        // echo $endtime;
+        $starttime = strtotime('-3month', $param['endtime']);
+
+        $starttimemonth = date('m-Y', $starttime);
+        $firstdateofstartmonth = "01-" . $starttimemonth;
+        $strstarttime = ($firstdateofstartmonth);
+
+        $lastdate = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime('-3month', $param['endtime'])), date('Y', strtotime('-3month', $param['endtime'])));
+        //echo $lastdate;
+        //echo $fromtime;
+        $enroluser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%d-%M' ) as enrolment_date,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%M' ) as enrolment_month,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m-%Y' ) as enrolment_year FROM mdl_user WHERE  timecreated BETWEEN '" . $strstarttime . "' AND  '" . $strendtime . "'";
+        $enrol_user = $DB->get_records_sql($enroluser);
+        $completeuser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%d-%M' ) as completed_date,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%M' ) as completed_month,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m-%Y' ) as completed_year FROM mdl_course_completions WHERE  timecompleted BETWEEN '" . $strstarttime . "' AND  '" . $strendtime . "'";
+        // print_object($enrol_user);
+        $complete_user = $DB->get_records_sql($completeuser);
+        $montharray = array();
+
+        $montharray[] = date('M', $param['endtime']);
+        $montharray[] = date('M', strtotime('-1month', $param['endtime']));
+        $montharray[] = date('M', strtotime('-2month', $param['endtime']));
+        $montharray[] = date('M', strtotime('-3month', $param['endtime']));
+        $yeararray[] = date('m-Y', $param['endtime']);
+        $yeararray[] = date('m-Y', strtotime('-1month', $param['endtime']));
+        $yeararray[] = date('m-Y', strtotime('-2month', $param['endtime']));
+        $yeararray[] = date('m-Y', strtotime('-3month', $param['endtime']));
+
+        $montharray = array_unique($montharray);
+        $yeararray = array_unique($yeararray);
+
+        $midlastofmonth = array();
+        $arraytocombine = array();
+        for ($i = 0; $i < count($montharray); $i++) {
+            $lastdate = cal_days_in_month(CAL_GREGORIAN, substr($yeararray[$i], 0, 2), substr($yeararray[$i], 3));
+            $midlastofmonth[] = "$lastdate" . "-" . substr($yeararray[$i], 0, 2);
+            $midlastofmonth[] = "15-" . substr($yeararray[$i], 0, 2);
+            $arraytocombine[] = "$lastdate" . "-" . $montharray[$i];
+            $arraytocombine[] = "15-" . $montharray[$i];
+        }
+
+        $valuefinal = array();
+        $valuefinalcomplete = array();
+        // var_dump($midlastofmonth);
+        foreach ($midlastofmonth as $key => $value) {
+            // echo $value;
+
+            $count = 0;
+            $countcomplete = 0;
+            foreach ($enrol_user as $enrol) {
+                if (substr($value, 3) != substr($enrol->enrolment_year, 0, 2))
+                    continue;
+                if (substr($value, 0, 2) >= substr($enrol->enrolment_date, 0, 2)) {
+                    $count++;
+                }
+            }
+            foreach ($complete_user as $complete) {
+                if (substr($value, 3) != substr($complete->complete_year, 0, 2))
+                    continue;
+                if (substr($value, 0, 2) >= substr($complete->complete_date, 0, 2)) {
+                    $countcomplete++;
+                }
+            }
+            $valuefinal[] = $count;
+            $valuefinalcomplete[] = $countcomplete;
+        }
+        // var_dump($valuefinal);
+        for ($i = 0; $i < count($valuefinal); $i++) {
+            if ($i % 2 == 0) {
+                $valuefinal[$i] = $valuefinal[$i] - $valuefinal[$i + 1];
+            }
+        }
+        $noofenrolments = array_combine($arraytocombine, $valuefinal);
+        //var_dump($noofenrolments);
+        $json_noofenrolments = array();
+        $i = 0;
+        foreach ($noofenrolments as $key => $value) {
+            $json_noofenrolments[] = "['" . $key . "'," . $value . "," . $valuefinalcomplete[$i] . ']';
+            $i++;
+        }
+        krsort($json_noofenrolments);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->data = $json_noofenrolments;
+    }
+
+    function process_reportdata_daily($reportobj, $param = array()) {
+        global $DB, $USER, $CFG;
+        $fulldayname = array('Sun' => 'Sunday', 'Mon' => 'Monday', 'Tue' => 'Tuesday', 'Wed' => 'Wednesday', 'Thu' => 'Thursday', 'Fri' => 'Friday', 'Sat' => 'Saturday');
+        //echo $param['endtime'];
+        $strendtime = $param['endtime'];
+        $endtime = date('d-m-Y', $param['endtime']);
+        //   echo $endtime;
+        $starttime = strtotime('-6day', $param['endtime']);
+
+        $starttimemonth = date('d-m-Y', $starttime);
+
+        $enroluser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%d-%M' ) as enrolment_date,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%M' ) as enrolment_month,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m-%Y' ) as enrolment_year FROM mdl_user WHERE  timecreated BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $enrol_user = $DB->get_records_sql($enroluser);
+        $completeuser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%d-%M' ) as completed_date,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%M' ) as completed_month,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m-%Y' ) as completed_year FROM mdl_course_completions WHERE  timecompleted BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $complete_user = $DB->get_records_sql($completeuser);
+        // print_object($enrol_user);
+        $daymontharray = array();
+        $datemontharray = array();
+        $datemontharray[] = date('d', $param['endtime']);
+
+        for ($i = 1; $i <= 6; $i++) {
+            $datemontharray[] = date('d', strtotime('-' . $i . 'day', $param['endtime']));
+        }
+        //var_dump($datemontharray);
+        $daymontharray[] = $fulldayname[date('D', $param['endtime'])];
+        for ($i = 1; $i <= 6; $i++) {
+            $daymontharray[] = $fulldayname[date('D', strtotime('-' . $i . 'day', $param['endtime']))];
+        }
+        //var_dump($daymontharray);
+        $valuefinal = array();
+        $valuefinalcomplete = array();
+        foreach ($datemontharray as $key => $value) {
+            //echo $value;
+
+            $count = 0;
+            $countcomplete = 0;
+            foreach ($enrol_user as $enrol) {
+                if ($value == substr($enrol->enrolment_date, 0, 2)) {
+                    $count++;
+                }
+            }
+            foreach ($complete_user as $complete) {
+                if ($value == substr($complete->complete_date, 0, 2)) {
+                    $countcomplete++;
+                }
+            }
+            $valuefinal[] = $count;
+            $valuefinalcomplete[] = $countcomplete;
+        }
+        $noofenrolments = array_combine($daymontharray, $valuefinal);
+        //var_dump($noofenrolments);
+        $json_noofenrolments = array();
+        $i = 0;
+        foreach ($noofenrolments as $key => $value) {
+            $json_noofenrolments[] = "['" . $key . "'," . $value . ',' . $valuefinalcomplete[$i] . ']';
+            $i++;
+        }
+        krsort($json_noofenrolments);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->data = $json_noofenrolments;
+    }
+
+    function process_reportdata_week($reportobj, $param = array()) {
+
+        global $DB, $USER, $CFG;
+
+        $strendtime = $param['endtime'];
+        $endtime = date('d-m-Y', $param['endtime']);
+
+        $starttime = strtotime('-4week', $param['endtime']);
+
+        $starttimemonth = date('d-m-Y', $starttime);
+        $enroluser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m%d' ) as enrolment_date,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%M' ) as enrolment_month,DATE_FORMAT( FROM_UNIXTIME( timecreated ) ,  '%m-%Y' ) as enrolment_year FROM mdl_user WHERE  timecreated BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $enrol_user = $DB->get_records_sql($enroluser);
+        $completeuser = "SELECT id, DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m%d' ) as completed_date,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%M' ) as completed_month,DATE_FORMAT( FROM_UNIXTIME( timecompleted ) ,  '%m-%Y' ) as completed_year FROM mdl_course_completions WHERE  timecompleted BETWEEN '" . $starttime . "' AND  '" . $strendtime . "'";
+        $complete_user = $DB->get_records_sql($completeuser);
+        $daymontharray = array();
+        $datemontharray = array();
+        $datemontharray[] = date('md', $param['endtime']);
+
+        for ($i = 1; $i <= 3; $i++) {
+            $datemontharray[] = date('md', strtotime('-' . $i . 'week', $param['endtime']));
+        }
+        $daymontharray[] = date('d-M', $param['endtime']);
+        for ($i = 1; $i <= 3; $i++) {
+            $daymontharray[] = date('d-M', strtotime('-' . $i . 'week', $param['endtime']));
+        }
+        // var_dump($daymontharray);
+        for ($i = 0; $i < count($datemontharray); $i++) {
+
+            $count = 0;
+            $countcomplete = 0;
+            foreach ($enrol_user as $enrol) {
+
+                if ($i == (count($datemontharray) - 1)) {
+                    if ($datemontharray[$i] >= $enrol->enrolment_date) {
+                        $count++;
+                    }
+                } else {
+                    if (($datemontharray[$i] >= $enrol->enrolment_date) && ($datemontharray[$i + 1] <= $enrol->enrolment_date)) {
+                        $count++;
+                    }
+                }
+            }
+            foreach ($complete_user as $complete) {
+
+                if ($i == (count($datemontharray) - 1)) {
+                    if ($datemontharray[$i] >= $complete->complete_date) {
+                        $countcomplete++;
+                    }
+                } else {
+                    if (($datemontharray[$i] >= $complete->complete_date) && ($datemontharray[$i + 1] <= $complete->complete_date)) {
+                        $countcomplete++;
+                    }
+                }
+            }
+            $valuefinal[] = $count;
+            $valuefinalcomplete[] = $countcomplete;
+        }
+        //var_dump($valuefinal);
+
+        $noofenrolments = array_combine($daymontharray, $valuefinal);
+        // var_dump($noofenrolments);
+        $json_noofenrolments = array();
+        $i = 0;
+        foreach ($noofenrolments as $key => $value) {
+            $json_noofenrolments[] = "['" . $key . "'," . $value . ',' . $valuefinalcomplete[$i] . ']';
+            $i++;
+        }
+        krsort($json_noofenrolments);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+        $reportobj->data = $json_noofenrolments;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Time'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'User Enrol'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'Course Completion'";
+        $gradeheaders[] = $header3;
+        return $gradeheaders;
+    }
+
+}
+
+class enrolments_analytics {
+
+    function get_chart_types() {
+        $chartoptions = 'ColumnChart';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $param) {
+        global $DB, $USER, $CFG;
+        $registrantssql = "SELECT auth, COUNT(auth) AS Count FROM  `mdl_user` GROUP BY auth";
+        $enrolments = array('corplms_program' => 0, 'guest' => 0, 'manual' => 0, 'self' => 0);
+        $colour = array('lightblue', 'cyan', 'pink', 'blue');
+        $registrants = $DB->get_records_sql($registrantssql);
+        $json_registrants = array();
+        $typeenrol = array();
+        $count = array();
+        $registrant = array();
+
+        foreach ($registrants as $list) {
+            foreach ($enrolments as $key => $enrolment) {
+                if ($key == $list->auth) {
+                    $enrolments[$key] = $list->count;
+                }
+            }
+            // $typeenrol[] = $list->auth;
+            //$language[] = $language_codes[$var];
+            //$count[] = ($list->count);
+        }
+        //$registrant = array_combine($enrolments, $count);
+        $axis = $this->get_axis_names('ColumnChart');
+        $charttype = $this->get_chart_types();
+        $i = 0;
+        foreach ($registrant as $key => $value) {
+            
+        }
+        foreach ($enrolments as $key => $value) {
+            $json_registrants[] = "['" . ucfirst($key) . "'" . ',' . $value . ",'" . $colour[$i++] . "'],";
+        }
+
+        $reportobj->data = $json_registrants;
+        $reportobj->axis = $axis;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        return $gradeheaders;
+    }
+
+}
+
+class learner_progress {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_learnerprogress = array();
+        $json_learnerprogress = $this->get_learnerprogress_data($params);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_learnerprogress;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_learnerprogress_data($params) {
+        global $USER, $CFG, $DB;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+
+        $sql_filter = "";
+        $sql_join = "";
+        $WHERE = "";
+        if (!empty($params->courseid)) {
+            $sql_filter = isset($params->courseid) ? " AND c.id IN ($params->courseid) " : "";
+        }
+        $filterColumn = '';
+        if (!empty($fromdate) && !empty($todate)) {
+            $filterColumn = "ue.timecreated BETWEEN $fromdate AND $todate";
+        }
+        if ($sql_filter || $filterColumn) {
+            $WHERE = "WHERE $filterColumn $sql_filter";
+        }
+
+        $sql = "SELECT	SQL_CALC_FOUND_ROWS ue.id,
+			ue.timecreated as enrolled,
+			gc.grade,
+			c.enablecompletion,
+			cc.timecompleted as complete,
+			u.id as uid, u.email,
+			CONCAT(u.firstname, ' ', u.lastname) as name,
+			ue.enrols,
+			c.id as cid,
+			c.fullname as course,
+			c.timemodified as start_date
+			FROM (" . $this->getUsersEnrolsSql() . ") as ue
+			LEFT JOIN {user} as u ON u.id = ue.userid
+			LEFT JOIN {course} as c ON c.id = ue.courseid
+			LEFT JOIN {course_completions} as cc ON cc.course = ue.courseid AND cc.userid = ue.userid
+			LEFT JOIN (" . $this->getCourseUserGradeSql() . ") as gc ON gc.courseid = c.id AND gc.userid = u.id
+			$WHERE";
+        $data = $DB->get_records_sql($sql);
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $name = "'" . $value->name . "'";
+            $email = "'" . $value->email . "'";
+            $coursename = "'" . clean_param($value->course, PARAM_ALPHANUMEXT) . "'";
+            $enrolmethod = "'" . $value->enrols . "'";
+            $grade = !empty($value->grade) ? $value->grade : 0;
+            $status = isset($value->completed) ? "'Completed'" : "'Incompleted'";
+            $enrolledon = isset($value->start_date) ? userdate($value->start_date, get_string('strftimedate', 'langconfig')) : '-';
+            $complete = isset($value->completed) ? userdate($value->completed, get_string('strftimedate', 'langconfig')) : '-';
+            $json_data[] = "[" . $name . ',' . $email . ',' . $coursename . ',' . $enrolmethod . ',' . $grade . ',' . $status . ',' . "'" . $enrolledon . "'" . ',' . "'" . $complete . "'" . "]";
+        }
+        return $json_data;
+    }
+
+    function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+        global $CFG;
+        $this->learner_roles = '5';
+        if (empty($roles)) {
+            $roles = explode(",", $this->learner_roles);
+        }
+
+        $sql_filter = "";
+        if ($roles and $roles[0] != 0) {
+            $sql_roles = array();
+            foreach ($roles as $role) {
+                $sql_roles[] = "ra.roleid = $role";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+        }
+        if ($enrols) {
+            $sql_enrols = array();
+            foreach ($enrols as $enrol) {
+                $sql_enrols[] = "e.enrol = '$enrol'";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+        }
+
+        return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{user_enrolments} ue,
+						{enrol} e,
+						{role_assignments} ra,
+						{context} ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+    }
+
+    function getCourseUserGradeSql($grage = 'grade', $round = 0) {
+
+        global $CFG;
+
+        return "SELECT gi.courseid, g.userid, round(((g.finalgrade/g.rawgrademax)*100), $round) AS $grage
+				FROM
+					{grade_items} gi,
+					{grade_grades} g
+				WHERE
+					gi.itemtype = 'course' AND
+					g.itemid = gi.id
+				GROUP BY gi.courseid, g.userid";
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $headers = array();
+        $headers_names = array("'Learner'", "'Course name'", "'Email'", "'Enrolled methods'", "'Score'", "'Status'", "'Enrolled on'", "'Completed'");
+        $headers_type = array("'Learner'" => "'string'", "'Course name'" => "'string'", "'Email'" => "'string'", "'Enrolled methods'" => "'string'", "'Score'" => "'number'", "'Status'" => "'string'", "'Enrolled on'" => "'string'", "'Completed'" => "'string'",);
+        foreach ($headers_names as $key => $header) {
+            $head = new stdClass();
+            $head->type = $headers_type[$header];
+            $head->name = $header;
+            $headers[] = $head;
+        }
+        return $headers;
+    }
+
+}
+
+class student_performance {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_studentperformance = array();
+        $json_studentperformance = $this->get_studentperformance_data($params);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_studentperformance;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_studentperformance_data($params) {
+        global $DB;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $where = "";
+        if (!empty($fromdate) && !empty($todate)) {
+            $where = "AND ue.timecreated BETWEEN $fromdate AND $todate";
+        }
+        $sql_filter = "";
+//        if ($params->courseid) {
+//            $sql_filter = isset($params->courseid) ? " AND c.id IN ($params->courseid) " : "";
+//        }
+
+        $sql = "SELECT
+			SQL_CALC_FOUND_ROWS ue.id,
+			cri.gradepass,
+			ue.userid,
+			ue.timecreated as started,
+			c.id as cid,
+			c.fullname,
+			git.average,
+			AVG((g.finalgrade/g.rawgrademax)*100) AS grade,
+			cmc.completed,
+			CONCAT(u.firstname, ' ', u.lastname) AS student,
+			c.enablecompletion,
+			cc.timecompleted as complete
+						FROM (" . $this->getUsersEnrolsSql() . ") as ue
+							LEFT JOIN {user} as u ON u.id = ue.userid
+							LEFT JOIN {course} as c ON c.id = ue.courseid
+							LEFT JOIN {course_completions} as cc ON cc.course = ue.courseid AND cc.userid = ue.userid
+							LEFT JOIN {course_completion_criteria} as cri ON cri.course = ue.courseid AND cri.criteriatype = 6
+							LEFT JOIN {grade_items} gi ON gi.courseid = c.id AND gi.itemtype = 'course'
+							LEFT JOIN {grade_grades} g ON g.itemid = gi.id AND g.userid =u.id
+							LEFT JOIN (" . $this->getCourseGradeSql('average') . ") git ON git.courseid=c.id
+							LEFT JOIN (SELECT cmc.userid, cm.course, COUNT(cmc.id) as completed FROM {course_modules_completion} cmc, {course_modules} cm WHERE cm.visible = 1 AND cmc.coursemoduleid = cm.id  AND cmc.completionstate = 1 GROUP BY cm.course, cmc.userid) cmc ON cmc.course = c.id AND cmc.userid = u.id
+								WHERE u.deleted = 0 AND u.suspended = 0 $sql_filter $where GROUP BY ue.userid, ue.courseid";
+        $data = $DB->get_records_sql($sql);
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $name = "'" . $value->student . "'";
+            $coursename = "'" . clean_param($value->fullname, PARAM_ALPHANUMEXT) . "'";
+            $started = "'" . userdate($value->started, get_string('strftimedate', 'langconfig')) . "'";
+            $grade = !empty($value->grade) ? $value->grade : 0;
+            $completedact = !empty($value->completed) ? $value->completed : 0;
+            $status = isset($value->enablecompletion) ? (isset($value->complete) ? "'Completed'" : "'Incompleted'") : "'Completion not enabled'";
+            $enrolledon = isset($value->start_date) ? userdate($value->start_date, get_string('strftimedate', 'langconfig')) : '-';
+            $complete = isset($value->completed) ? userdate($value->completed, get_string('strftimedate', 'langconfig')) : '-';
+            $json_data[] = "[" . $name . ',' . $coursename . ',' . $started . ',' . $grade . ',' . $grade . ',' . $completedact . ',' . $grade . ',' . $status . "]";
+        }
+
+        return $json_data;
+    }
+
+    function getCourseGradeSql($grage = 'grade', $round = 0) {
+        global $CFG;
+
+        return "SELECT gi.courseid, round(avg((g.finalgrade/g.rawgrademax)*100), $round) AS $grage
+					FROM
+						{grade_items} gi,
+						{grade_grades} g
+					WHERE
+						gi.itemtype = 'course' AND
+						g.itemid = gi.id
+					GROUP BY gi.courseid";
+    }
+
+    function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+        global $CFG;
+        $this->learner_roles = '5';
+        if (empty($roles)) {
+            $roles = explode(",", $this->learner_roles);
+        }
+
+        $sql_filter = "";
+        if ($roles and $roles[0] != 0) {
+            $sql_roles = array();
+            foreach ($roles as $role) {
+                $sql_roles[] = "ra.roleid = $role";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+        }
+        if ($enrols) {
+            $sql_enrols = array();
+            foreach ($enrols as $enrol) {
+                $sql_enrols[] = "e.enrol = '$enrol'";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+        }
+
+        return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{user_enrolments} ue,
+						{enrol} e,
+						{role_assignments} ra,
+						{context} ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $headers = array();
+        $headers_names = array("'Learner'", "'Course name'", "'Started'", "'Progress'", "'Letter'", "'Completed Activities'", "'Score'", "'Status'");
+        $headers_type = array("'Learner'" => "'string'", "'Course name'" => "'string'", "'Started'" => "'string'", "'Progress'" => "'number'", "'Letter'" => "'number'", "'Completed Activities'" => "'number'", "'Score'" => "'number'", "'Status'" => "'string'");
+        foreach ($headers_names as $key => $header) {
+            $head = new stdClass();
+            $head->type = $headers_type[$header];
+            $head->name = $header;
+            $headers[] = $head;
+        }
+        return $headers;
+    }
+
+}
+
+class activity_progress {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_activityprogress = array();
+        $json_activityprogress = $this->get_activityprogress_data($params);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_activityprogress;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_activityprogress_data($params) {
+        global $DB, $CFG;
+        $sql_filter = '';
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        if (!empty($fromdate) && !empty($todate)) {
+            $sql_filter = " AND gg.timecreated BETWEEN $fromdate AND $todate";
+        }
+        $sql = "SELECT	SQL_CALC_FOUND_ROWS gg.id,
+					gi.itemname,
+					gg.userid,
+					u.email,
+					CONCAT(u.firstname, ' ', u.lastname) as learner,
+					gg.timemodified as graduated,
+					(gg.finalgrade/gg.rawgrademax)*100 as grade,
+					cm.completion,
+					cmc.completionstate
+						FROM {grade_grades} gg
+							LEFT JOIN {grade_items} gi ON gi.id=gg.itemid
+							LEFT JOIN {user} as u ON u.id = gg.userid
+							LEFT JOIN {modules} m ON m.name = gi.itemmodule
+							LEFT JOIN {course_modules} cm ON cm.instance = gi.iteminstance AND cm.module = m.id
+							LEFT JOIN {course} as c ON c.id=cm.course
+							LEFT JOIN {course_modules_completion} as cmc ON cmc.coursemoduleid = cm.id AND cmc.userid = u.id
+								WHERE gi.itemtype = 'mod' $sql_filter";
+
+        $data = $DB->get_records_sql($sql);
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $activity = !empty($value->itemname) ? "'$value->itemname'" : "'-'";
+            $learner = !empty($value->learner) ? "'$value->learner'" : "'-'";
+            $email = !empty($value->email) ? "'$value->email'" : "'-'";
+            $completedon = !empty($value->graduated) ? "'" . userdate($value->graduated, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
+            $score = !empty($value->grade) ? "$value->grade" : 0;
+            $status = !empty($value->completion) ? (!empty($value->completionstate) ? "'Completed'" : "'Not completed'") : "'Completion not enabled'";
+            $json_data[] = "[" . $activity . ',' . $learner . ',' . $email . ',' . $completedon . ',' . $score . ',' . $status . "]";
+        }
+        return $json_data;
+    }
+
+    function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+        global $CFG;
+        $this->learner_roles = '5';
+        if (empty($roles)) {
+            $roles = explode(",", $this->learner_roles);
+        }
+
+        $sql_filter = "";
+        if ($roles and $roles[0] != 0) {
+            $sql_roles = array();
+            foreach ($roles as $role) {
+                $sql_roles[] = "ra.roleid = $role";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+        }
+        if ($enrols) {
+            $sql_enrols = array();
+            foreach ($enrols as $enrol) {
+                $sql_enrols[] = "e.enrol = '$enrol'";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+        }
+
+        return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{user_enrolments} ue,
+						{enrol} e,
+						{role_assignments} ra,
+						{context} ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $headers = array();
+        $headers_names = array("'Activity'", "'Learner'", "'Email'", "'Completed On'", "'Score'", "'Status'");
+        $headers_type = array("'Activity'" => "'string'", "'Learner'" => "'string'", "'Email'" => "'string'", "'Completed On'" => "'string'", "'Score'" => "'number'", "'Status'" => "'string'");
+        foreach ($headers_names as $key => $header) {
+            $head = new stdClass();
+            $head->type = $headers_type[$header];
+            $head->name = $header;
+            $headers[] = $head;
+        }
+        return $headers;
+    }
+
+}
+
+class overdue_users {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER;
+        $json_overdueusers = array();
+        $json_overdueusers = $this->get_overdueusers_data($params);
+
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_overdueusers;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_overdueusers_data($params) {
+        global $DB;
+        $sql_filter = '';
+        if (!empty($params->date_from) && !empty($params->to_from)) {
+            $sql_filter = " AND gg.timecreated BETWEEN $params->date_from AND $params->to_from";
+        }
+        $sql = "SELECT
+					SQL_CALC_FOUND_ROWS ue.id,
+					ue.timecreated as enrolled,
+					cc.timecompleted as complete,
+					(g.finalgrade/g.rawgrademax)*100 AS grade,
+					u.id as uid,
+					u.email,
+					CONCAT(u.firstname, ' ', u.lastname) learner,
+					c.id as cid,
+					c.enablecompletion,
+					c.fullname as course
+						FROM (" . $this->getUsersEnrolsSql() . ") as ue
+							LEFT JOIN {user} as u ON u.id = ue.userid
+							LEFT JOIN {course} as c ON c.id = ue.courseid
+							LEFT JOIN {course_completions} as cc ON cc.course = ue.courseid AND cc.userid = u.id
+							LEFT JOIN {grade_items} gi ON gi.courseid = ue.courseid AND gi.itemtype = 'course'
+							LEFT JOIN {grade_grades} g ON g.itemid = gi.id AND g.userid = u.id
+								WHERE u.deleted = 0 AND u.suspended = 0 $sql_filter";
+        $data = $DB->get_records_sql($sql);
+        $json_data = array();
+        foreach ($data as $key => $value) {
+            $course = !empty($value->course) ? "'" . clean_param($value->course, PARAM_ALPHANUMEXT) . "'" : "'-'";
+            $learner = !empty($value->learner) ? "'$value->learner'" : "'-'";
+            $email = !empty($value->email) ? "'$value->email'" : "'-'";
+            if (!empty($value->enablecompletion)) {
+                $completedon = !empty($value->complete) ? "'" . userdate($value->complete, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
+            } else {
+                $completedon = "'-'";
+            }
+            $score = !empty($value->grade) ? "$value->grade" : 0;
+            $status = !empty($value->enablecompletion) ? (!empty($value->complete) ? "'Completed'" : "'Not completed'") : "'Completion not enabled'";
+            $enrolledon = !empty($value->enrolled) ? "'" . userdate($value->enrolled, get_string('strftimedate', 'langconfig')) . "'" : "'-'";
+            $json_data[] = "[" . $learner . ',' . $course . ',' . $email . ',' . $enrolledon . ',' . $completedon . ',' . $score . ',' . $status . "]";
+        }
+        return $json_data;
+    }
+
+    function getUsersEnrolsSql($roles = array(), $enrols = array()) {
+        global $CFG;
+        $this->learner_roles = '5';
+        if (empty($roles)) {
+            $roles = explode(",", $this->learner_roles);
+        }
+
+        $sql_filter = "";
+        if ($roles and $roles[0] != 0) {
+            $sql_roles = array();
+            foreach ($roles as $role) {
+                $sql_roles[] = "ra.roleid = $role";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_roles) . ")";
+        }
+        if ($enrols) {
+            $sql_enrols = array();
+            foreach ($enrols as $enrol) {
+                $sql_enrols[] = "e.enrol = '$enrol'";
+            }
+            $sql_filter .= " AND (" . implode(" OR ", $sql_enrols) . ")";
+        }
+
+        return "SELECT ue.id, ra.roleid, e.courseid, ue.userid, ue.timecreated, GROUP_CONCAT( DISTINCT e.enrol) AS enrols
+					FROM
+						{user_enrolments} ue,
+						{enrol} e,
+						{role_assignments} ra,
+						{context} ctx
+					WHERE
+						e.id = ue.enrolid AND
+						ctx.instanceid = e.courseid AND
+						ra.contextid = ctx.id AND
+						ue.userid = ra.userid $sql_filter
+					GROUP BY e.courseid, ue.userid";
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $headers = array();
+        $headers_names = array("'Learner'", "'Course name'", "'Email'", "'Enrolled on'", "'Completed On'", "'Score'", "'Status'");
+        $headers_type = array("'Learner'" => "'string'", "'Course name'" => "'string'", "'Email'" => "'string'", "'Enrolled on'" => "'string'", "'Completed On'" => "'string'", "'Score'" => "'number'", "'Status'" => "'string'");
+        foreach ($headers_names as $key => $header) {
+            $head = new stdClass();
+            $head->type = $headers_type[$header];
+            $head->name = $header;
+            $headers[] = $head;
+        }
+        return $headers;
+    }
+
+}
+
+class forum_stats {
+
+    var $teacher_roles = 3;
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER, $CFG;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $json_forumstats = array();
+        // $activeips = array();
+        $forumstatssql = "SELECT SQL_CALC_FOUND_ROWS c.id,
+					c.fullname,
+					d.discussions,
+					p.posts,
+					COUNT(*) AS total,
+					(SELECT DISTINCT CONCAT(u.firstname,' ',u.lastname)
+					  FROM mdl_role_assignments AS ra
+					  JOIN mdl_user AS u ON ra.userid = u.id
+					  JOIN mdl_context AS ctx ON ctx.id = ra.contextid
+					  WHERE ra.roleid IN ($this->teacher_roles) AND ctx.instanceid = c.id AND ctx.contextlevel = 50 LIMIT 1) AS teacher
+						FROM mdl_course c
+							LEFT JOIN mdl_forum f ON f.course = c.id
+							LEFT JOIN (SELECT course, count(*) discussions FROM mdl_forum_discussions group by course) d ON d.course = c.id
+							LEFT JOIN (SELECT fd.course, count(*) posts FROM mdl_forum_discussions fd, mdl_forum_posts fp WHERE fp.discussion = fd.id group by fd.course) p ON p.course = c.id
+							WHERE c.visible = 1 AND c.timecreated BETWEEN " . $fromdate . " AND " . $todate . " GROUP BY f.course ";
+        $forumstats = $DB->get_records_sql($forumstatssql);
+        $headers = $this->get_headers();
+        foreach ($forumstats as $forumstat) {
+            if ($forumstat->id == SITEID)
+                continue;
+            $json_forumstats[] = '[' . '"' . CLEAN_PARAM($forumstat->fullname, PARAM_ALPHANUMEXT) . '"' . ',' . '"' . $this->check_value_teacher($forumstat->teacher) . '"' . ',' . $this->check_value($forumstat->total) . ',' . $this->check_value($forumstat->posts) . ',' . $this->check_value($forumstat->discussions) . ']';
+        }
+
+        $reportobj->data = $json_forumstats;
+        $charttype = $this->get_chart_types();
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course Name'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Teacher'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'No. of Forums'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'No. of Forum Posts'";
+        $gradeheaders[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'No. of Forum Discussions'";
+        $gradeheaders[] = $header5;
+        return $gradeheaders;
+    }
+
+    function check_value($string) {
+        return CLEAN_PARAM(is_null($string) ? '0' : $string, PARAM_ALPHANUMEXT);
+    }
+
+    function check_value_teacher($string) {
+        return str_replace("'", "", is_null($string) ? 'NOT ASSIGNED' : $string);
+    }
+
+}
+
+class activity_forum {
+
+    var $teacher_roles = 3;
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER, $CFG;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $json_forumactivity = array();
+        // $activeips = array();
+        $forumactivitysql = "SELECT SQL_CALC_FOUND_ROWS f.id as forum, c.id, c.fullname,f.name, f.type
+						,(SELECT COUNT(id) FROM mdl_forum_discussions AS fd WHERE f.id = fd.forum) AS Discussions
+						,(SELECT COUNT(DISTINCT fd.userid) FROM mdl_forum_discussions AS fd WHERE fd.forum = f.id) AS UniqueUsersDiscussions
+						,(SELECT COUNT(fp.id) FROM mdl_forum_discussions fd JOIN mdl_forum_posts AS fp ON fd.id = fp.discussion WHERE f.id = fd.forum) AS Posts
+						,(SELECT COUNT(DISTINCT fp.userid) FROM mdl_forum_discussions fd JOIN mdl_forum_posts AS fp ON fd.id = fp.discussion WHERE f.id = fd.forum) AS UniqueUsersPosts
+						,(SELECT COUNT( ra.userid ) AS Students
+						FROM mdl_role_assignments AS ra
+						JOIN mdl_context AS ctx ON ra.contextid = ctx.id
+						WHERE ra.roleid  IN (5)
+						AND ctx.instanceid = c.id
+						) AS StudentsCount
+						,(SELECT COUNT( ra.userid ) AS Teachers
+						FROM mdl_role_assignments AS ra
+						JOIN mdl_context AS ctx ON ra.contextid = ctx.id
+						WHERE ra.roleid IN (3)
+						AND ctx.instanceid = c.id
+						) AS teacherscount
+						,(SELECT COUNT( ra.userid ) AS Users
+						FROM mdl_role_assignments AS ra
+						JOIN mdl_context AS ctx ON ra.contextid = ctx.id
+						WHERE  ctx.instanceid = c.id
+						) AS UserCount
+						, (SELECT (UniqueUsersDiscussions / StudentsCount )) AS StudentDissUsage
+						, (SELECT (UniqueUsersPosts /StudentsCount)) AS StudentPostUsage
+						FROM mdl_forum AS f
+						JOIN mdl_course AS c ON f.course = c.id
+						WHERE c.id > 0";
+        $forumactivitys = $DB->get_records_sql($forumactivitysql);
+        // print_object($forumactivitys);
+        foreach ($forumactivitys as $forumactivity) {
+            if ($forumactivity->id == SITEID)
+                continue;
+            $json_forumactivity[] = '[' . '"' . str_replace("'", "", $forumactivity->fullname) . '"' . ',' . '"' . str_replace("'", "", $forumactivity->name) . '"' . ',' . '"' . str_replace("'", "", $forumactivity->type) . '"'
+                    . ',' . $this->check_value($forumactivity->discussions) . ',' . $this->check_value($forumactivity->uniqueusersdiscussions)
+                    . ',' . $this->check_value($forumactivity->posts) . ',' . $this->check_value($forumactivity->uniqueusersposts)
+                    . ',' . $this->check_value($forumactivity->studentscount) . ',' . $this->check_value($forumactivity->teacherscount)
+                    . ',' . $this->check_value($forumactivity->usercount) . ']';
+        }
+
+        $charttype = $this->get_chart_types();
+
+        $reportobj->data = $json_forumactivity;
+        $headers = $this->get_headers();
+        $charttype = $this->get_chart_types();
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Course Name'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Forum Name'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Forum Type'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'No. of Forum Discussions'";
+        $gradeheaders[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'No. of Unique User Discussion'";
+        $gradeheaders[] = $header5;
+        $header6 = new stdclass();
+        $header6->type = "'number'";
+        $header6->name = "'No. of Posts'";
+        $gradeheaders[] = $header6;
+        $header7 = new stdclass();
+        $header7->type = "'number'";
+        $header7->name = "'No. of Unique User Posts'";
+        $gradeheaders[] = $header7;
+        $header8 = new stdclass();
+        $header8->type = "'number'";
+        $header8->name = "'No. of Participating Learners'";
+        $gradeheaders[] = $header8;
+        $header9 = new stdclass();
+        $header9->type = "'number'";
+        $header9->name = "'No. of Participating Teachers'";
+        $gradeheaders[] = $header9;
+        $header10 = new stdclass();
+        $header10->type = "'number'";
+        $header10->name = "'No. of Unique Participating User'";
+        $gradeheaders[] = $header10;
+        return $gradeheaders;
+    }
+
+    function check_value($string) {
+        return CLEAN_PARAM(is_null($string) ? '0' : $string, PARAM_ALPHANUMEXT);
+    }
+
+}
+
+class forum_discussions {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER, $CFG;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $json_forumdiscussion = array();
+        // $activeips = array();
+        $forumdiscussionsql = "SELECT  fp.id as id, c.id as courseid,c.fullname AS course, CONCAT( u.firstname,  ' ', u.lastname ) AS user, f.name, COUNT( fp.id ) AS posts, fpl.created
+FROM mdl_forum_discussions fd
+LEFT JOIN mdl_course c ON c.id = fd.course
+LEFT JOIN mdl_forum f ON f.id = fd.forum
+LEFT JOIN mdl_forum_posts fp ON fp.discussion = fd.id
+LEFT JOIN mdl_user u ON u.id = fp.userid
+LEFT JOIN mdl_forum_posts AS fpl ON fpl.id = ( 
+SELECT MAX( fdx.id ) 
+FROM mdl_forum_posts fpx, mdl_forum_discussions fdx
+WHERE fpx.discussion = fdx.id
+AND fdx.forum = fd.forum
+AND fpx.userid = fpl.userid ) 
+WHERE f.id >0 AND fd.timemodified BETWEEN " . $fromdate . " AND " . $todate . " GROUP BY u.id, f.id ";
+        $forumdiscussions = $DB->get_records_sql($forumdiscussionsql);
+        $noofdiscussionsql = "select  course,count( course) as count from mdl_forum_discussions group by course";
+        $noofdiscussions = $DB->get_records_sql($noofdiscussionsql);
+        $headers = $this->get_headers();
+        foreach ($forumdiscussions as $forumdiscussion) {
+            $totaldiscussion = 0;
+            foreach ($noofdiscussions as $noofdiscussion) {
+                if ($forumdiscussion->courseid == $noofdiscussion->course) {
+                    $totaldiscussion = $noofdiscussion->count;
+                }
+            }
+            $json_forumdiscussion[] = '[' . '"' . $forumdiscussion->name . '"' . ',' . '"' . $forumdiscussion->user . '"' . ',' . '"' . $forumdiscussion->course . '"' . ',' . $totaldiscussion . ',' . $forumdiscussion->posts . ']';
+        }
+
+        $reportobj->data = $json_forumdiscussion;
+        $charttype = $this->get_chart_types();
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Forum Name'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'string'";
+        $header2->name = "'Learner'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'string'";
+        $header3->name = "'Course'";
+        $gradeheaders[] = $header3;
+        $header4 = new stdclass();
+        $header4->type = "'number'";
+        $header4->name = "'No. of discussions'";
+        $gradeheaders[] = $header4;
+        $header5 = new stdclass();
+        $header5->type = "'number'";
+        $header5->name = "'No. of Posts'";
+        $gradeheaders[] = $header5;
+        return $gradeheaders;
+    }
+
+}
+
+class enrolment_method {
+
+    function get_chart_types() {
+        $chartoptions = 'Table';
+        return $chartoptions;
+    }
+
+    function process_reportdata($reportobj, $params = array()) {
+        global $DB, $USER, $CFG;
+        $fromdate = $params['fromdate']->format('U');
+        $todate = $params['todate']->format('U') + DAYSECS;
+        $json_enrolusers = array();
+
+        // $activeips = array();
+        $activeipsql = "SELECT  en.enrol , count(en.enrol) as number_of_user, count(distinct en.courseid) as number_of_courses FROM  mdl_enrol as en , mdl_user_enrolments as uen WHERE en.id = uen.enrolid AND uen.timestart BETWEEN " . $fromdate . " AND  " . $todate . " group by en.enrol";
+        $activeips = $DB->get_records_sql($activeipsql);
+
+        foreach ($activeips as $activeip) {
+            $json_enrolusers[] = '[' . '"' . $activeip->enrol . '"' . ',' . $activeip->number_of_courses . ',' . $activeip->number_of_user . ']';
+        }
+        $charttype = $this->get_chart_types();
+        $headers = $this->get_headers();
+
+        $reportobj->data = $json_enrolusers;
+        $reportobj->headers = $headers;
+        $reportobj->charttype = $charttype;
+    }
+
+    function get_axis_names($reportname) {
+        $axis = new stdClass();
+        return $axis;
+    }
+
+    function get_headers() {
+        $gradeheaders = array();
+        $header1 = new stdclass();
+        $header1->type = "'string'";
+        $header1->name = "'Enrolment Method'";
+        $gradeheaders[] = $header1;
+        $header2 = new stdclass();
+        $header2->type = "'number'";
+        $header2->name = "'Number of Course Use This Enrolment'";
+        $gradeheaders[] = $header2;
+        $header3 = new stdclass();
+        $header3->type = "'number'";
+        $header3->name = "'Number of Enroled Learners'";
+        $gradeheaders[] = $header3;
+        return $gradeheaders;
     }
 
 }

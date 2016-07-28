@@ -44,7 +44,9 @@ $THEME->sheets = array(
     'corplms_jquery_ui_dialog',
     'corplms',
     'css3',     // Sets up CSS 3 + browser specific styles.
-    'badges'    // Remove in t2-integration as not needed.
+    'badges',    // Remove in t2-integration as not needed.
+	'font-awesome.min',
+	'font-awesome'
 );
 
 $THEME->layouts = array(
