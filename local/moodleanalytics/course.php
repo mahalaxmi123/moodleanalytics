@@ -135,9 +135,9 @@ $formcontent2 = "";
         'packages':['corechart','geochart','line','table']
         }]
 }"></script>
-
-<div id="Coursedasboard-Page">
-    <div class="row">
+ <div class="row">
+	<div id="Coursedasboard-Page">
+    
         <div class="coursebar row-fluid">
             <div class="left-Coursebar-total span8"> 
                 <p class="left-Coursebar-total-border">138<br/><span class="coursebar-box">Total</span></p>

@@ -62,11 +62,11 @@ $reportobj3->process_reportdata($reportobj3, $params);
         'packages':['corechart','geochart', 'table']
         }]
 }"></script>
-<div id="Load-page">
-     <div class="row">
-		 <div class="performance row-fluid">
+<div class="row">
+	<div id="Load-page">
+	 	<div class="performance row-fluid">
      		<div class="Performance-total ">
-            	<h3>Size On Disk</h3>
+            	<h3 class="Performance-tota-header">Size On Disk</h3>
                 <p>931.8<span style="font-size:16px; font-weight: bold">MB</span><br/><span style="font-size:16px; font-weight: bold;">Total</span></p>
                 <p>619.5<span style="font-size:16px; font-weight: bold">MB</span><br/><span style="font-size:16px; font-weight: bold;">Courses</span></p>
                 <p>109.5<span style="font-size:16px; font-weight: bold">MB</span><br/><span style="font-size:16px; font-weight: bold;">Users</span></p>

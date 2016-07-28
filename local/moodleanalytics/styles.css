@@ -1,32 +1,20 @@
 body{
-   background: rgba(255,255,255,1);
    background-color:rgba(255,255,255,1);
 }
 
 h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	color: #6e8090;
-	}
-        
-#page-local-moodleanalytics-dashboard .row {
-   margin-left: -30px !important; padding: 10px; 
 }
-
-
-
-/* Header Css Start */
-	.pagelayout-admin .navbar { margin-bottom: 0px !important;}
-	#page-header { margin: 30px;}
-
-/* Header Css End */
-.breadcrumb-nav li {
-    display: inline;
-    font-weight: bold;
-    font-size: 16px;
+        
+#page-local-moodleanalytics-dashboard .row, #page-local-moodleanalytics-course .row, #page-local-moodleanalytics-performance .row, #page-local-moodleanalytics-learner .row{
+	padding: 10px;
 }
 
 /*Information-block Css Start */
+.Information-block {
+ 	float: right;
+}
 
-.Information-block { float: right;}
 .col-md-3, .col-sm-12, .col-xs-12 {
 	position: relative;
     min-height: 1px;
@@ -52,8 +40,18 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     font-size: 30px;
     color: #fff;
 }
-	
-	
+
+.info-box i {
+	display: block;
+    height: 100px;
+    font-size: 60px;
+    line-height: 100px;
+    width: 100px;
+    float: left;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+}
+
 .blue-bg { 
 	color: #fff;  
     background-color: #5aa0a2;
@@ -68,7 +66,6 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     color: #fff;
 	background-color: #a6adb2;
 }
-
 /*Information-block Css End */
 
 /*Groupbutton Css Start */
@@ -77,37 +74,66 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	margin-top:10px;
 }
 
-.btn-group>.btn+.btn { margin-left:4px !important;} 
+.btn-group>.btn+.btn { 
+	margin-left:4px !important;
+}
+ 
 .btn-group .btn-primary { 
     background-color: #224761; 
     color:#fff; 
     background-image: none; 
     box-shadow: inset 0 1px 0 rgba(46, 83, 109, 0.35),0 1px 2px rgba(0,0,0,0.05);
 }
-.btn-group .btn-primary:hover,.btn-group .btn-primary:active  {background-color: #5e849e;}
 
-
-
+.btn-group .btn-primary:hover,.btn-group .btn-primary:active{
+	background-color: #5e849e;
+}
 /*Groupbutton Css End */
 
-/*Section-First Css Start */
-/*Section-First Css End*/	
-    #Section-First { margin-top:30px;}
-    #Section-First .span3 {margin-left: 10px;  margin-top: 30px;}
-    #Section-First .span3 caption { font-size: 14px; font-weight: bold; margin-bottom:0px; background-color: rgba(73, 116, 146, 0.88); color:#fff; padding: 3px;}
-    #Section-First .span3 .number {float: right;}
-    #Section-First .span3 td {padding:0px;}
-    #Section-First .span3 th {padding-left: 30px;}
-    #Section-First .span3 table { margin-bottom:30px;}
-    #Section-First .span9{ margin: 20px auto; padding-left: 60px;}
+/*Section-First Css Start */	
+#Section-First {
+	 margin-top:30px;
+}
 
+#Section-First .span3 {
+	margin-left: 10px;  margin-top: 30px;
+}
+
+#Section-First .span3 caption { 
+	font-size: 14px; 
+	font-weight: bold; 
+	margin-bottom:0px; 
+	background-color: rgba(73, 116, 146, 0.88); 
+	color:#fff; 
+	padding: 3px;
+}
+
+#Section-First .span3 .number {
+	float: right;
+}
+
+#Section-First .span3 td {
+	padding:0px;
+}
+
+#Section-First .span3 th {
+	padding-left: 30px;
+}
+
+#Section-First .span3 table {
+	margin-bottom:30px;
+}
+
+#Section-First .span9{ 
+	margin: 20px auto; padding-left: 60px;
+}
+/*Section-First Css End*/
 
 
 /*Mdlanalytics-total Css Start */
 .mdlanalytics-total {
-   margin: 50px auto;
-   box-sizing: border-box;
- 
+	margin: 50px auto;
+	box-sizing: border-box;
 }
 
 .mdlanalytics-total h3 {
@@ -123,7 +149,9 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     line-height: inherit;
 }
 
-.mdlanalytics-total .countitems{ margin-left: 0px !important;}
+.mdlanalytics-total .countitems{
+	margin-left: 0px !important;
+}
 	
 .mdlanalytics-total .count{
     width: 16%; 
@@ -148,6 +176,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 }
 /*Mdlanalytics-total Css End */
 
+
 /*Section-Second Css Start */
 #Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per, #first-block .languge-block,#first-block .Course-block, #IP-address .IP-block, #Learner-maincontent .unique_sessionsblock, #Learner-maincontent #registred-block, #register-content .registred-block,#register-bar .registerbar-content, #register-content .enrollanalytics-block {
   border: 1px solid #e6e9ed;
@@ -170,27 +199,24 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /*Section-third Css Start */
-
-#Section-third { margin-top: 30px;}
-#Section-third .register #countries { margin: auto; }
-
-/*Section-third Css End */
-.info-box i {
-	display: block;
-    height: 100px;
-    font-size: 60px;
-    line-height: 100px;
-    width: 100px;
-    float: left;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.75);
+#Section-third {
+	margin-top: 30px;
 }
+#Section-third .register #countries {
+	margin: auto; 
+}
+/*Section-third Css End */
+
 
 /*Performance-total Css Start */
 .Performance-total, .learner-total{
-    float: right;
-    width: 60%;
+	float: right;
+	width: 60%;
 	border: 1px solid  #E3E3E3;
+}
+
+.Performance-total .Performance-tota-header{
+	
 }
 
 .Performance-total h3 {
@@ -221,11 +247,25 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 
 /* Load page content Css Start */
-#IP-address { margin: 60px 0px;}
-.IP-address h3, #activeip {margin: 0px 60px;}
-#first-block {margin: 20px 0px; }
-.languge-block h3 { margin-left: 60px;}
-#languagesused { margin: 0px auto;} 
+#IP-address { 
+	margin: 60px 0px;
+}
+
+.IP-address h3, #activeip {
+	margin: 0px 60px;
+}
+
+#first-block {
+	margin: 20px 0px;
+}
+
+.languge-block h3 {
+	margin-left: 60px;
+}
+
+#languagesused {
+	margin: 0px auto;
+} 
 /* Load page content Css End */
 
 
@@ -234,11 +274,9 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	border: 1px solid  #E3E3E3;
 }
 
-	
 .left-Coursebar-total p, .learner-total p, .left-Learnerbar-total p {
     width: 25%;
 }
-
 
 .left-Coursebar-total p,.learner-total p, .Right-Coursebar-total p, .Performance-total p, .left-Learnerbar-total p, .Right-Learnerbar-total p {
 	font-size: 30px;
@@ -313,32 +351,31 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 /* Learners page content Css Start */
 #Learners-Page .learnerbar .learner-total{float:right;}
-#register-content,.coursebar, #register-bar, #enrollanalytics_content { margin-top:30px;}
+#register-content,#register-bar, #enrollanalytics_content { margin-top:30px;}
 .registerbar-content h2 { margin-top: 20px; text-align: center; color: #687272;}
 #nextbutton {padding: 0px 80px; display: block; margin-top: 30px;}
-#nextbutton .previous .arrow_text, #nextbutton .next .arrow_text  {float:left;
-    color: #224761;
-    font-family: Sans-serif;
-    font-size: 14px;
-    height: 46px;
+#nextbutton .previous .arrow_text, #nextbutton .next .arrow_text{
+    float: left;
+    font-size: 16px;
+	font-weight: bold;
     width: 120px;
     line-height: 48px;
     text-align: center;
-    border: 0;
-    transition: all 0.3s ease 0s;
+	transition: all 0.3s ease 0s;
 }
+
 #nextbutton .next .arrow_text {float:right;}
 #nextbutton .previous .arrow_text:hover,  #nextbutton .next .arrow_text:hover{width: 120px;}
 #nextbutton  .current .arrow_text {
-	margin-left: 32%; 
-	background-color:#428BCA;
-	height: 46px;
-    width: 120px;
-    display: inline-block;
+	margin-left: 32%;
+    padding: 10px;
+    background-color: #224761;
+ 	font-weight: bold;
+	display: inline-block;
     color: #fefefe;
-    text-align: center;
-    line-height: 48px;}
-#nextbutton  .current .arrow_text:hover{ background: #224761;}
+}
+
+#nextbutton  .current .arrow_text:hover{ background: #428BCA;}
 
 .learnerbar .learner-total .number, .left-Coursebar-total .Leftcoursebar-number, .Right-Coursebar-total .Rightcoursebar-number{ font-size:16px; font-weight: normal;}
 .left-Learnerbar-total .left-Learnerbar-total-text, .Right-Learnerbar-total .Right-Learnerbar-total-text{font-size:16px;}

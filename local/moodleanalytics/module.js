@@ -84,18 +84,21 @@ $(document).ready(function () {
         return false;
     });
 	
+
 	$('.textPrevious').hide();
-	$('.arrow_text').hover(function(){
+	$('#prev_arrow_text').hover(function(){
 			$('.fa-chevron-circle-left').hide();
 			$('.textPrevious').show();}, function(){
         	$('.fa-chevron-circle-left').show();
+			$('.textPrevious').hide();
 	});
 
 
 	$('.textNext').hide();
-		$('.arrow_text').hover(function(){
-				$('.fa-chevron-circle-right').hide();
-				$('.textNext').show();}, function(){
-				$('.fa-chevron-circle-right').show();
-		});
+	$('#next_arrow_text').hover(function(){
+		$('.fa-chevron-circle-right').hide();
+		$('.textNext').show();}, function(){
+		$('.fa-chevron-circle-right').show();
+		$('.textNext').hide();
 	});
+});

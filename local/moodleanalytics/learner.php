@@ -143,10 +143,9 @@ $reportobj4->process_reportdata($reportobj4, $params4);
         'packages':['corechart','geochart','line','table',annotationchart]
         }]
 }"></script>
-
-<div id="Learners-Page">
-    <div class="row">
-        <div class="learnerbar row-fluid">
+<div class="row">
+	<div id="Learners-Page">
+		<div class="learnerbar row-fluid">
             <div class="learner-total span8"> 
                 <p class="learner-total-border">643<br/><span style="font-size:16px; font-weight: bold;">Total</span></p>
                 <p class="learner-total-border">605<br/><span style="font-size:16px; font-weight: bold;">Registered</span></p>
@@ -231,9 +230,9 @@ $reportobj4->process_reportdata($reportobj4, $params4);
                 echo $content;
                 
 				echo '<div id="nextbutton">';
-					echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>Previous Month</span></a>';
+					echo '<a class="arrow_link previous" href="learner.php?view=previous&time=' . $time . '"title="previous"><span class="arrow_text" id="prev_arrow_text"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i><span class = "textPrevious">Previous Month</span></span></a>';
 						echo '<a class="arrow_link current" href="learner.php?view=current" title="current"><span class="arrow_text">Current Month </span></a>';
-						echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i><span class ="textNext">Next Month</span></span></a>';
+						echo '<a class="arrow_link next" href="learner.php?view=next&time=' . $time . '"title="next"><span class="arrow_text" id="next_arrow_text"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i><span class ="textNext">Next Month</span></span></a>';
 				echo '</div>';
 				
 				       $monthwithyear = monthname($_SESSION['current_month']);
