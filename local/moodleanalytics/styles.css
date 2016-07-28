@@ -129,7 +129,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
     width: 16%; 
     text-align: center;
 	border-right: 1px solid rgba(138, 132, 132, 0.1);
-    padding: 2px;
+    padding: 4px;
     float: left;    
     box-sizing: border-box;
 }
@@ -149,7 +149,6 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 /*Mdlanalytics-total Css End */
 
 /*Section-Second Css Start */
-#Section-Second .Enrollments-block {float:left;}
 #Section-Second .Enrollments-block, #Section-Second .participation,#Section-third .register, #Section-First, #course-mainpage, #enrolement-per, #first-block .languge-block,#first-block .Course-block, #IP-address .IP-block, #Learner-maincontent .unique_sessionsblock, #Learner-maincontent #registred-block, #register-content .registred-block,#register-bar .registerbar-content, #register-content .enrollanalytics-block {
   border: 1px solid #e6e9ed;
   box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.1);
@@ -165,7 +164,6 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 }
 
 #Section-Second .participation{
-    float:left;
     margin-left: 6px;
 }
 /*Section-Second Css Endt */
