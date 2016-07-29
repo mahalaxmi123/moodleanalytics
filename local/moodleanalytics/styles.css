@@ -109,6 +109,10 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	text-align: left;
 }
 
+#Section-First .span3 caption .caption-courseheader, #Section-First .span3 caption .caption-userheader{
+	margin-left:10px;
+}
+
 #Section-First .span3 .number {
 	float: right;
 }

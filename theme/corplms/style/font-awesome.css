@@ -212,7 +212,7 @@
 	
 .fa-graduation-cap:before{
 	content: "\f19d";
-	padding-left: 18px;
+	margin-left: 20px;
 	color: #fff;
 
 
@@ -220,7 +220,7 @@
 	
 .fa-user-plus:before{
 	content: "\f234";
-	padding-left: 18px;
+	margin-left: 20px;
 	color: #fff;
 }
 	

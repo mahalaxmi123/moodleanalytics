@@ -160,7 +160,7 @@ if ($view == 'daily') {
             <h3>Users Activity</h3>
             <div class="users span3">
                 <table style="width:100%">
-                    <caption><i class="fa fa-graduation-cap"></i>Course Completion</caption>
+                    <caption><i class="fa fa-graduation-cap"></i><span class="caption-courseheader">Course Completion</span></caption>
                     <tr>
                     <th class="">0</th> <td>Today</td>
                     <th>0</th> <td>This Week </td>
@@ -168,7 +168,7 @@ if ($view == 'daily') {
                 </table>
 
                 <table style="width:100%">
-       				<caption><i class="fa fa-user-plus"></i>User Enrolments</caption>
+       				<caption><i class="fa fa-user-plus"></i><span class="caption-userheader">User Enrolments</span></caption>
                     <tr>
                     <th>0</th> <td>Today</td>
                     <th>0</th> <td>This Week </td>
