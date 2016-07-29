@@ -106,6 +106,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	background-color: rgba(73, 116, 146, 0.88); 
 	color:#fff; 
 	padding: 3px;
+	text-align: left;
 }
 
 #Section-First .span3 .number {
@@ -215,10 +216,6 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	border: 1px solid  #E3E3E3;
 }
 
-.Performance-total .Performance-tota-header{
-	
-}
-
 .Performance-total h3 {
     width: 16%;
     font-weight: bold;
@@ -306,18 +303,53 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 	
 #Learners-Page .Learner  { margin-top: 30px;}
 
-.left-Coursebar-total .coursebar-box, .Right-Coursebar-total .coursebar-box{
-	font-size:20px; font-weight: normal; font-weight:bold;
-}
 
 .Right-Coursebar-total{
 	border: 1px solid  #E3E3E3;
 	float:right;
 } 
+
+.unique_sessionsblock input[type="text"]+input[type="submit"] , .unique_sessionsblock input[type="submit"], #course-mainpage .course-header input[type="text"]+input[type="submit"],
+#course-mainpage .course-header input[type="submit"], #enrolement-per .enrolement-headerpart input[type="text"]+input[type="submit"] , #enrolement-per .enrolement-headerpart input[type="submit"]  {
+    margin: 0 0 0 5px;
+	background-color: #224761;
+    background-image: none;
+    color: antiquewhite;
+    text-shadow: none;
+}
+
+.unique_sessionsblock input[type="text"]+input[type="submit"]:hover , .unique_sessionsblock input[type="submit"]:hover, #course-mainpage .course-header input[type="text"]+input[type="submit"]:hover, #course-mainpage .course-header input[type="submit"]:hover, #enrolement-per .enrolement-headerpart input[type="text"]+input[type="submit"]:hover , #enrolement-per .enrolement-headerpart input[type="submit"]:hover  {
+	background-color: rgba(73, 116, 146, 0.88);
+}
+
+
+.unique_sessionsblock input[type="text"], #course-mainpage .course-header input[type="text"], #enrolement-per .enrolement-headerpart input[type="text"] {
+	padding-left: 24px;
+	margin-left: 10px;
+}
 	
+.registerbar-content .monthandyear select+input[type="submit"] { 
+	margin: 0 0 0 5px;
+	background-color: #224761;
+    background-image: none;
+    color: antiquewhite;
+    text-shadow: none;
+	} 
+	
+.registerbar-content .monthandyear select+input[type="submit"]:hover{
+	  background-color: rgba(73, 116, 146, 0.88);
+}
+
+
 .left-Coursebar-total .left-Coursebar-total-border, .Right-Coursebar-total .Right-Coursebar-total-border, .left-Learnerbar-total .left-Learnerbar-total-border, .Right-Learnerbar-total .Right-Learnerbar-total-border, .learnerbar .learner-total-border{
 	border-right:1px solid #E3E3E3;
 }
+
+.Performance-total p> .number {  font-size:16px;} 
+
+.left-Coursebar-total p>.coursebar-box, .Right-Coursebar-total p> .coursebar-box, .left-Learnerbar-total p> .left-Learnerbar-total-text, .Right-Learnerbar-total p> .Right-Learnerbar-total-text , .learner-total p> .learner-total-number, .Performance-total p> .text{ font-size:20px;}
+
+
 
 .Right-Learnerbar-total .status{padding: 27px;}
 	
@@ -377,8 +409,6 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, dl, input, textarea{
 
 #nextbutton  .current .arrow_text:hover{ background: #428BCA;}
 
-.learnerbar .learner-total .number, .left-Coursebar-total .Leftcoursebar-number, .Right-Coursebar-total .Rightcoursebar-number{ font-size:16px; font-weight: normal;}
-.left-Learnerbar-total .left-Learnerbar-total-text, .Right-Learnerbar-total .Right-Learnerbar-total-text{font-size:16px;}
 
 
 /* Learners page content Css End */

@@ -147,10 +147,10 @@ $reportobj4->process_reportdata($reportobj4, $params4);
 	<div id="Learners-Page">
 		<div class="learnerbar row-fluid">
             <div class="learner-total span8"> 
-                <p class="learner-total-border">643<br/><span style="font-size:16px; font-weight: bold;">Total</span></p>
-                <p class="learner-total-border">605<br/><span style="font-size:16px; font-weight: bold;">Registered</span></p>
-                <p class="learner-total-border">5<br/><span style="font-size:16px; font-weight: bold;">Suspended</span></p>
-                <p>13<br/><span style="font-size:16px; font-weight: bold;">Deleted</span></p>
+                <p class="learner-total-border">643<br/><span class="learner-total-number">Total</span></p>
+                <p class="learner-total-border">605<br/><span class="learner-total-number">Registered</span></p>
+                <p class="learner-total-border">5<br/><span class="learner-total-number">Suspended</span></p>
+                <p>13<br/><span class="learner-total-number">Deleted</span></p>
             </div>		
         </div>	
  
