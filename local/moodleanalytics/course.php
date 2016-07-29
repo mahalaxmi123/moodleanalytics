@@ -10,6 +10,7 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/user/renderer.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
+require_once('lib.php');
 require_login();
 $courseid = optional_param('id', '', PARAM_INT);        // course id
 //$charttype = optional_param('type', '', PARAM_ALPHANUM);
